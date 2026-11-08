@@ -1,14 +1,14 @@
 /**
  * Build-time product offer resolver for Astro money pages.
  *
- * Data source = same engine as old WP:
- *   Python sync (Awin CSV) → products.db → (optional Turso) → this module
+ * Priority: Awin (tursoProductId / network) → Daisycon → Bol (manual partner.bol.com only).
  *
- * Plug order per ComparisonProduct:
- * 1. tursoProductId → products.id (live price + affiliate URL + shop)
- * 2. Same EAN → extra merchant offers (WC multi-buy)
- * 3. Manual Sanity fields (affiliateUrl / price / shop) as fallback
- * 4. Fixtures only when nothing else resolves (dev)
+ * Production (PROD / CF_PAGES / CI, and ALLOW_FIXTURES off):
+ * - No fuzzy name search
+ * - No fixture / example.com fallbacks
+ * - Each pick needs tursoProductId and/or affiliateUrl
+ *
+ * Local preview: ALLOW_FIXTURES=1 restores soft fallbacks for UI work.
  */
 
 import type { ComparisonProduct } from '../../types';
@@ -38,6 +38,47 @@ export interface ResolvedProduct extends ComparisonProduct {
   resolvedFromDb?: boolean;
   /** Affiliate-feed pack shot when present (products.image_url). */
   feedImageUrl?: string | null;
+  /** True when prod harden stripped commerce (no valid offers). */
+  commerceGap?: boolean;
+}
+
+const allowFixtures =
+  process.env.ALLOW_FIXTURES === '1' || process.env.ALLOW_FIXTURES === 'true';
+
+function isProdBuild(): boolean {
+  const viteProd =
+    typeof import.meta !== 'undefined' &&
+    Boolean((import.meta as ImportMeta & { env?: { PROD?: boolean } }).env?.PROD);
+  return (
+    viteProd ||
+    process.env.CF_PAGES === '1' ||
+    process.env.CI === 'true' ||
+    process.env.NODE_ENV === 'production'
+  );
+}
+
+function isFixtureHost(url: string): boolean {
+  try {
+    const host = new URL(url).hostname.replace(/^www\./, '');
+    return host === 'example.com' || host.endsWith('.example.com');
+  } catch {
+    return true;
+  }
+}
+
+function isBolPartnerUrl(url: string): boolean {
+  try {
+    const u = new URL(url);
+    const host = u.hostname.replace(/^www\./, '');
+    return host === 'partner.bol.com' || (host === 'bol.com' && u.pathname.includes('/click'));
+  } catch {
+    return false;
+  }
+}
+
+function looksLikeBolMerchant(product: ComparisonProduct): boolean {
+  const shop = (product.shop || '').toLowerCase();
+  return shop.includes('bol');
 }
 
 function fixtureOffersFor(product: ComparisonProduct): ProductOffer[] {
@@ -67,6 +108,22 @@ function dedupe(offers: ProductOffer[]): ProductOffer[] {
   });
 }
 
+/** Awin → Daisycon → other manual → Bol partner → fixtures. */
+function networkRank(offer: ProductOffer): number {
+  if (offer.source === 'awin') return 0;
+  if (offer.source === 'daisycon') return 1;
+  if (offer.source === 'manual') {
+    if (isBolPartnerUrl(offer.url)) return 40;
+    return 20;
+  }
+  if (offer.source === 'fixture') return 90;
+  return 30;
+}
+
+function sortByNetworkPriority(offers: ProductOffer[]): ProductOffer[] {
+  return [...offers].sort((a, b) => networkRank(a) - networkRank(b));
+}
+
 function offerFromRow(row: AffiliateProductRow): ProductOffer {
   const o = rowToOffer(row);
   return {
@@ -79,19 +136,62 @@ function offerFromRow(row: AffiliateProductRow): ProductOffer {
   };
 }
 
+function assertPointer(product: ComparisonProduct): boolean {
+  if (product.tursoProductId || product.affiliateUrl) return true;
+  const label = product.name || '(unnamed pick)';
+  if (allowFixtures) {
+    console.warn(`[thi-resolve] ${label}: no tursoProductId/affiliateUrl (fixtures allowed)`);
+    return false;
+  }
+  if (isProdBuild()) {
+    // Soft gap: article still ships; CTA omitted via commerceGap. Matrix is a follow-up.
+    console.warn(
+      `[thi-resolve] commerceGap — "${label}" has neither tursoProductId nor affiliateUrl.`,
+    );
+  }
+  return false;
+}
+
+function acceptManualUrl(product: ComparisonProduct, url: string): boolean {
+  if (isFixtureHost(url)) {
+    if (allowFixtures) return true;
+    if (isProdBuild()) {
+      console.warn(
+        `[thi-resolve] Rejecting fixture/example URL for "${product.name || '?'}": ${url}`,
+      );
+      return false;
+    }
+    return false;
+  }
+  // Bol merchant must use Partner deep link — not a bare bol.com PDP without partner click
+  if (looksLikeBolMerchant(product) || url.includes('bol.com')) {
+    if (isBolPartnerUrl(url)) return true;
+    if (allowFixtures) return true;
+    if (isProdBuild()) {
+      console.warn(
+        `[thi-resolve] Bol URL must be partner.bol.com for "${product.name || '?'}": ${url}`,
+      );
+      return false;
+    }
+  }
+  return true;
+}
+
 /**
- * Resolve offers for one Sanity comparison product.
+ * Resolve offers for one Sanity comparison product / honest-review synthetic.
  */
 export async function resolveProductOffers(product: ComparisonProduct): Promise<ProductOffer[]> {
+  const hasPointer = assertPointer(product);
+
   const offers: ProductOffer[] = [];
   let primary: AffiliateProductRow | null = null;
+  let dbError: string | null = null;
 
   try {
     if (product.tursoProductId) {
       primary = await getProductById(product.tursoProductId);
       if (primary) {
         offers.push(offerFromRow(primary));
-        // Cross-merchant via EAN (Wirecutter multi-buy)
         if (primary.ean) {
           const siblings = await getOffersByEan(primary.ean, 5);
           for (const s of siblings) {
@@ -99,23 +199,31 @@ export async function resolveProductOffers(product: ComparisonProduct): Promise<
             offers.push(offerFromRow(s));
           }
         }
+      } else if (isProdBuild() && !allowFixtures && !product.affiliateUrl) {
+        console.warn(
+          `[thi-resolve] commerceGap — tursoProductId=${product.tursoProductId} not in affiliate DB for "${product.name || '?'}".`,
+        );
       }
     }
 
-    // Soft fallback: search by product name if no ID linked yet
-    if (!primary && product.name && !product.affiliateUrl) {
+    // Fuzzy name search — local fixtures mode only
+    if (allowFixtures && !primary && product.name && !product.affiliateUrl) {
       const hits = await searchProducts(product.name, 3);
       for (const h of hits) offers.push(offerFromRow(h));
     }
-  } catch {
-    // Never break the Astro build
+  } catch (err) {
+    dbError = err instanceof Error ? err.message : String(err);
+    if (isProdBuild() && !allowFixtures) {
+      // Soft: one bad DB row must not blank the whole static site.
+      console.warn(`[thi-resolve] Affiliate DB error for "${product.name || '?'}": ${dbError}`);
+    }
   }
 
-  if (product.affiliateUrl) {
+  if (product.affiliateUrl && acceptManualUrl(product, product.affiliateUrl)) {
     const already = offers.some(o => o.url === product.affiliateUrl);
     if (!already) {
-      offers.unshift({
-        merchant: product.shop || 'Webshop',
+      offers.push({
+        merchant: product.shop || (isBolPartnerUrl(product.affiliateUrl) ? 'Bol.com' : 'Webshop'),
         price: product.price || '',
         url: product.affiliateUrl,
         currency: 'EUR',
@@ -124,19 +232,31 @@ export async function resolveProductOffers(product: ComparisonProduct): Promise<
     }
   }
 
-  if (offers.length === 0) {
+  if (offers.length === 0 && allowFixtures) {
     offers.push(...fixtureOffersFor(product));
-  } else {
-    // Don't mix fixtures when we have real feed data
   }
 
-  return dedupe(offers);
+  const cleaned = sortByNetworkPriority(
+    dedupe(offers).filter(o => {
+      if (o.source === 'fixture' && !allowFixtures) return false;
+      if (isFixtureHost(o.url) && !allowFixtures) return false;
+      return true;
+    }),
+  );
+
+  if (cleaned.length === 0 && isProdBuild() && !allowFixtures && hasPointer) {
+    console.warn(
+      `[thi-resolve] commerceGap — no valid offers for "${product.name || '?'}".`,
+    );
+  }
+
+  return cleaned;
 }
 
 /**
  * Resolve products and overlay live feed fields onto editorial Sanity data.
  * Editorial (name, rating, pros, verdict) stays from Sanity.
- * Commerce (price, shop, URL, image) prefers DB when tursoProductId is set.
+ * Commerce prefers DB when tursoProductId resolves (after network sort).
  */
 export async function resolveProducts(
   products: ComparisonProduct[],
@@ -145,9 +265,9 @@ export async function resolveProducts(
     products.map(async p => {
       const offers = await resolveProductOffers(p);
 
-      // Editorial alt merchants (demo / Sanity) — always merge after feed
       if (p.extraOffers?.length) {
         for (const x of p.extraOffers) {
+          if (!acceptManualUrl(p, x.url)) continue;
           offers.push({
             merchant: x.merchant,
             price: x.price,
@@ -157,7 +277,7 @@ export async function resolveProducts(
           });
         }
       }
-      const merged = dedupe(offers);
+      const merged = sortByNetworkPriority(dedupe(offers));
 
       let feedImageUrl: string | null = null;
       try {
@@ -166,21 +286,25 @@ export async function resolveProducts(
           if (row?.image_url) feedImageUrl = row.image_url;
         }
       } catch {
-        // never break build
+        if (isProdBuild() && !allowFixtures) {
+          /* already failed in resolveProductOffers on hard errors */
+        }
       }
 
       const primary = merged[0];
-      const fromDb = Boolean(p.tursoProductId && primary?.source === 'awin');
+      const fromDb = Boolean(
+        p.tursoProductId && (primary?.source === 'awin' || primary?.source === 'daisycon'),
+      );
 
       return {
         ...p,
-        // Overlay live commerce fields for templates that still read p.price / p.shop
         price: primary?.price || p.price,
         shop: primary?.merchant || p.shop,
         affiliateUrl: primary?.url || p.affiliateUrl,
         offers: merged,
         feedImageUrl,
         resolvedFromDb: fromDb,
+        commerceGap: merged.length === 0,
       };
     }),
   );
