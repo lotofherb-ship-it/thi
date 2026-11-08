@@ -67,6 +67,9 @@ const synthetic: ComparisonProduct = {
   rating: hr?.overallScore ? hr.overallScore / 2 : 0,
   imageUrl: hr?.imageUrl,
   tursoProductId: hr?.tursoProductId,
+  affiliateUrl: hr?.affiliateUrl,
+  shop: hr?.shop,
+  price: hr?.price,
 };
 const offers = await resolveProductOffers(synthetic);
 
