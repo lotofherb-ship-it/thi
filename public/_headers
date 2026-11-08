@@ -1,6 +1,9 @@
 # Preview / pre-cutover: keep *.pages.dev out of the index.
 # Remove (or scope) before custom-domain go-live when indexing should start.
+# Short HTML TTL so production deploys are not stuck behind week-long CDN HIT
+# for deleted fixture URLs (s-maxage=604800 was CF Pages default).
 /*
   X-Robots-Tag: noindex, nofollow
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
+  Cache-Control: public, max-age=0, must-revalidate

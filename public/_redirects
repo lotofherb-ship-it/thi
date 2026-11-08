@@ -402,3 +402,13 @@
 
 # --- Other ---
 
+
+# --- Retired fixture-only prototype URLs (not in Sanity production) ---
+/supplementen/mattisson-magnesium-bisglycinaat-review/  /supplementen/beste-magnesium-bisglycinaat/  301
+/supplementen/mattisson-magnesium-bisglycinaat-review  /supplementen/beste-magnesium-bisglycinaat/  301
+/supplementen/beste-ashwagandha/  /supplementen/beste-ashwagandha-kopen/  301
+/supplementen/beste-ashwagandha  /supplementen/beste-ashwagandha-kopen/  301
+/training/herstel-na-krachttraining/  /training/spierherstel-bevorderen/  301
+/training/herstel-na-krachttraining  /training/spierherstel-bevorderen/  301
+/voeding/hoeveel-eiwit-per-dag/  /voeding/calculators/eiwit/  301
+/voeding/hoeveel-eiwit-per-dag  /voeding/calculators/eiwit/  301

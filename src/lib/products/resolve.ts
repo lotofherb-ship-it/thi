@@ -57,12 +57,6 @@ function isProdBuild(): boolean {
   );
 }
 
-function failBuild(message: string): never {
-  console.error(`\n[thi-resolve] ${message}\n`);
-  process.exitCode = 1;
-  throw new Error(message);
-}
-
 function isFixtureHost(url: string): boolean {
   try {
     const host = new URL(url).hostname.replace(/^www\./, '');
@@ -142,19 +136,20 @@ function offerFromRow(row: AffiliateProductRow): ProductOffer {
   };
 }
 
-function assertPointer(product: ComparisonProduct): void {
-  if (product.tursoProductId || product.affiliateUrl) return;
+function assertPointer(product: ComparisonProduct): boolean {
+  if (product.tursoProductId || product.affiliateUrl) return true;
   const label = product.name || '(unnamed pick)';
   if (allowFixtures) {
     console.warn(`[thi-resolve] ${label}: no tursoProductId/affiliateUrl (fixtures allowed)`);
-    return;
+    return false;
   }
   if (isProdBuild()) {
-    failBuild(
-      `Money-page pick "${label}" has neither tursoProductId nor affiliateUrl. ` +
-        `Link Awin/Daisycon via tursoProductId, or set affiliateUrl (Bol = partner.bol.com only).`,
+    // Soft gap: article still ships; CTA omitted via commerceGap. Matrix is a follow-up.
+    console.warn(
+      `[thi-resolve] commerceGap — "${label}" has neither tursoProductId nor affiliateUrl.`,
     );
   }
+  return false;
 }
 
 function acceptManualUrl(product: ComparisonProduct, url: string): boolean {
@@ -186,7 +181,7 @@ function acceptManualUrl(product: ComparisonProduct, url: string): boolean {
  * Resolve offers for one Sanity comparison product / honest-review synthetic.
  */
 export async function resolveProductOffers(product: ComparisonProduct): Promise<ProductOffer[]> {
-  assertPointer(product);
+  const hasPointer = assertPointer(product);
 
   const offers: ProductOffer[] = [];
   let primary: AffiliateProductRow | null = null;
@@ -205,8 +200,8 @@ export async function resolveProductOffers(product: ComparisonProduct): Promise<
           }
         }
       } else if (isProdBuild() && !allowFixtures && !product.affiliateUrl) {
-        failBuild(
-          `tursoProductId=${product.tursoProductId} not found in affiliate DB for "${product.name || '?'}".`,
+        console.warn(
+          `[thi-resolve] commerceGap — tursoProductId=${product.tursoProductId} not in affiliate DB for "${product.name || '?'}".`,
         );
       }
     }
@@ -219,7 +214,8 @@ export async function resolveProductOffers(product: ComparisonProduct): Promise<
   } catch (err) {
     dbError = err instanceof Error ? err.message : String(err);
     if (isProdBuild() && !allowFixtures) {
-      failBuild(`Affiliate DB error for "${product.name || '?'}": ${dbError}`);
+      // Soft: one bad DB row must not blank the whole static site.
+      console.warn(`[thi-resolve] Affiliate DB error for "${product.name || '?'}": ${dbError}`);
     }
   }
 
@@ -248,10 +244,9 @@ export async function resolveProductOffers(product: ComparisonProduct): Promise<
     }),
   );
 
-  if (cleaned.length === 0 && isProdBuild() && !allowFixtures) {
-    failBuild(
-      `No valid affiliate offers for "${product.name || '?'}". ` +
-        `Need working tursoProductId (Awin/Daisycon) or affiliateUrl (Bol = partner.bol.com).`,
+  if (cleaned.length === 0 && isProdBuild() && !allowFixtures && hasPointer) {
+    console.warn(
+      `[thi-resolve] commerceGap — no valid offers for "${product.name || '?'}".`,
     );
   }
 
