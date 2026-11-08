@@ -1,0 +1,190 @@
+---
+/**
+ * Simple Portable Text renderer for THI article body.
+ * Handles: paragraphs, headings, lists, blockquotes, images, tables.
+ * For more complex use, consider @portabletext/react with Astro's React integration.
+ */
+import type { PortableTextBlock } from '@portabletext/types';
+import { urlFor } from '../lib/sanity';
+
+export interface Props {
+  value: PortableTextBlock[];
+  class?: string;
+}
+
+const { value, class: className = '' } = Astro.props;
+
+/** Escape HTML special characters to prevent XSS. */
+function escapeHtml(str: string): string {
+  return str
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+/** Validate a href — only allow http(s), relative, and anchor links. */
+function safeHref(href: string): string {
+  if (!href) return '#';
+  return /^(https?:\/\/|\/|#)/.test(href) ? href : '#';
+}
+
+function getText(block: any): string {
+  if (!block.children) return '';
+  return block.children
+    .map((child: any) => {
+      // Escape raw text first — all marks wrap already-escaped content
+      let text = escapeHtml(child.text || '');
+      if (child.marks?.includes('strong')) text = `<strong>${text}</strong>`;
+      if (child.marks?.includes('em')) text = `<em>${text}</em>`;
+      if (child.marks?.includes('code')) text = `<code>${text}</code>`;
+      // Link marks: find a mark key that matches a markDef _key (UUIDs, not starting with '_')
+      const markKey = child.marks?.find((m: string) =>
+        block.markDefs?.some((d: any) => d._key === m)
+      );
+      if (markKey) {
+        const markDef = block.markDefs?.find((d: any) => d._key === markKey);
+        if (markDef?._type === 'link') {
+          const href = safeHref(markDef.href);
+          const isExternal = /^https?:\/\//.test(href);
+          const rel = isExternal ? ' rel="noopener noreferrer"' : '';
+          const target = (markDef.blank || isExternal) ? ' target="_blank"' : '';
+          text = `<a href="${escapeHtml(href)}"${target}${rel}>${text}</a>`;
+        }
+      }
+      return text;
+    })
+    .join('');
+}
+
+function renderBlock(block: any): string {
+  switch (block._type) {
+    case 'block': {
+      const text = getText(block);
+      switch (block.style) {
+        case 'h2': return `<h2 class="entry-h2" id="${slugify(text)}">${text}</h2>`;
+        case 'h3': return `<h3 class="entry-h3">${text}</h3>`;
+        case 'h4': return `<h4 class="entry-h4">${text}</h4>`;
+        case 'blockquote': return `<blockquote class="entry-blockquote"><p>${text}</p></blockquote>`;
+        default: return text ? `<p class="entry-p">${text}</p>` : '';
+      }
+    }
+
+    case 'image': {
+      if (!block.asset) return '';
+      const src = urlFor(block).width(760).auto('format').url();
+      const alt = escapeHtml(block.alt || '');
+      const caption = block.caption ? escapeHtml(block.caption) : '';
+      return `
+        <figure class="entry-figure">
+          <img src="${escapeHtml(src)}" alt="${alt}" loading="lazy" decoding="async" />
+          ${caption ? `<figcaption class="entry-caption">${caption}</figcaption>` : ''}
+        </figure>
+      `;
+    }
+
+    case 'table': {
+      if (!block.rows?.length) return '';
+      const [header, ...rows] = block.rows;
+      const ths = header.cells.map((c: string) => `<th>${escapeHtml(c)}</th>`).join('');
+      const trs = rows.map((r: any) =>
+        `<tr>${r.cells.map((c: string) => `<td>${escapeHtml(c)}</td>`).join('')}</tr>`
+      ).join('');
+      return `
+        <div class="table-wrap">
+          <table class="entry-table">
+            <thead><tr>${ths}</tr></thead>
+            <tbody>${trs}</tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    default:
+      return '';
+  }
+}
+
+function slugify(text: string): string {
+  return text
+    .toLowerCase()
+    .replace(/<[^>]*>/g, '')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-');
+}
+
+// Group list items
+function renderBlocks(blocks: any[]): string {
+  let html = '';
+  let i = 0;
+
+  while (i < blocks.length) {
+    const block = blocks[i];
+
+    if (block._type === 'block' && (block.listItem === 'bullet' || block.listItem === 'number')) {
+      const tag = block.listItem === 'bullet' ? 'ul' : 'ol';
+      const items: string[] = [];
+      const level = block.level || 1;
+
+      while (
+        i < blocks.length &&
+        blocks[i]._type === 'block' &&
+        blocks[i].listItem === block.listItem &&
+        (blocks[i].level || 1) === level
+      ) {
+        items.push(`<li>${getText(blocks[i])}</li>`);
+        i++;
+      }
+
+      html += `<${tag} class="entry-list">${items.join('')}</${tag}>`;
+      continue;
+    }
+
+    html += renderBlock(block);
+    i++;
+  }
+
+  return html;
+}
+
+const html = renderBlocks(value || []);
+---
+
+<div class:list={['entry-content', className]} set:html={html} />
+
+<style>
+  .entry-figure {
+    margin: 28px 0;
+    max-width: var(--col-max);
+  }
+  .entry-figure img {
+    width: 100%;
+    border-radius: 12px;
+  }
+  .entry-caption {
+    font: 400 12px/1.5 var(--font-body);
+    color: var(--muted);
+    margin-top: 8px;
+    text-align: center;
+  }
+  .table-wrap {
+    overflow-x: auto;
+    margin-bottom: 28px;
+  }
+  .entry-list {
+    padding-left: 20px;
+    margin-bottom: 16px;
+  }
+  .entry-list li {
+    font: 400 15px/1.65 var(--font-body);
+    color: var(--body);
+    margin-bottom: 6px;
+  }
+  .entry-h4 {
+    font: 700 16px/1.3 var(--font-head);
+    color: var(--text);
+    margin: 20px 0 8px;
+  }
+</style>

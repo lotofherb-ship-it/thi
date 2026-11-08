@@ -1,0 +1,463 @@
+---
+/**
+ * Honest review — long-form single-product editorial.
+ * Not a multi-pick vergelijking clone (no “Alles wat we aanraden” stack).
+ * Shared WC chrome: stamp, byline, one buy module. Brand v2 cream/green.
+ * Canonical URL: /{category}/{slug}/
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PortableText from './PortableText.astro';
+import ChatGuideOpener from './ChatGuideOpener.astro';
+import { urlFor } from '../lib/sanity';
+import { categoryHref } from '../lib/urls';
+import { resolveProductOffers, offerLine } from '../lib/products/resolve';
+import { getChatScriptForSlug } from '../lib/chat-opener';
+import type { Post, ComparisonProduct } from '../types';
+import '../styles/guide.css';
+
+interface Props {
+  post: Post;
+  recentPosts?: Post[];
+}
+
+const { post } = Astro.props;
+const hr = post.honestReview;
+const scores = hr?.scores;
+const productName = hr?.productName || post.title;
+
+const heroSrc = post.heroImage
+  ? urlFor(post.heroImage).width(840).height(525).auto('format').url()
+  : hr?.imageUrl || null;
+
+const authorSrc = post.author?.avatar
+  ? urlFor(post.author.avatar).width(96).height(96).auto('format').url()
+  : null;
+
+const scoreDimensions = [
+  { key: 'ingredients', label: 'Ingrediënten' },
+  { key: 'dosage', label: 'Dosering' },
+  { key: 'effect', label: 'Effect' },
+  { key: 'value', label: 'Prijs/kwal.' },
+  { key: 'taste', label: 'Smaak' },
+] as const;
+
+const activeScores = scores
+  ? scoreDimensions.filter(d => scores[d.key] !== undefined)
+  : [];
+
+function scoreToWidth(val: number | undefined): string {
+  return val ? `${(val / 10) * 100}%` : '0%';
+}
+
+function initials(name?: string): string {
+  if (!name) return '?';
+  return name.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase();
+}
+
+const publishedLabel = post.publishedAt
+  ? new Date(post.publishedAt).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })
+  : null;
+const updatedLabel = post.updatedAt
+  ? new Date(post.updatedAt).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })
+  : publishedLabel;
+const stampIso = post.updatedAt || post.publishedAt || undefined;
+
+const synthetic: ComparisonProduct = {
+  name: productName,
+  rating: hr?.overallScore ? hr.overallScore / 2 : 0,
+  imageUrl: hr?.imageUrl,
+  tursoProductId: hr?.tursoProductId,
+};
+const offers = await resolveProductOffers(synthetic);
+
+const disclosure =
+  'The Health Issue kan een commissie ontvangen via affiliate-links. Dat beïnvloedt onze scores of eindoordeel niet.';
+
+const tocItems = (post.body || [])
+  .filter((b: any) => b._type === 'block' && b.style === 'h2')
+  .map((b: any) => {
+    const text = b.children?.map((c: any) => c.text).join('') || '';
+    const id = text.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
+    return { text, id };
+  });
+
+const notFor =
+  hr?.notFor?.length
+    ? hr.notFor
+    : [
+        'Je medische claims of genezing verwacht',
+        'Je alleen op de laagste stickerprijs wilt beslissen',
+      ];
+
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Review',
+  headline: post.seoTitle || post.title,
+  description: post.seoDescription || post.excerpt,
+  datePublished: post.publishedAt,
+  dateModified: post.updatedAt || post.publishedAt,
+  image: heroSrc,
+  author: post.author ? { '@type': 'Person', name: post.author.name } : undefined,
+  publisher: { '@type': 'Organization', name: 'The Health Issue', url: 'https://thehealthissue.nl' },
+  itemReviewed: { '@type': 'Product', name: productName },
+  reviewRating: hr?.overallScore
+    ? { '@type': 'Rating', ratingValue: hr.overallScore, bestRating: 10, worstRating: 0 }
+    : undefined,
+};
+
+const faqSchema = post.faq?.length
+  ? {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      mainEntity: post.faq.map(f => ({
+        '@type': 'Question',
+        name: f.question,
+        acceptedAnswer: { '@type': 'Answer', text: f.answer },
+      })),
+    }
+  : null;
+
+const chatScript = getChatScriptForSlug(post.slug?.current);
+const articleHero = heroSrc || (chatScript ? chatScript.hero.photo : null);
+---
+
+<BaseLayout
+  title={post.seoTitle || post.title}
+  description={post.seoDescription || post.excerpt || ''}
+  image={heroSrc || undefined}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+  {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
+
+  <article class="guide hr-article" id="guide-start">
+    <nav class="guide-crumb" aria-label="Kruimelpad">
+      <a href="/">Home</a>
+      <span class="guide-crumb-sep">/</span>
+      {post.category
+        ? (
+          <>
+            <a href={categoryHref(post.category.slug.current)}>{post.category.title}</a>
+            <span class="guide-crumb-sep">/</span>
+          </>
+        )
+        : (
+          <>
+            <a href="/supplementen/">Supplementen</a>
+            <span class="guide-crumb-sep">/</span>
+          </>
+        )}
+      <span aria-current="page">{productName}</span>
+    </nav>
+
+    <p class="guide-kicker">
+      {post.category ? `${post.category.title} · ` : ''}Eerlijke review · één product
+    </p>
+    <h1 class="guide-h1">{post.title}</h1>
+
+    {post.excerpt && <p class="guide-lede guide-lede--standfirst">{post.excerpt}</p>}
+
+    {post.author && (
+      <div class="guide-byline">
+        <div class="guide-avatar">
+          {authorSrc
+            ? <img src={authorSrc} alt="" width="44" height="44" />
+            : initials(post.author.name)}
+        </div>
+        <div>
+          <div class="guide-byline-name">Door {post.author.name}</div>
+          <p class="guide-byline-meta">
+            {updatedLabel && (
+              <>
+                Bijgewerkt <time datetime={stampIso}>{updatedLabel}</time>
+                {hr?.testPeriod ? ` · ${hr.testPeriod} getest` : ''}
+              </>
+            )}
+          </p>
+          {post.author.credentials && (
+            <p class="guide-byline-role">{post.author.credentials}</p>
+          )}
+        </div>
+      </div>
+    )}
+
+    {/* Affiliate honesty: sitewide DisclosureStrip only (P0-1) */}
+
+    {articleHero && (
+      <figure class="guide-hero">
+        <img
+          src={articleHero}
+          alt={productName}
+          width="1200"
+          height="675"
+          decoding="async"
+          fetchpriority="high"
+        />
+      </figure>
+    )}
+
+    {hr?.relatedComparison && (
+      <p class="hr-parent-link">
+        Onderdeel van
+        <a href={hr.relatedComparison.href}>{hr.relatedComparison.title}</a>
+      </p>
+    )}
+
+    <nav class="guide-tocbar" aria-label="In deze review">
+      <div class="guide-tocbar-inner">
+        {chatScript && <a href="#chat-guide-opener">Snel antwoord</a>}
+        <a href="#beoordeling">Beoordeling</a>
+        <a href="#voor-wie">Voor wie</a>
+        {activeScores.length > 0 && <a href="#scores">Scores</a>}
+        {tocItems.map(({ text, id }) => <a href={`#${id}`}>{text}</a>)}
+        {hr?.weeklyEntries?.length ? <a href="#ervaringen">Ervaringen</a> : null}
+        {(hr?.pros?.length || hr?.cons?.length) ? <a href="#plus-min">Plus &amp; min</a> : null}
+        {post.faq?.length ? <a href="#veelgestelde-vragen">FAQ</a> : null}
+      </div>
+    </nav>
+
+    {post.quickAnswer && (
+      <aside class="guide-fyi" aria-label="Kort oordeel">
+        <div class="guide-fyi-label">Kort oordeel</div>
+        <p>{post.quickAnswer}</p>
+      </aside>
+    )}
+
+    {chatScript && (
+      <ChatGuideOpener
+        script={chatScript}
+        leadIn="Weinig tijd? Vraag het direct"
+        authorName={post.author?.name?.split(' ')[0] || 'Jouke'}
+        authorAvatar={authorSrc}
+      />
+    )}
+
+    {/* Single-product hero — not a multi-pick stack */}
+    <section class="pick" id="beoordeling">
+      <span class="pick-label" data-kind="top">Onze beoordeling</span>
+      <h2 class="pick-h2">{productName}</h2>
+      {hr?.tagline && <p class="pick-summary" style="margin-bottom:14px">{hr.tagline}</p>}
+
+      <div class="pick-callout">
+        <div class="pick-media">
+          {heroSrc
+            ? <img src={heroSrc} alt={productName} width="480" height="360" loading="eager" />
+            : <span class="pick-media-empty" aria-hidden="true" />}
+        </div>
+        <div class="pick-meta">
+          <h3 class="pick-product-name">{productName}</h3>
+          {hr?.bestFor && <p class="pick-summary">Beste voor: {hr.bestFor}</p>}
+          {hr?.overallScore != null && (
+            <div class="pick-score"><strong>{hr.overallScore}</strong>/10</div>
+          )}
+          <div class="pick-buy">
+            <div class="pick-buy-title">Kopen</div>
+            {offers.length > 0 ? (
+              offers.slice(0, 3).map((o, oi) => (
+                <a
+                  class:list={['pick-offer', { 'pick-offer--alt': oi > 0 }]}
+                  href={o.url}
+                  target="_blank"
+                  rel="noopener noreferrer nofollow sponsored"
+                >
+                  <span class="pick-offer-line">{offerLine(o)}</span>
+                  <span class="pick-offer-aff">Affiliate link</span>
+                </a>
+              ))
+            ) : (
+              <p class="pick-disc">Prijs/link volgt zodra Awin/Daisycon gekoppeld is.</p>
+            )}
+            <p class="pick-disc">{disclosure}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {post.relatedCalculator && (
+      <p class="guide-bridge">
+        Eerst behoefte checken?
+        <a href={post.relatedCalculator.href}>{post.relatedCalculator.title}</a>
+      </p>
+    )}
+
+    {hr?.verdict && (
+      <section class="guide-section" id="verdict">
+        <h2>Wat we ervan vinden</h2>
+        <p>{hr.verdict}</p>
+      </section>
+    )}
+
+    <section class="guide-section" id="voor-wie">
+      <h2>Voor wie dit product is</h2>
+      <div class="guide-split">
+        <div class="guide-split-box guide-split-box--for">
+          <h3>Wel geschikt als…</h3>
+          <ul>
+            {hr?.bestFor ? <li>{hr.bestFor}</li> : null}
+            {(post.keyTakeaways?.slice(0, 2) || []).map(t => <li>{t}</li>)}
+          </ul>
+        </div>
+        <div class="guide-split-box guide-split-box--not">
+          <h3>Minder geschikt als…</h3>
+          <ul>
+            {notFor.map(t => <li>{t}</li>)}
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    {hr?.overallScore != null && activeScores.length > 0 && (
+      <section class="hr-score-strip" id="scores" aria-label="Scores">
+        <div class="hr-score-big">
+          <span class="hr-score-num">{hr.overallScore}</span>
+          <span class="hr-score-max">/10</span>
+        </div>
+        <div class="hr-score-rows">
+          {activeScores.map(({ key, label }) => {
+            const val = scores![key];
+            return (
+              <div class="hr-score-row">
+                <span>{label}</span>
+                <div class="hr-score-bar" aria-hidden="true">
+                  <div class="hr-score-fill" style={`width:${scoreToWidth(val)}`}></div>
+                </div>
+                <strong>{val}</strong>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+    )}
+
+    {post.keyTakeaways && post.keyTakeaways.length > 0 && (
+      <div class="guide-kt">
+        <h2>Wat je moet weten</h2>
+        <ul>
+          {post.keyTakeaways.map(item => <li>{item}</li>)}
+        </ul>
+      </div>
+    )}
+
+    {post.body && post.body.length > 0 && (
+      <div class="guide-prose">
+        <PortableText value={post.body} />
+      </div>
+    )}
+
+    {hr?.weeklyEntries && hr.weeklyEntries.length > 0 && (
+      <section class="guide-section" id="ervaringen">
+        <h2>Ervaringen per week</h2>
+        <ol class="hr-journal">
+          {hr.weeklyEntries.map(entry => (
+            <li class="hr-journal-item">
+              <p class="hr-journal-week">
+                Week {entry.week}{entry.title ? ` — ${entry.title}` : ''}
+              </p>
+              <p class="hr-journal-body">{entry.body}</p>
+            </li>
+          ))}
+        </ol>
+      </section>
+    )}
+
+    {(hr?.pros?.length || hr?.cons?.length) && (
+      <section class="guide-section" id="plus-min">
+        <h2>Plus- en minpunten</h2>
+        <div class="pick-pc">
+          {hr.pros?.length ? (
+            <div class="pick-pros">
+              <h4>Wat goed werkt</h4>
+              <ul>{hr.pros.map(pro => <li>{pro}</li>)}</ul>
+            </div>
+          ) : <div />}
+          {hr.cons?.length ? (
+            <div class="pick-cons">
+              <h4>Waar we op letten</h4>
+              <ul>{hr.cons.map(con => <li>{con}</li>)}</ul>
+            </div>
+          ) : <div />}
+        </div>
+      </section>
+    )}
+
+    {post.expertReviewer && (
+      <section class="guide-section" id="expert">
+        <h2>Expertblik</h2>
+        <p>
+          <strong>{post.expertReviewer.name}</strong>
+          {post.expertReviewer.title ? ` · ${post.expertReviewer.title}` : ''}
+        </p>
+        {post.expertReviewer.quote && (
+          <p class="hr-expert-quote">“{post.expertReviewer.quote}”</p>
+        )}
+      </section>
+    )}
+
+    {hr?.relatedComparison && (
+      <aside class="hr-related" aria-label="Gerelateerde vergelijking">
+        <div class="hr-related-label">Vergelijking</div>
+        <p>
+          Meer merken naast dit product?
+          <a href={hr.relatedComparison.href}>{hr.relatedComparison.title}</a>
+        </p>
+      </aside>
+    )}
+
+    <section class="pick" id="eindoordeel">
+      <span class="pick-label" data-kind="top">Eindoordeel</span>
+      <h2 class="pick-h2">{productName}</h2>
+      {hr?.overallScore != null && (
+        <p class="pick-summary">
+          Score {hr.overallScore}/10{hr.testPeriod ? ` · ${hr.testPeriod} getest` : ''}.
+        </p>
+      )}
+      <div class="pick-buy" style="max-width:320px">
+        <div class="pick-buy-title">Kopen</div>
+        {offers.length > 0 ? (
+          offers.slice(0, 2).map((o, oi) => (
+            <a
+              class:list={['pick-offer', { 'pick-offer--alt': oi > 0 }]}
+              href={o.url}
+              target="_blank"
+              rel="noopener noreferrer nofollow sponsored"
+            >
+              <span class="pick-offer-line">{offerLine(o)}</span>
+              <span class="pick-offer-aff">Affiliate link</span>
+            </a>
+          ))
+        ) : (
+          <p class="pick-disc">Prijs/link volgt zodra affiliate-feed gekoppeld is.</p>
+        )}
+        <p class="pick-disc">{disclosure}</p>
+      </div>
+    </section>
+
+    {post.faq && post.faq.length > 0 && (
+      <div class="guide-faq" id="veelgestelde-vragen">
+        <h2>Veelgestelde vragen</h2>
+        {post.faq.map(item => (
+          <details>
+            <summary>{item.question}</summary>
+            <p>{item.answer}</p>
+          </details>
+        ))}
+      </div>
+    )}
+
+    {post.author && (
+      <footer class="guide-author">
+        <div class="guide-avatar" style="width:56px;height:56px;font-size:16px">
+          {authorSrc
+            ? <img src={authorSrc} alt="" width="56" height="56" />
+            : initials(post.author.name)}
+        </div>
+        <div>
+          <div class="guide-author-name">{post.author.name}</div>
+          {post.author.credentials && (
+            <div class="guide-author-role">{post.author.credentials}</div>
+          )}
+          {post.author.bio && <p class="guide-author-bio">{post.author.bio}</p>}
+        </div>
+      </footer>
+    )}
+  </article>
+</BaseLayout>

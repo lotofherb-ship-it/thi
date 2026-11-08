@@ -1,0 +1,6 @@
+# Preview / pre-cutover: keep *.pages.dev out of the index.
+# Remove (or scope) before custom-domain go-live when indexing should start.
+/*
+  X-Robots-Tag: noindex, nofollow
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin

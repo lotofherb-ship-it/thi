@@ -1,0 +1,36 @@
+{
+  "name": "thi-astro",
+  "type": "module",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "sanity": "sanity dev",
+    "sanity:deploy": "sanity deploy",
+    "sanity:typegen": "sanity typegen generate",
+    "affiliate:search": "node scripts/search-affiliate.mjs",
+    "affiliate:sync": "python3 ../affiliate/sync/affiliate_sync.py",
+    "pages:deploy": "wrangler pages deploy dist --project-name=thi-astro",
+    "migrate:dry": "node scripts/migrate-wp.mjs --dry-run",
+    "migrate:import": "node scripts/migrate-wp.mjs --import"
+  },
+  "dependencies": {
+    "@astrojs/check": "^0.9.9",
+    "@astrojs/sitemap": "3.2.1",
+    "@libsql/client": "^0.14.0",
+    "@portabletext/types": "^2.0.13",
+    "@sanity/client": "^6.21.3",
+    "@sanity/image-url": "^1.0.2",
+    "@sanity/vision": "^3.56.2",
+    "astro": "^4.15.9",
+    "groq": "^3.56.2",
+    "sanity": "^3.56.2"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  },
+  "optionalDependencies": {
+    "@rollup/rollup-darwin-arm64": "^4.64.12"
+  }
+}

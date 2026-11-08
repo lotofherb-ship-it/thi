@@ -1,0 +1,8 @@
+# Cloudflare Pages — preview scaffold (no custom domain yet)
+name = "thi-astro"
+compatibility_date = "2024-10-01"
+pages_build_output_dir = "dist"
+
+# Set in Cloudflare dashboard / CI — do not put secrets here:
+# PUBLIC_SANITY_PROJECT_ID, PUBLIC_SANITY_DATASET, SANITY_API_READ_TOKEN
+# AFFILIATE_DB_PATH or TURSO_* when builds run in CI

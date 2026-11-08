@@ -1,0 +1,47 @@
+---
+/**
+ * Canonical article route — /{category}/{slug}/
+ * Sanity is required for production builds; fixtures only with ALLOW_FIXTURES=1.
+ */
+import ArticlePage from '../../components/ArticlePage.astro';
+import ComparisonPage from '../../components/ComparisonPage.astro';
+import HonestReviewPage from '../../components/HonestReviewPage.astro';
+import { getAllPosts, getPostBySlug, getRecentPosts } from '../../lib/content';
+import type { Post } from '../../types';
+
+export async function getStaticPaths() {
+  const posts = await getAllPosts();
+  return posts
+    .filter(p => p.slug?.current && p.category?.slug?.current)
+    .map(post => ({
+      params: {
+        category: post.category!.slug.current,
+        slug: post.slug.current,
+      },
+      props: { postPreview: post },
+    }));
+}
+
+const { category, slug } = Astro.params;
+const [post, recentPosts]: [Post | null, Post[]] = await Promise.all([
+  getPostBySlug(slug!),
+  getRecentPosts(),
+]);
+
+if (!post) return Astro.redirect('/404');
+
+const expected = post.category?.slug?.current;
+if (expected && category && expected !== category) {
+  return Astro.redirect(`/${expected}/${post.slug.current}/`, 301);
+}
+
+const template = post.template || 'standard';
+---
+
+{template === 'comparison' ? (
+  <ComparisonPage post={post} recentPosts={recentPosts} />
+) : template === 'honest-review' ? (
+  <HonestReviewPage post={post} recentPosts={recentPosts} />
+) : (
+  <ArticlePage post={post} recentPosts={recentPosts} />
+)}

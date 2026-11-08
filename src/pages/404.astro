@@ -1,0 +1,23 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import '../styles/site.css';
+---
+
+<BaseLayout
+  title="Pagina niet gevonden — The Health Issue"
+  description="Deze pagina bestaat niet."
+  noindex={true}
+>
+  <div class="wc-page">
+    <div class="wc-measure" style="padding:48px 20px">
+      <div class="wc-kicker">404</div>
+      <h1 style="font:800 2rem/1.15 var(--font-head);margin:0 0 12px">Pagina niet gevonden</h1>
+      <p class="wc-dek">De link is kapot of de pagina is verhuisd.</p>
+      <p style="margin-top:20px">
+        <a href="/" style="color:var(--green-900);font-weight:700">Naar home →</a>
+        &nbsp;·&nbsp;
+        <a href="/methode/" style="color:var(--green-900)">Methode</a>
+      </p>
+    </div>
+  </div>
+</BaseLayout>

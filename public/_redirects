@@ -1,0 +1,13 @@
+# THI static redirects — legacy leftovers only.
+# Canonical article URLs match live WP: /{category}/{slug}/
+# Do NOT use this file to remap comparisons/reviews away from category paths.
+
+# Old WP page aliases → current legal/static paths
+/privacy-statement/           /privacybeleid/           301
+/privacy-statement            /privacybeleid/           301
+/disclaimer-en-copyright/     /disclaimer/              301
+/disclaimer-en-copyright      /disclaimer/              301
+
+# Optional: if anything ever linked the early Astro hub-slug shape, send to hub
+# (articles themselves live under /{category}/{slug}/ — no per-slug map here)
+/review/                      /reviews/                 301

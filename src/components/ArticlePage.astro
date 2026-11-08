@@ -1,0 +1,213 @@
+---
+/**
+ * Standard article — Wirecutter editorial single-column.
+ * Canonical: /{category}/{slug}/
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import PortableText from './PortableText.astro';
+import { urlFor } from '../lib/sanity';
+import type { Post } from '../types';
+import '../styles/guide.css';
+import '../styles/site.css';
+
+interface Props {
+  post: Post;
+  recentPosts: Post[];
+}
+
+const { post, recentPosts } = Astro.props;
+
+const heroSrc = post.heroImage
+  ? urlFor(post.heroImage).width(840).height(480).auto('format').url()
+  : null;
+
+const authorSrc = post.author?.avatar
+  ? urlFor(post.author.avatar).width(80).height(80).auto('format').url()
+  : null;
+
+const tocItems = (post.body || [])
+  .filter((b: any) => b._type === 'block' && b.style === 'h2')
+  .map((b: any) => {
+    const text = b.children?.map((c: any) => c.text).join('') || '';
+    const id = text.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
+    return { text, id };
+  });
+
+const publishedLabel = post.publishedAt
+  ? new Date(post.publishedAt).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })
+  : null;
+const updatedLabel = post.updatedAt
+  ? new Date(post.updatedAt).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })
+  : publishedLabel;
+const stampIso = post.updatedAt || post.publishedAt || undefined;
+
+function initials(name?: string): string {
+  if (!name) return '?';
+  return name.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase();
+}
+
+const articleSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Article',
+  headline: post.seoTitle || post.title,
+  description: post.seoDescription || post.excerpt,
+  datePublished: post.publishedAt,
+  dateModified: post.updatedAt || post.publishedAt,
+  image: heroSrc,
+  author: post.author ? { '@type': 'Person', name: post.author.name } : undefined,
+  publisher: { '@type': 'Organization', name: 'The Health Issue', url: 'https://thehealthissue.nl' },
+};
+---
+
+<BaseLayout
+  title={post.seoTitle || post.title}
+  description={post.seoDescription || post.excerpt || ''}
+  image={heroSrc || undefined}
+>
+  <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+
+  <article class="guide">
+    <nav class="guide-crumb" aria-label="Kruimelpad">
+      <a href="/">Home</a>
+      <span class="guide-crumb-sep">/</span>
+      {post.category && (
+        <>
+          <a href={`/${post.category.slug.current}/`}>{post.category.title}</a>
+          <span class="guide-crumb-sep">/</span>
+        </>
+      )}
+      <span aria-current="page">{post.title}</span>
+    </nav>
+
+    {updatedLabel && (
+      <p class="guide-updated">
+        Bijgewerkt <time datetime={stampIso}>{updatedLabel}</time>
+      </p>
+    )}
+
+    <h1 class="guide-h1">{post.title}</h1>
+
+    {post.author && (
+      <div class="guide-byline">
+        <div class="guide-avatar">
+          {authorSrc
+            ? <img src={authorSrc} alt="" width="44" height="44" />
+            : initials(post.author.name)}
+        </div>
+        <div>
+          <div class="guide-byline-name">Door {post.author.name}</div>
+          {post.author.credentials && (
+            <p class="guide-byline-role">{post.author.credentials}</p>
+          )}
+          {publishedLabel && (
+            <p class="guide-byline-role" style="color:var(--muted);font-size:12.5px">
+              Gepubliceerd {publishedLabel}
+            </p>
+          )}
+        </div>
+      </div>
+    )}
+
+    {tocItems.length > 1 && (
+      <nav class="guide-tocbar" aria-label="In dit artikel">
+        <div class="guide-tocbar-inner">
+          {tocItems.map(({ text, id }) => (
+            <a href={`#${id}`}>{text}</a>
+          ))}
+        </div>
+      </nav>
+    )}
+
+    {post.excerpt && <p class="guide-lede">{post.excerpt}</p>}
+
+    {post.relatedCalculator && (
+      <p class="guide-bridge">
+        Bereken eerst je behoefte:
+        <a href={post.relatedCalculator.href}>{post.relatedCalculator.title}</a>
+      </p>
+    )}
+
+    {post.keyTakeaways && post.keyTakeaways.length > 0 && (
+      <div class="guide-kt">
+        <h2>Wat je moet weten</h2>
+        <ul>
+          {post.keyTakeaways.map(item => <li>{item}</li>)}
+        </ul>
+      </div>
+    )}
+
+    {heroSrc && (
+      <figure style="margin:0 0 24px;border:1px solid var(--cream-3)">
+        <img
+          src={heroSrc}
+          alt={post.heroImage?.alt || post.title}
+          width="840"
+          height="480"
+          loading="eager"
+          style="width:100%;height:auto;display:block"
+        />
+      </figure>
+    )}
+
+    {post.body && (
+      <div class="guide-prose">
+        <PortableText value={post.body} />
+      </div>
+    )}
+
+    {post.faq && post.faq.length > 0 && (
+      <div class="guide-faq" id="veelgestelde-vragen">
+        <h2>Veelgestelde vragen</h2>
+        {post.faq.map(item => (
+          <details>
+            <summary>{item.question}</summary>
+            <p>{item.answer}</p>
+          </details>
+        ))}
+      </div>
+    )}
+
+    {post.author && (
+      <footer class="guide-author">
+        <div class="guide-avatar" style="width:56px;height:56px;font-size:16px">
+          {authorSrc
+            ? <img src={authorSrc} alt="" width="56" height="56" />
+            : initials(post.author.name)}
+        </div>
+        <div>
+          <div class="guide-author-name">{post.author.name}</div>
+          {post.author.credentials && (
+            <div class="guide-author-role">{post.author.credentials}</div>
+          )}
+          {post.author.bio && <p class="guide-author-bio">{post.author.bio}</p>}
+        </div>
+      </footer>
+    )}
+
+    {recentPosts.length > 0 && (
+      <section class="wc-sec" style="margin-top:40px">
+        <div class="wc-sec-head">
+          <h2>Meer lezen</h2>
+        </div>
+        <ul class="wc-story-list">
+          {recentPosts.slice(0, 4).map(p => (
+            <li>
+              <a
+                class="wc-story"
+                href={`/${p.category?.slug.current || 'gezondheid'}/${p.slug.current}/`}
+                style="grid-template-columns:1fr"
+              >
+                <div>
+                  <h3 class="wc-story-title">{p.title}</h3>
+                  <div class="wc-story-meta">
+                    <strong>{p.category?.title || 'Artikel'}</strong>
+                  </div>
+                </div>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+  </article>
+</BaseLayout>

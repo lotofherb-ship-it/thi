@@ -1,0 +1,36 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import '../../styles/site.css';
+---
+
+<BaseLayout
+  title="Nieuwsbrief — The Health Issue"
+  description="Wekelijkse update: nieuwe gidsen en updates. Geen spam."
+>
+  <div class="wc-page">
+    <div class="wc-measure wc-nl">
+      <nav class="wc-crumb" aria-label="Kruimelpad">
+        <a href="/">Home</a>
+        <span class="wc-crumb-sep">/</span>
+        <span aria-current="page">Nieuwsbrief</span>
+      </nav>
+      <div class="wc-kicker">Nieuwsbrief</div>
+      <h1 style="font:800 clamp(1.75rem,3.5vw,2.25rem)/1.15 var(--font-head);letter-spacing:-.02em;margin:0 0 12px">
+        Eén mail. Alleen wat telt.
+      </h1>
+      <p class="wc-dek">
+        Nieuwe vergelijkingen, updates van topkeuzes, en wanneer een runner-up de topplek overneemt.
+        Geen spam, altijd afmeldbaar.
+      </p>
+
+      <form class="wc-nl-form" action="/nieuwsbrief/bedankt/" method="get">
+        <label for="email" class="wc-nl-fine">E-mailadres</label>
+        <input id="email" type="email" name="email" placeholder="jouw@email.nl" required autocomplete="email" />
+        <button type="submit">Inschrijven</button>
+        <p class="wc-nl-fine">
+          Door in te schrijven ga je akkoord met ons <a href="/privacybeleid/">privacybeleid</a>.
+        </p>
+      </form>
+    </div>
+  </div>
+</BaseLayout>

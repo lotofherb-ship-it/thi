@@ -1,0 +1,88 @@
+---
+import '../styles/global.css';
+import SiteNav from '../components/SiteNav.astro';
+import DisclosureStrip from '../components/DisclosureStrip.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+
+export interface Props {
+  title: string;
+  description?: string;
+  image?: string;
+  canonical?: string;
+  noindex?: boolean;
+}
+
+const {
+  title,
+  description = 'The Health Issue — onafhankelijke informatie over supplementen, voeding en training.',
+  image = '/og-default.jpg',
+  canonical,
+  noindex = false,
+} = Astro.props;
+
+const siteUrl = 'https://thehealthissue.nl';
+const canonicalUrl = canonical ?? new URL(Astro.url.pathname, siteUrl).href;
+---
+
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content={description} />
+  {noindex && <meta name="robots" content="noindex,nofollow" />}
+
+  <!-- Canonical -->
+  <link rel="canonical" href={canonicalUrl} />
+
+  <!-- Open Graph -->
+  <meta property="og:type"        content="website" />
+  <meta property="og:title"       content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:image"       content={image.startsWith('http') ? image : `${siteUrl}${image}`} />
+  <meta property="og:url"         content={canonicalUrl} />
+  <meta property="og:locale"      content="nl_NL" />
+  <meta property="og:site_name"   content="The Health Issue" />
+
+  <!-- Twitter -->
+  <meta name="twitter:card"        content="summary_large_image" />
+  <meta name="twitter:title"       content={title} />
+  <meta name="twitter:description" content={description} />
+  <meta name="twitter:image"       content={image.startsWith('http') ? image : `${siteUrl}${image}`} />
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <link rel="icon" type="image/png" href="/favicon.png" />
+
+  <title>{title}</title>
+
+  <!-- Preconnect fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+</head>
+<body>
+  <header class="thi-chrome">
+    <SiteNav />
+    <DisclosureStrip />
+  </header>
+  <main>
+    <slot />
+  </main>
+  <SiteFooter />
+
+  <!-- Reading progress script (global) -->
+  <script>
+    const bar = document.querySelector<HTMLElement>('.reading-progress');
+    if (bar) {
+      const updateProgress = () => {
+        const scrolled = window.scrollY;
+        const total = document.documentElement.scrollHeight - window.innerHeight;
+        const pct = total > 0 ? Math.round((scrolled / total) * 100) : 0;
+        bar.style.setProperty('--progress', `${pct}%`);
+      };
+      window.addEventListener('scroll', updateProgress, { passive: true });
+    }
+  </script>
+</body>
+</html>

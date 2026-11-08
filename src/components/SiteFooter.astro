@@ -1,0 +1,154 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="thi-footer">
+  <div class="thi-footer-inner">
+    <section class="thi-footer-top">
+      <div class="thi-footer-brand">
+        <a class="thi-footer-logo" href="/">The Health Issue <span class="thi-logo-dot"></span></a>
+        <p class="thi-footer-tagline">
+          Keuzehulp voor gezondheidsproducten. Oordeel eerst, trade-offs erbij, affiliate zichtbaar.
+        </p>
+      </div>
+      <a href="/nieuwsbrief/" class="thi-footer-nl">Nieuwsbrief →</a>
+    </section>
+
+    <section class="thi-footer-main">
+      <div class="thi-footer-col">
+        <div class="thi-footer-col-title">Gidsen</div>
+        <ul>
+          <li><a href="/supplementen/">Supplementen</a></li>
+          <li><a href="/gezondheid/">Gezondheid</a></li>
+          <li><a href="/voeding/">Voeding</a></li>
+          <li><a href="/training/">Training</a></li>
+        </ul>
+      </div>
+      <div class="thi-footer-col">
+        <div class="thi-footer-col-title">Populair</div>
+        <ul>
+          <li><a href="/supplementen/beste-magnesium-bisglycinaat/">Beste magnesium</a></li>
+          <li><a href="/supplementen/mattisson-magnesium-bisglycinaat-review/">Mattisson review</a></li>
+          <li><a href="/voeding/calculators/">Rekentools</a></li>
+          <li><a href="/gezondheid/beste-elektrolyten-poeder/">Beste elektrolyten</a></li>
+        </ul>
+      </div>
+      <div class="thi-footer-col">
+        <div class="thi-footer-col-title">Over</div>
+        <ul>
+          <li><a href="/methode/">Methode</a></li>
+          <li><a href="/over-ons/">Over ons</a></li>
+          <li><a href="/contact/">Contact</a></li>
+          <li><a href="/affiliate-disclosure/">Affiliate</a></li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="thi-footer-disclaimer">
+      <p>
+        Educatief, geen medisch advies. Affiliate-links kunnen commissie opleveren —
+        dat beïnvloedt onze keuzes niet. Zie <a href="/affiliate-disclosure/">affiliate disclosure</a>
+        en <a href="/methode/">methode</a>.
+      </p>
+    </section>
+
+    <section class="thi-footer-bottom">
+      <div class="thi-footer-copy">© {year} The Health Issue</div>
+      <nav class="thi-footer-legal" aria-label="Juridische links">
+        <a href="/privacybeleid/">Privacy</a>
+        <a href="/affiliate-disclosure/">Affiliate</a>
+      </nav>
+    </section>
+  </div>
+</footer>
+
+<style>
+  .thi-footer {
+    background: var(--green-footer);
+    color: rgba(250, 249, 245, .75);
+    padding: 48px 0 28px;
+    margin-top: 0;
+  }
+  .thi-footer-inner {
+    max-width: var(--site-wide);
+    margin: 0 auto;
+    padding: 0 var(--site-gutter);
+  }
+  .thi-footer-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 24px;
+    align-items: flex-start;
+    padding-bottom: 28px;
+    border-bottom: 1px solid rgba(255,255,255,.1);
+    margin-bottom: 28px;
+  }
+  .thi-footer-logo {
+    font: 700 18px/1 var(--font-head);
+    color: var(--cream);
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .thi-footer-tagline {
+    font: 400 13.5px/1.5 var(--font-body);
+    max-width: 28rem;
+    margin: 10px 0 0;
+    color: rgba(250,249,245,.65);
+  }
+  .thi-footer-nl {
+    flex-shrink: 0;
+    padding: 10px 14px;
+    background: var(--celery);
+    color: var(--green-900);
+    font: 700 13px/1 var(--font-body);
+    text-decoration: none;
+    border: 1px solid var(--celery-d);
+    border-radius: var(--r-sm);
+  }
+  .thi-footer-main {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    margin-bottom: 28px;
+  }
+  .thi-footer-col-title {
+    font: 700 11px/1 var(--font-body);
+    text-transform: uppercase;
+    letter-spacing: .08em;
+    color: var(--celery);
+    margin-bottom: 12px;
+  }
+  .thi-footer-col ul { list-style: none; padding: 0; margin: 0; }
+  .thi-footer-col li { margin-bottom: 8px; }
+  .thi-footer-col a {
+    font: 400 14px/1.3 var(--font-body);
+    color: rgba(250,249,245,.8);
+    text-decoration: none;
+  }
+  .thi-footer-col a:hover { color: var(--cream); text-decoration: underline; }
+  .thi-footer-disclaimer {
+    font: 400 12px/1.5 var(--font-body);
+    color: rgba(250,249,245,.45);
+    padding: 18px 0;
+    border-top: 1px solid rgba(255,255,255,.08);
+  }
+  .thi-footer-disclaimer a { color: rgba(211,250,153,.7); }
+  .thi-footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(255,255,255,.08);
+    font: 400 12px/1 var(--font-body);
+    color: rgba(250,249,245,.4);
+  }
+  .thi-footer-legal { display: flex; gap: 14px; }
+  .thi-footer-legal a { color: rgba(250,249,245,.5); text-decoration: none; }
+  .thi-footer-legal a:hover { color: var(--cream); }
+  @media (max-width: 720px) {
+    .thi-footer-top { flex-direction: column; }
+    .thi-footer-main { grid-template-columns: 1fr 1fr; }
+  }
+</style>

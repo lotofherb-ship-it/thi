@@ -1,0 +1,125 @@
+---
+/**
+ * Category — grouped library (WC 2.0 P0).
+ * Lean list + Bijgewerkt dates + optional topicGroup subheads.
+ */
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { urlFor } from '../../lib/sanity';
+import { postHref as canonicalPostHref } from '../../lib/urls';
+import { getAllCategories, getCategoryBySlug, getPostsByCategory } from '../../lib/content';
+import type { Category, Post } from '../../types';
+import '../../styles/site.css';
+
+export async function getStaticPaths() {
+  const categories = await getAllCategories();
+  return categories.map(cat => ({
+    params: { category: cat.slug.current },
+    props: { catPreview: cat },
+  }));
+}
+
+const { category } = Astro.params;
+const cat: Category | null = await getCategoryBySlug(category!);
+const posts: Post[] = await getPostsByCategory(category!);
+
+if (!cat) return Astro.redirect('/404');
+
+function label(post: Post) {
+  if (post.template === 'comparison') return 'Vergelijking';
+  if (post.template === 'honest-review') return 'Eerlijke review';
+  return 'Gids';
+}
+
+function dateLabel(iso?: string) {
+  if (!iso) return null;
+  return new Date(iso).toLocaleDateString('nl-NL', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+  });
+}
+
+function cover(post: Post): string | null {
+  if (post.heroImage) {
+    return urlFor(post.heroImage).width(320).height(240).auto('format').url();
+  }
+  if (post.coverImageUrl) return post.coverImageUrl;
+  if (post.honestReview?.imageUrl) return post.honestReview.imageUrl;
+  const first = post.comparisonProducts?.find(p => p.imageUrl);
+  return first?.imageUrl || null;
+}
+
+/** Group by topicGroup when present; otherwise one flat “Alle” section */
+const groups = new Map<string, Post[]>();
+for (const post of posts) {
+  const key = post.topicGroup || 'Alle gidsen';
+  if (!groups.has(key)) groups.set(key, []);
+  groups.get(key)!.push(post);
+}
+const showSubheads = [...groups.keys()].some(k => k !== 'Alle gidsen') && groups.size > 1;
+---
+
+<BaseLayout
+  title={`${cat.title} — The Health Issue`}
+  description={cat.description || `Gidsen en reviews over ${cat.title}.`}
+>
+  <div class="wc-page">
+    <div class="wc-wrap">
+      <header class="wc-page-head">
+        <nav class="wc-crumb" aria-label="Kruimelpad">
+          <a href="/">Home</a>
+          <span class="wc-crumb-sep">/</span>
+          <span aria-current="page">{cat.title}</span>
+        </nav>
+        <div class="wc-kicker">{posts.length} artikelen</div>
+        <h1>{cat.title}</h1>
+        {cat.description
+          ? <p class="wc-dek">{cat.description}</p>
+          : <p class="wc-dek">Vergelijkingen, reviews en gidsen over {cat.title.toLowerCase()}.</p>
+        }
+      </header>
+
+      {posts.length === 0 ? (
+        <p class="wc-dek">Nog geen artikelen in deze categorie.</p>
+      ) : (
+        [...groups.entries()].map(([groupName, groupPosts]) => (
+          <section class="wc-cat-group">
+            {showSubheads && (
+              <h2 class="wc-cat-subhead">{groupName}</h2>
+            )}
+            <ul class="wc-story-list">
+              {groupPosts.map(post => {
+                const src = cover(post);
+                const stamp = dateLabel(post.updatedAt || post.publishedAt);
+                return (
+                  <li>
+                    <a class="wc-story" href={canonicalPostHref(post)}>
+                      <div>
+                        <h2 class="wc-story-title">{post.title}</h2>
+                        {post.excerpt && (
+                          <p class="wc-story-dek">
+                            {post.excerpt.slice(0, 160)}{post.excerpt.length > 160 ? '…' : ''}
+                          </p>
+                        )}
+                        <div class="wc-story-meta">
+                          <strong>{label(post)}</strong>
+                          {post.author && ` · ${post.author.name}`}
+                          {stamp && ` · Bijgewerkt ${stamp}`}
+                        </div>
+                      </div>
+                      <div class="wc-story-thumb">
+                        {src
+                          ? <img src={src} alt="" width="160" height="120" loading="lazy" />
+                          : <div class="wc-story-thumb-empty" aria-hidden="true" />}
+                      </div>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        ))
+      )}
+    </div>
+  </div>
+</BaseLayout>

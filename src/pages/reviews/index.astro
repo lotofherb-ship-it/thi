@@ -1,0 +1,55 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import { urlFor } from '../../lib/sanity';
+import { postHref } from '../../lib/urls';
+import { getReviewPosts } from '../../lib/content';
+import type { Post } from '../../types';
+import '../../styles/site.css';
+
+const posts = await getReviewPosts();
+
+function thumb(post: Post) {
+  return post.heroImage
+    ? urlFor(post.heroImage).width(320).height(240).auto('format').url()
+    : null;
+}
+---
+
+<BaseLayout
+  title="Reviews — The Health Issue"
+  description="Eerlijke productreviews van The Health Issue."
+>
+  <div class="wc-page">
+    <div class="wc-wrap">
+      <header class="wc-page-head">
+        <div class="wc-kicker">Hub</div>
+        <h1>Eerlijke reviews</h1>
+        <p class="wc-dek">Eén product, diep uitgeplozen — met score en koopopties.</p>
+      </header>
+      <ul class="wc-story-list">
+        {posts.map(post => {
+          const src = thumb(post);
+          return (
+            <li>
+              <a class="wc-story" href={postHref(post)}>
+                <div>
+                  <h2 class="wc-story-title">{post.title}</h2>
+                  {post.excerpt && <p class="wc-story-dek">{post.excerpt.slice(0, 140)}…</p>}
+                  <div class="wc-story-meta">
+                    <strong>Review</strong>
+                    {post.author && ` · ${post.author.name}`}
+                  </div>
+                </div>
+                <div class="wc-story-thumb">
+                  {src
+                    ? <img src={src} alt="" width="160" height="120" loading="lazy" />
+                    : <div class="wc-story-thumb-ph">Review</div>}
+                </div>
+              </a>
+            </li>
+          );
+        })}
+      </ul>
+    </div>
+  </div>
+</BaseLayout>

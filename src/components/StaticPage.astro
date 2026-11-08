@@ -1,0 +1,35 @@
+---
+/**
+ * Lean static / trust pages — Wirecutter editorial prose.
+ */
+import BaseLayout from '../layouts/BaseLayout.astro';
+import '../styles/site.css';
+
+interface Props {
+  title: string;
+  description?: string;
+  kicker?: string;
+  h1: string;
+  dek?: string;
+}
+
+const { title, description = '', kicker = 'The Health Issue', h1, dek } = Astro.props;
+---
+
+<BaseLayout title={title} description={description}>
+  <div class="wc-page">
+    <div class="wc-measure wc-static">
+      <nav class="wc-crumb" aria-label="Kruimelpad">
+        <a href="/">Home</a>
+        <span class="wc-crumb-sep">/</span>
+        <span aria-current="page">{h1}</span>
+      </nav>
+      <div class="wc-kicker">{kicker}</div>
+      <h1 style="font:800 clamp(1.75rem,3.5vw,2.25rem)/1.15 var(--font-head);letter-spacing:-.02em;margin:0 0 12px">{h1}</h1>
+      {dek && <p class="wc-dek" style="margin-bottom:28px">{dek}</p>}
+      <div class="wc-prose">
+        <slot />
+      </div>
+    </div>
+  </div>
+</BaseLayout>

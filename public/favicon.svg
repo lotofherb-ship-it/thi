@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" width="32" height="32">
+  <!-- Background -->
+  <rect width="32" height="32" rx="6" fill="#1C3A13"/>
+  <!-- T lettermark -->
+  <text x="16" y="23" font-family="Georgia, serif" font-size="19" font-weight="700" fill="#D3FA99" text-anchor="middle">T</text>
+</svg>

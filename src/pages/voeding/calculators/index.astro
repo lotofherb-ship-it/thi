@@ -1,0 +1,47 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import '../../../styles/site.css';
+---
+
+<BaseLayout
+  title="Rekentools — The Health Issue"
+  description="Praktische rekentools voor eiwit, magnesium en meer."
+>
+  <div class="wc-page">
+    <div class="wc-wrap">
+      <header class="wc-page-head">
+        <nav class="wc-crumb" aria-label="Kruimelpad">
+          <a href="/">Home</a>
+          <span class="wc-crumb-sep">/</span>
+          <a href="/voeding/">Voeding</a>
+          <span class="wc-crumb-sep">/</span>
+          <span aria-current="page">Rekentools</span>
+        </nav>
+        <div class="wc-kicker">Prototype</div>
+        <h1>Rekentools</h1>
+        <p class="wc-dek">Snelle schattingen — geen medisch of dieetadvies. Gebruik als startpunt.</p>
+      </header>
+
+      <ul class="wc-story-list">
+        <li>
+          <a class="wc-story" href="/voeding/calculators/eiwit/" style="grid-template-columns:1fr">
+            <div>
+              <h2 class="wc-story-title">Eiwit per dag</h2>
+              <p class="wc-story-dek">Schat je dagelijkse eiwitbehoefte op basis van gewicht en doel.</p>
+              <div class="wc-story-meta"><strong>Calculator</strong></div>
+            </div>
+          </a>
+        </li>
+        <li>
+          <a class="wc-story" href="/voeding/calculators/magnesium/" style="grid-template-columns:1fr">
+            <div>
+              <h2 class="wc-story-title">Magnesium — snelle check</h2>
+              <p class="wc-story-dek">Richtlijn voor elementair magnesium per dag (indicatief).</p>
+              <div class="wc-story-meta"><strong>Calculator</strong></div>
+            </div>
+          </a>
+        </li>
+      </ul>
+    </div>
+  </div>
+</BaseLayout>
