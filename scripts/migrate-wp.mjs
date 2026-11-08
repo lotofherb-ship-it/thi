@@ -11,6 +11,7 @@
  *   node scripts/migrate-wp.mjs --import --post beste-magnesium-bisglycinaat
  *   node scripts/migrate-wp.mjs --import --body-images
  *   node scripts/migrate-wp.mjs --import --limit 10
+ *   node scripts/migrate-wp.mjs --import --skip-existing   # resume without wiping
  *   node scripts/migrate-wp.mjs --pages-only
  */
 
@@ -48,6 +49,7 @@ const DRY_RUN = process.argv.includes('--dry-run') || !process.argv.includes('--
 const USE_LIVE = process.argv.includes('--live');
 const BODY_IMAGES = process.argv.includes('--body-images');
 const PAGES_ONLY = process.argv.includes('--pages-only');
+const SKIP_EXISTING = process.argv.includes('--skip-existing');
 const ONE_POST = (() => {
   const idx = process.argv.indexOf('--post');
   return idx !== -1 ? process.argv[idx + 1] : null;
@@ -659,6 +661,7 @@ async function main() {
   log('└─────────────────────────────────────────────────────┘');
   log(`  Mode: ${DRY_RUN ? 'DRY-RUN' : 'IMPORT'} | source: ${USE_LIVE ? 'live WP' : 'local export'}`);
   log(`  Body images: ${BODY_IMAGES ? 'yes' : 'no (featured + product images only)'}`);
+  if (SKIP_EXISTING) log(`  Skip existing: yes (resume, no wipe)`);
   if (ONE_POST) log(`  Post filter: ${ONE_POST}`);
   if (LIMIT) log(`  Limit: ${LIMIT}`);
   log('');
@@ -685,8 +688,34 @@ async function main() {
 
   const { posts: allPosts, cats, source } = await loadPostsAndCategories();
   let posts = allPosts;
+
+  let existingIds = new Set();
+  let existingSlugs = new Set();
+  let skipped = 0;
+  if (SKIP_EXISTING && !DRY_RUN) {
+    const existing = await sanity.fetch(
+      `*[_type=="post"]{ _id, "slug": slug.current }`,
+    );
+    existingIds = new Set(existing.map(p => p._id));
+    existingSlugs = new Set(existing.map(p => p.slug).filter(Boolean));
+    log(`  Already in Sanity: ${existing.length} posts (will skip)`);
+  }
+
+  if (SKIP_EXISTING) {
+    const before = posts.length;
+    posts = posts.filter(p => {
+      const id = `wp-${p.id}`;
+      if (existingIds.has(id) || existingSlugs.has(p.slug)) {
+        skipped++;
+        return false;
+      }
+      return true;
+    });
+    log(`  Pending after skip: ${posts.length} (filtered ${before - posts.length})`);
+  }
+
   if (LIMIT) posts = posts.slice(0, LIMIT);
-  log(`  ${posts.length} posts (${source}) | ${cats.length} categories`);
+  log(`  ${posts.length} posts to process (${source}) | ${cats.length} categories`);
 
   const catsById = Object.fromEntries(cats.map(c => [c.id, c]));
 
@@ -726,7 +755,7 @@ async function main() {
 
   log('');
   log('─────────────────────────────────────────────────────');
-  log(`  ✅ OK: ${success}  ❌ errors: ${errors}`);
+  log(`  ✅ OK: ${success}  ❌ errors: ${errors}${skipped ? `  ⏭ skipped: ${skipped}` : ''}`);
   log(`  templates: ${JSON.stringify(byTemplate)}`);
   log(`  categories: ${JSON.stringify(byCat)}`);
   log(`  pages exported: ${pagesCount}`);
@@ -736,7 +765,8 @@ async function main() {
   } else {
     const postsNow = await sanity.fetch('count(*[_type=="post"])');
     const catsNow = await sanity.fetch('count(*[_type=="category"])');
-    log(`  Sanity now: posts=${postsNow} categories=${catsNow}`);
+    const assetsNow = await sanity.fetch('count(*[_type=="sanity.imageAsset"])');
+    log(`  Sanity now: posts=${postsNow} categories=${catsNow} assets=${assetsNow}`);
   }
   log('');
 }

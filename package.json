@@ -13,7 +13,8 @@
     "affiliate:sync": "python3 ../affiliate/sync/affiliate_sync.py",
     "pages:deploy": "wrangler pages deploy dist --project-name=thi-astro",
     "migrate:dry": "node scripts/migrate-wp.mjs --dry-run",
-    "migrate:import": "node scripts/migrate-wp.mjs --import"
+    "migrate:import": "node scripts/migrate-wp.mjs --import",
+    "migrate:resume": "node scripts/migrate-wp.mjs --import --skip-existing"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",

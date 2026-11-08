@@ -31,3 +31,5 @@ sanity.types.ts
 # migration runtime
 migration/import-log.txt
 migration/import.pid
+
+migration/import.done
