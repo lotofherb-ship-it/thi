@@ -113,6 +113,10 @@ export interface HonestReview {
   imageUrl?: string;
   /** Affiliate products.db id for live offers (same as comparison pick). */
   tursoProductId?: number;
+  /** Manual CTA — Bol = partner.bol.com only (Catalog API not in v1). */
+  affiliateUrl?: string;
+  shop?: string;
+  price?: string;
   pros?: string[];
   cons?: string[];
   scores?: HonestReviewScore;

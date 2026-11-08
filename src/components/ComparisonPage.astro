@@ -56,17 +56,9 @@ function productImage(p: ResolvedProduct): string | null {
   return resolveProductImageUrl(p, sanity);
 }
 
+/** Only offers already vetted by resolve (no resurrect of rejected bare/example URLs). */
 function productOffers(p: ResolvedProduct) {
-  if (p.offers?.length) return p.offers;
-  if (p.affiliateUrl) {
-    return [{
-      merchant: p.shop || 'Webshop',
-      price: p.price || '',
-      url: p.affiliateUrl,
-      source: 'manual' as const,
-    }];
-  }
-  return [];
+  return p.offers?.length ? p.offers : [];
 }
 
 const authorSrc = post.author?.avatar

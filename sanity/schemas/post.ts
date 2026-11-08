@@ -191,6 +191,21 @@ export const post = defineType({
         { name: 'bestFor', type: 'string', title: 'Best voor (bijv. "Sporters die beter willen herstellen")' },
         { name: 'overallScore', type: 'number', title: 'Eindscore (0–10)', validation: R => R.min(0).max(10) },
         {
+          name: 'tursoProductId',
+          type: 'number',
+          title: 'Turso / products.db id (Awin of Daisycon)',
+          description: 'Primair: live prijs + affiliate URL uit feed. Verplicht of affiliateUrl.',
+        },
+        {
+          name: 'affiliateUrl',
+          type: 'url',
+          title: 'Handmatige affiliate-URL',
+          description:
+            'Last resort of Bol-only. Bol = partner.bol.com deep link (s=1121688). Geen bare bol.com PDP. Catalog API niet in v1.',
+        },
+        { name: 'shop', type: 'string', title: 'Shop-label (bij handmatige URL)' },
+        { name: 'price', type: 'string', title: 'Prijs-label (bij handmatige URL)' },
+        {
           name: 'scores',
           type: 'object',
           title: 'Deelscores',

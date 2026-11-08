@@ -54,7 +54,11 @@ export const postBySlugQuery = `
       shop, affiliateUrl, image, pros, cons, verdict, tursoProductId
     },
     comparisonDisclosure,
-    honestReview,
+    honestReview {
+      productName, testPeriod, bestFor, overallScore, notFor, tagline, verdict,
+      imageUrl, tursoProductId, affiliateUrl, shop, price, pros, cons, scores,
+      weeklyEntries
+    },
   }
 `;
 
