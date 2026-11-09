@@ -67,6 +67,26 @@ function dedupe(offers: ProductOffer[]): ProductOffer[] {
   });
 }
 
+/** Awin → Daisycon → manual/fixture (Bol last-resort lives in manual). */
+function networkRank(o: ProductOffer): number {
+  if (o.source === 'awin') return 0;
+  if (o.source === 'daisycon') return 1;
+  if (o.source === 'manual') {
+    try {
+      const host = new URL(o.url).hostname.replace(/^www\./, '');
+      if (host === 'partner.bol.com' || host === 'bol.com') return 3;
+    } catch {
+      /* keep manual mid-rank */
+    }
+    return 2;
+  }
+  return 4;
+}
+
+function sortByNetworkPriority(offers: ProductOffer[]): ProductOffer[] {
+  return [...offers].sort((a, b) => networkRank(a) - networkRank(b));
+}
+
 function offerFromRow(row: AffiliateProductRow): ProductOffer {
   const o = rowToOffer(row);
   return {
@@ -114,7 +134,8 @@ export async function resolveProductOffers(product: ComparisonProduct): Promise<
   if (product.affiliateUrl) {
     const already = offers.some(o => o.url === product.affiliateUrl);
     if (!already) {
-      offers.unshift({
+      // Append then sort — do not unshift ahead of Awin/Daisycon feed hits
+      offers.push({
         merchant: product.shop || 'Webshop',
         price: product.price || '',
         url: product.affiliateUrl,
@@ -126,11 +147,9 @@ export async function resolveProductOffers(product: ComparisonProduct): Promise<
 
   if (offers.length === 0) {
     offers.push(...fixtureOffersFor(product));
-  } else {
-    // Don't mix fixtures when we have real feed data
   }
 
-  return dedupe(offers);
+  return sortByNetworkPriority(dedupe(offers));
 }
 
 /**
@@ -169,8 +188,12 @@ export async function resolveProducts(
         // never break build
       }
 
-      const primary = merged[0];
-      const fromDb = Boolean(p.tursoProductId && primary?.source === 'awin');
+      const ranked = sortByNetworkPriority(merged);
+      const primary = ranked[0];
+      const fromDb = Boolean(
+        p.tursoProductId &&
+          (primary?.source === 'awin' || primary?.source === 'daisycon'),
+      );
 
       return {
         ...p,
@@ -178,7 +201,7 @@ export async function resolveProducts(
         price: primary?.price || p.price,
         shop: primary?.merchant || p.shop,
         affiliateUrl: primary?.url || p.affiliateUrl,
-        offers: merged,
+        offers: ranked,
         feedImageUrl,
         resolvedFromDb: fromDb,
       };
