@@ -187,6 +187,27 @@ const articleHero = heroSrc || (chatScript ? chatScript.hero.photo : null);
 
     {/* Affiliate honesty: sitewide DisclosureStrip only (P0-1) */}
 
+    {/* Light ATF cue — soft shop path without urgency spam */}
+    {primaryOffer && primaryCta && (
+      <p class="guide-atf-cue" aria-label="Snel naar shop">
+        <span class="guide-atf-cue-kicker">Koopoptie</span>
+        <span class="guide-atf-cue-name">{productName}</span>
+        <span class="guide-atf-cue-actions">
+          <a href="#beoordeling">Naar beoordeling</a>
+          <span class="guide-atf-cue-sep" aria-hidden="true">·</span>
+          <a
+            class="guide-atf-cue-buy"
+            href={primaryOffer.url}
+            target="_blank"
+            rel="noopener noreferrer nofollow sponsored"
+          >
+            {primaryCta.action}
+            <span class="guide-atf-cue-aff">Partnerlink</span>
+          </a>
+        </span>
+      </p>
+    )}
+
     {articleHero && (
       <figure class="guide-hero">
         <img

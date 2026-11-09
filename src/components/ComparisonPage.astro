@@ -193,6 +193,31 @@ const showRecThumbs = products.some(p => Boolean(productImage(p)));
 
     {/* Affiliate honesty: sitewide DisclosureStrip only (P0-1 — no article disc box) */}
 
+    {/* Light ATF cue — one soft next step, not a sticky buy rail */}
+    {topProduct && (
+      <p class="guide-atf-cue" aria-label="Snel naar aanraders">
+        <span class="guide-atf-cue-kicker">Topkeuze</span>
+        <span class="guide-atf-cue-name">{topProduct.name}</span>
+        <span class="guide-atf-cue-actions">
+          <a href="#aanraden">Alles wat we aanraden</a>
+          {topPrimary && topCta && (
+            <>
+              <span class="guide-atf-cue-sep" aria-hidden="true">·</span>
+              <a
+                class="guide-atf-cue-buy"
+                href={topPrimary.url}
+                target="_blank"
+                rel="noopener noreferrer nofollow sponsored"
+              >
+                {topCta.action}
+                <span class="guide-atf-cue-aff">Partnerlink</span>
+              </a>
+            </>
+          )}
+        </span>
+      </p>
+    )}
+
     {coverSrc && (
       <figure class="guide-hero">
         <img
@@ -211,6 +236,7 @@ const showRecThumbs = products.some(p => Boolean(productImage(p)));
       <nav class="guide-tocbar" aria-label="In deze gids">
         <div class="guide-tocbar-inner">
           {chatScript && <a href="#chat-guide-opener">Snel antwoord</a>}
+          <a href="#aanraden">Aanraden</a>
           {products.map((p, i) => {
             const { label } = pickLabel(p, i);
             return (
