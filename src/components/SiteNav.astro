@@ -1,15 +1,17 @@
 ---
 const currentPath = Astro.url.pathname;
 
-/** Primary browse — categories only. Methode lives in disclosure + footer. */
+/** Klusjes-first nav — money hubs in primary; voeding/recepten demoted. */
 const navLinks = [
   { href: '/supplementen/', label: 'Supplementen' },
-  { href: '/gezondheid/',   label: 'Gezondheid' },
-  { href: '/voeding/',      label: 'Voeding' },
   { href: '/training/',     label: 'Training' },
+  { href: '/gezondheid/',   label: 'Gezondheid' },
+  { href: '/vergelijken/',  label: 'Vergelijken' },
+  { href: '/reviews/',      label: 'Reviews' },
 ];
 
 const drawerExtras = [
+  { href: '/voeding/',             label: 'Voeding' },
   { href: '/voeding/calculators/', label: 'Rekentools' },
   { href: '/methode/',             label: 'Methode' },
 ];
