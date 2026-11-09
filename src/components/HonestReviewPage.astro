@@ -14,6 +14,12 @@ import { resolveProductOffers, offerCta } from '../lib/products/resolve';
 import { getChatScriptForSlug } from '../lib/chat-opener';
 import PickBuy from './PickBuy.astro';
 import type { Post, ComparisonProduct } from '../types';
+import {
+  breadcrumbList,
+  faqPageSchema,
+  guessBrand,
+  reviewSchema,
+} from '../lib/schema';
 import '../styles/guide.css';
 
 interface Props {
@@ -94,44 +100,31 @@ const notFor =
         'Je alleen op de laagste stickerprijs wilt beslissen',
       ];
 
-const articleSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'Review',
-  headline: post.seoTitle || post.title,
-  description: post.seoDescription || post.excerpt,
-  datePublished: post.publishedAt,
-  dateModified: post.updatedAt || post.publishedAt,
-  image: heroSrc,
-  author: post.author ? { '@type': 'Person', name: post.author.name } : undefined,
-  publisher: { '@type': 'Organization', name: 'The Health Issue', url: 'https://thehealthissue.nl' },
-  itemReviewed: { '@type': 'Product', name: productName },
-  reviewRating: hr?.overallScore
-    ? { '@type': 'Rating', ratingValue: hr.overallScore, bestRating: 10, worstRating: 0 }
-    : undefined,
-};
-
-const faqSchema = post.faq?.length
-  ? {
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      mainEntity: post.faq.map(f => ({
-        '@type': 'Question',
-        name: f.question,
-        acceptedAnswer: { '@type': 'Answer', text: f.answer },
-      })),
-    }
-  : null;
-
 const chatScript = getChatScriptForSlug(post.slug?.current);
 const articleHero = heroSrc || (chatScript ? chatScript.hero.photo : null);
+
+const reviewJsonLd = reviewSchema({
+  post,
+  productName,
+  image: articleHero || productSrc,
+  brand: guessBrand(productName) || null,
+  reviewBody: hr?.verdict || post.excerpt || post.quickAnswer || null,
+  // Only when visible score stamp exists in UI
+  ratingValue: typeof hr?.overallScore === 'number' ? hr.overallScore : null,
+  includeReviewedBy: Boolean(post.expertReviewer),
+});
+const faqSchema = faqPageSchema(post.faq);
+const crumbSchema = breadcrumbList(post);
 ---
 
 <BaseLayout
   title={post.seoTitle || post.title}
   description={post.seoDescription || post.excerpt || ''}
-  image={heroSrc || undefined}
+  image={articleHero || undefined}
+  ogType="article"
 >
-  <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(reviewJsonLd)} />
+  <script type="application/ld+json" set:html={JSON.stringify(crumbSchema)} />
   {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
 
   <article class="guide hr-article" id="guide-start">
@@ -215,6 +208,7 @@ const articleHero = heroSrc || (chatScript ? chatScript.hero.photo : null);
           alt={productName}
           width="1200"
           height="675"
+          sizes="(max-width: 820px) 100vw, 820px"
           decoding="async"
           fetchpriority="high"
         />

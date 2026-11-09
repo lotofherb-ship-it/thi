@@ -1,5 +1,10 @@
 User-agent: *
 Allow: /
 
-# Sitemap
+# Preview discoverability (until DNS): open these on thi-astro.pages.dev
+#   /sitemap.xml  →  /sitemap-index.xml
+#   /sitemap-0.xml
+# <loc> values inside always use https://thehealthissue.nl/… (cutover-ready).
+# Preview stays noindex via Cloudflare x-robots-tag until custom domain.
+Sitemap: https://thi-astro.pages.dev/sitemap-index.xml
 Sitemap: https://thehealthissue.nl/sitemap-index.xml
