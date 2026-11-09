@@ -3,16 +3,26 @@
  * Simple Portable Text renderer for THI article body.
  * Handles: paragraphs, headings, lists, blockquotes, images, tables.
  * WP-migrated soft breaks (\n spans) are normalized into real <p> blocks.
+ * Migrated inline buy stacks (name + Vanaf € + Bekijk prijs + disclosure)
+ * coalesce into mini PickBuy-style cards.
  */
 import type { PortableTextBlock } from '@portabletext/types';
 import { urlFor } from '../lib/sanity';
+import {
+  merchantDisplayName,
+  offerCta,
+  PICK_DISC_SHORT,
+  type ProductOffer,
+} from '../lib/products/resolve';
 
 export interface Props {
   value: PortableTextBlock[];
   class?: string;
+  /** Prefer resolved commerce for detected inline buy stacks (e.g. PLNKT). */
+  defaultOffer?: ProductOffer | null;
 }
 
-const { value, class: className = '' } = Astro.props;
+const { value, class: className = '', defaultOffer = null } = Astro.props;
 
 /** Escape HTML special characters to prevent XSS. */
 function escapeHtml(str: string): string {
@@ -93,6 +103,104 @@ function getText(block: any): string {
   return paragraphChunks(block).join(' ');
 }
 
+function plainText(block: any): string {
+  return (block?.children || []).map((c: any) => c.text || '').join('').trim();
+}
+
+function blockLinkHref(block: any): string | null {
+  const def = (block.markDefs || []).find((d: any) => d._type === 'link' && d.href);
+  return def ? safeHref(def.href) : null;
+}
+
+function isNormalPara(block: any): boolean {
+  return (
+    block?._type === 'block' &&
+    (!block.style || block.style === 'normal') &&
+    !block.listItem
+  );
+}
+
+/** Migrated WP product CTA: name / Vanaf €… / Bekijk prijs… / Directe link… */
+function matchInlineBuyStack(blocks: any[], start: number): number {
+  if (start + 2 >= blocks.length) return 0;
+  const a = blocks[start];
+  const b = blocks[start + 1];
+  const c = blocks[start + 2];
+  if (!isNormalPara(a) || !isNormalPara(b) || !isNormalPara(c)) return 0;
+
+  const name = plainText(a);
+  const priceLine = plainText(b);
+  const ctaLine = plainText(c);
+  if (!name || name.length > 90) return 0;
+  if (!/^Vanaf\s*€/i.test(priceLine)) return 0;
+  if (!/Bekijk\s+prijs/i.test(ctaLine) || !blockLinkHref(c)) return 0;
+
+  let consumed = 3;
+  const d = blocks[start + 3];
+  if (d && isNormalPara(d) && /Directe link|officieel affiliate|Partnerlink/i.test(plainText(d))) {
+    consumed = 4;
+  }
+  return consumed;
+}
+
+function priceFromVanaf(line: string): string {
+  const m = line.match(/€\s*[\d.,]+/);
+  return m ? m[0].replace(/\s+/g, '') : '';
+}
+
+function merchantFromCta(cta: string): string {
+  const m = cta.match(/Bekijk\s+prijs\s+bij\s+(.+?)(?:\s*→)?$/i);
+  if (m) return m[1].replace(/→/g, '').trim();
+  return 'webshop';
+}
+
+function renderInlineBuy(blocks: any[], start: number, count: number): string {
+  const name = plainText(blocks[start]);
+  const priceLine = plainText(blocks[start + 1]);
+  const ctaBlock = blocks[start + 2];
+  const hrefFromBody = blockLinkHref(ctaBlock) || '#';
+  const migratedPrice = priceFromVanaf(priceLine);
+  const migratedMerchant = merchantFromCta(plainText(ctaBlock));
+
+  const useDefault =
+    defaultOffer &&
+    (!hrefFromBody ||
+      hrefFromBody === '#' ||
+      hrefFromBody === defaultOffer.url ||
+      /tidd\.ly|plnkt/i.test(hrefFromBody) ||
+      /plnkt/i.test(name));
+
+  const offer: ProductOffer = useDefault && defaultOffer
+    ? defaultOffer
+    : {
+        merchant: migratedMerchant,
+        price: migratedPrice,
+        url: hrefFromBody,
+        source: 'manual',
+      };
+
+  const { action, price } = offerCta(offer, 'primary');
+  const shop = merchantDisplayName(offer.merchant);
+  const displayPrice = price || migratedPrice;
+  const safeUrl = escapeHtml(safeHref(offer.url));
+
+  return `
+    <aside class="inline-buy" aria-label="Koop ${escapeHtml(name)}">
+      <div class="inline-buy-name">${escapeHtml(name)}</div>
+      <a
+        class="inline-buy-cta"
+        href="${safeUrl}"
+        target="_blank"
+        rel="noopener noreferrer nofollow sponsored"
+      >
+        <span class="inline-buy-action">${escapeHtml(action || `Bekijk bij ${shop}`)}</span>
+        ${displayPrice ? `<span class="inline-buy-meta">${escapeHtml(displayPrice)}</span>` : ''}
+      </a>
+      <p class="inline-buy-disc">${escapeHtml(PICK_DISC_SHORT)} <a href="/affiliate-disclosure/">Meer info</a></p>
+    </aside>
+  `;
+}
+
 function renderBlock(block: any): string {
   switch (block._type) {
     case 'block': {
@@ -166,13 +274,20 @@ function slugify(text: string): string {
     .replace(/\s+/g, '-');
 }
 
-// Group list items
+// Group list items + coalesce migrated inline buy stacks
 function renderBlocks(blocks: any[]): string {
   let html = '';
   let i = 0;
 
   while (i < blocks.length) {
     const block = blocks[i];
+
+    const buyCount = matchInlineBuyStack(blocks, i);
+    if (buyCount) {
+      html += renderInlineBuy(blocks, i, buyCount);
+      i += buyCount;
+      continue;
+    }
 
     if (block._type === 'block' && (block.listItem === 'bullet' || block.listItem === 'number')) {
       const tag = block.listItem === 'bullet' ? 'ul' : 'ol';
@@ -249,5 +364,63 @@ const html = renderBlocks(value || []);
     font: 700 16px/1.3 var(--font-head);
     color: var(--text);
     margin: 20px 0 8px;
+  }
+
+  /* Mini PickBuy — migrated inline product stacks */
+  .entry-content .inline-buy {
+    margin: 22px 0 26px;
+    padding: 14px 16px;
+    max-width: 22rem;
+    background: var(--cream-2, #f3f0e8);
+    border: 1px solid var(--cream-3, #e4dfd2);
+    border-radius: 10px;
+  }
+  .entry-content .inline-buy-name {
+    font: 700 15px/1.3 var(--font-head, inherit);
+    color: var(--text, #1a1a1a);
+    letter-spacing: -.01em;
+    margin: 0 0 10px;
+  }
+  .entry-content .inline-buy-cta {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    padding: 11px 14px;
+    min-height: 48px;
+    background: var(--celery, #d9f99d);
+    border: 1px solid var(--celery-d, #b8e06a);
+    border-radius: 8px;
+    text-decoration: none !important;
+    color: var(--green-900, #1f3d2a);
+  }
+  .entry-content .inline-buy-cta:hover { filter: brightness(.97); }
+  .entry-content .inline-buy-action {
+    font: 700 14.5px/1.2 var(--font-head, inherit);
+    letter-spacing: -.01em;
+  }
+  .entry-content .inline-buy-meta {
+    font: 600 12px/1.25 var(--font-body, inherit);
+    color: var(--green-700, #3d5c47);
+  }
+  .entry-content .inline-buy-disc {
+    font: 400 11px/1.4 var(--font-body, inherit);
+    color: var(--muted, #6b7280);
+    margin: 8px 0 0;
+  }
+  .entry-content .inline-buy-disc a {
+    color: var(--green-900, #1f3d2a);
+    font-weight: 600;
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  @media (max-width: 640px) {
+    .entry-content .inline-buy { max-width: none; }
+    .entry-content .inline-buy-cta {
+      width: 100%;
+      align-items: center;
+      text-align: center;
+      min-height: 52px;
+    }
   }
 </style>

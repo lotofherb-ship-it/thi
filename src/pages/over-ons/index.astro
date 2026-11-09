@@ -1,6 +1,15 @@
 ---
 import StaticPage from '../../components/StaticPage.astro';
+import { client, urlFor } from '../../lib/sanity';
 import '../../styles/site.css';
+
+const author = await client.fetch(`*[_type=="author" && slug.current=="jouke-de-jong"][0]{
+  name, credentials, bio, avatar
+}`);
+
+const photo = author?.avatar
+  ? urlFor(author.avatar).width(240).height(240).fit('crop').auto('format').url()
+  : null;
 ---
 
 <StaticPage
@@ -11,14 +20,17 @@ import '../../styles/site.css';
   dek="Eén merk. Keuzehulp voor gezondheidsproducten — rustig, inspecteerbaar, eerlijk over geld."
 >
   <div class="wc-author-block">
-    <div class="wc-author-photo" aria-hidden="true">JdJ</div>
+    {photo ? (
+      <img class="wc-author-photo wc-author-photo--img" src={photo} alt={author.name} width="96" height="96" />
+    ) : (
+      <div class="wc-author-photo" aria-hidden="true">JdJ</div>
+    )}
     <div>
-      <p class="wc-author-name">Jouke de Jong</p>
-      <p class="wc-author-role">Oprichter · schrijft de gidsen van The Health Issue</p>
+      <p class="wc-author-name">{author?.name || 'Jouke de Jong'}</p>
+      <p class="wc-author-role">{author?.credentials || 'Oprichter'} · schrijft de gidsen van The Health Issue</p>
       <p class="wc-author-bio">
-        Ik beoordeel supplementen en health-producten op etikethelderheid, dosering en prijs per
-        effectieve dosis — niet op commissiehoogte. Affiliate-links staan altijd zichtbaar bij de
-        koopoptie. Foto volgt; tot die tijd deze initialen-placeholder.
+        {author?.bio ||
+          'Ik beoordeel supplementen en health-producten op etikethelderheid, dosering en prijs per effectieve dosis — niet op commissiehoogte. Affiliate-links staan altijd zichtbaar bij de koopoptie.'}
       </p>
     </div>
   </div>
@@ -41,3 +53,14 @@ import '../../styles/site.css';
   <h2>Contact</h2>
   <p>Vragen of tip? Ga naar <a href="/contact/">contact</a>.</p>
 </StaticPage>
+
+<style is:global>
+  .wc-author-photo--img {
+    display: block;
+    object-fit: cover;
+    border-radius: 50%;
+    width: 96px;
+    height: 96px;
+    background: var(--cream-2, #f3f0e8);
+  }
+</style>

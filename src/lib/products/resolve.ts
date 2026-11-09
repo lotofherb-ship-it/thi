@@ -99,24 +99,35 @@ function offerFromRow(row: AffiliateProductRow): ProductOffer {
   };
 }
 
+export interface ResolvedOffers {
+  offers: ProductOffer[];
+  /** Merchant pack shot from Awin/Daisycon row when present. */
+  feedImageUrl: string | null;
+}
+
 /**
- * Resolve offers for one Sanity comparison product.
+ * Resolve offers + feed pack shot for one Sanity comparison product.
  */
-export async function resolveProductOffers(product: ComparisonProduct): Promise<ProductOffer[]> {
+export async function resolveProductCommerce(
+  product: ComparisonProduct,
+): Promise<ResolvedOffers> {
   const offers: ProductOffer[] = [];
   let primary: AffiliateProductRow | null = null;
+  let feedImageUrl: string | null = null;
 
   try {
     if (product.tursoProductId) {
       primary = await getProductById(product.tursoProductId);
       if (primary) {
         offers.push(offerFromRow(primary));
+        if (primary.image_url) feedImageUrl = primary.image_url;
         // Cross-merchant via EAN (Wirecutter multi-buy)
         if (primary.ean) {
           const siblings = await getOffersByEan(primary.ean, 5);
           for (const s of siblings) {
             if (s.id === primary.id) continue;
             offers.push(offerFromRow(s));
+            if (!feedImageUrl && s.image_url) feedImageUrl = s.image_url;
           }
         }
       }
@@ -125,7 +136,20 @@ export async function resolveProductOffers(product: ComparisonProduct): Promise<
     // Soft fallback: search by product name if no ID linked yet
     if (!primary && product.name && !product.affiliateUrl) {
       const hits = await searchProducts(product.name, 3);
-      for (const h of hits) offers.push(offerFromRow(h));
+      for (const h of hits) {
+        offers.push(offerFromRow(h));
+        if (!feedImageUrl && h.image_url) feedImageUrl = h.image_url;
+      }
+    }
+
+    // Feed image via primary offer productId when ID path missed image
+    if (!feedImageUrl) {
+      const ranked = sortByNetworkPriority(dedupe(offers));
+      const pid = ranked.find(o => o.productId)?.productId;
+      if (pid) {
+        const row = await getProductById(pid);
+        if (row?.image_url) feedImageUrl = row.image_url;
+      }
     }
   } catch {
     // Never break the Astro build
@@ -149,7 +173,18 @@ export async function resolveProductOffers(product: ComparisonProduct): Promise<
     offers.push(...fixtureOffersFor(product));
   }
 
-  return sortByNetworkPriority(dedupe(offers));
+  return {
+    offers: sortByNetworkPriority(dedupe(offers)),
+    feedImageUrl,
+  };
+}
+
+/** Resolve offers for one Sanity comparison product. */
+export async function resolveProductOffers(
+  product: ComparisonProduct,
+): Promise<ProductOffer[]> {
+  const { offers } = await resolveProductCommerce(product);
+  return offers;
 }
 
 /**
@@ -162,7 +197,8 @@ export async function resolveProducts(
 ): Promise<ResolvedProduct[]> {
   return Promise.all(
     products.map(async p => {
-      const offers = await resolveProductOffers(p);
+      const { offers: baseOffers, feedImageUrl } = await resolveProductCommerce(p);
+      const offers = [...baseOffers];
 
       // Editorial alt merchants (demo / Sanity) — always merge after feed
       if (p.extraOffers?.length) {
@@ -176,23 +212,10 @@ export async function resolveProducts(
           });
         }
       }
-      const merged = dedupe(offers);
-
-      let feedImageUrl: string | null = null;
-      try {
-        if (p.tursoProductId) {
-          const row = await getProductById(p.tursoProductId);
-          if (row?.image_url) feedImageUrl = row.image_url;
-        }
-      } catch {
-        // never break build
-      }
-
-      const ranked = sortByNetworkPriority(merged);
+      const ranked = sortByNetworkPriority(dedupe(offers));
       const primary = ranked[0];
       const fromDb = Boolean(
-        p.tursoProductId &&
-          (primary?.source === 'awin' || primary?.source === 'daisycon'),
+        primary?.source === 'awin' || primary?.source === 'daisycon',
       );
 
       return {
@@ -209,7 +232,10 @@ export async function resolveProducts(
   );
 }
 
-/** Prefer Sanity → feed → editorial imageUrl for pick media. */
+/**
+ * Pick-card media: dedicated Sanity product shot → merchant feed pack shot →
+ * editorial imageUrl. Never invent a bottle placeholder when the feed has a URL.
+ */
 export function resolveProductImageUrl(
   product: ResolvedProduct,
   sanityUrl: string | null,
