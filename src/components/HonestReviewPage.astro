@@ -26,7 +26,12 @@ const scores = hr?.scores;
 const productName = hr?.productName || post.title;
 
 const heroSrc = post.heroImage
-  ? urlFor(post.heroImage).width(840).height(525).auto('format').url()
+  ? urlFor(post.heroImage).width(960).height(540).fit('crop').auto('format').url()
+  : null;
+
+/** Product card media — never landscape-crop a bottle shot */
+const productSrc = post.heroImage
+  ? urlFor(post.heroImage).width(720).fit('max').auto('format').url()
   : hr?.imageUrl || null;
 
 const authorSrc = post.author?.avatar
@@ -239,8 +244,8 @@ const articleHero = heroSrc || (chatScript ? chatScript.hero.photo : null);
 
       <div class="pick-callout">
         <div class="pick-media">
-          {heroSrc
-            ? <img src={heroSrc} alt={productName} width="480" height="360" loading="eager" />
+          {productSrc
+            ? <img src={productSrc} alt={productName} width="480" height="480" loading="eager" />
             : <span class="pick-media-empty" aria-hidden="true" />}
         </div>
         <div class="pick-meta">

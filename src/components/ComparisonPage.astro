@@ -50,8 +50,9 @@ function shortName(name: string, max = 28): string {
 }
 
 function productImage(p: ResolvedProduct): string | null {
+  // No forced landscape crop — square/tall bottles stay contain-friendly
   const sanity = p.image
-    ? urlFor(p.image).width(840).height(525).auto('format').url()
+    ? urlFor(p.image).width(720).fit('max').auto('format').url()
     : null;
   return resolveProductImageUrl(p, sanity);
 }
