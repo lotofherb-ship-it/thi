@@ -74,6 +74,9 @@ export async function getAllPosts(): Promise<Post[]> {
     const remote = await fetchOrThrow<Post[]>(allPostsQuery);
     const posts = remote || [];
     assertHasPosts(posts, 'getAllPosts');
+    if (isProdBuild()) {
+      console.log(`[thi-content] Sanity-only build: ${posts.length} posts (fixtures off)`);
+    }
     return [...posts].sort((a, b) => {
       const da = a.publishedAt || '';
       const db = b.publishedAt || '';

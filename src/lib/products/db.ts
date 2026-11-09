@@ -13,8 +13,11 @@ import { DatabaseSync } from 'node:sqlite';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+export type AffiliateNetwork = 'awin' | 'daisycon' | 'tradetracker' | string;
+
 export interface AffiliateProductRow {
   id: number;
+  network?: AffiliateNetwork | null;
   product_name: string;
   merchant_name: string;
   merchant_id?: number | null;
@@ -52,7 +55,17 @@ function sanitizeUrl(url: string | null | undefined): string | null {
       if (!url.includes(`a=${AWIN_PUBLISHER_ID}`)) return null;
       return url;
     }
-    // Daisycon / other networks — allow https for now; tighten per-network later
+    // Daisycon click hosts (feed deep links)
+    if (
+      host === 'ds1.nl' ||
+      host.endsWith('.daisycon.com') ||
+      host.includes('fitwinkel.nl') ||
+      host.includes('fr135.net') ||
+      (host.startsWith('rep') && host.includes('.'))
+    ) {
+      return url;
+    }
+    // Other https affiliate / merchant deep links (Bol last-resort manual stays allowed)
     if (/^https?:$/i.test(new URL(url).protocol)) return url;
   } catch {
     return null;
@@ -65,6 +78,7 @@ function mapRow(row: Record<string, unknown>): AffiliateProductRow | null {
   if (!url) return null;
   return {
     id: Number(row.id),
+    network: row.network != null ? String(row.network) : 'awin',
     product_name: String(row.product_name || ''),
     merchant_name: String(row.merchant_name || ''),
     merchant_id: row.merchant_id != null ? Number(row.merchant_id) : null,
@@ -107,7 +121,7 @@ function getRemote(): Client | null {
 }
 
 const SELECT_COLS = `
-  id, product_name, merchant_name, merchant_id, price, display_price,
+  id, network, product_name, merchant_name, merchant_id, price, display_price,
   currency, ean, brand, affiliate_url, image_url, category
 `;
 
@@ -197,15 +211,17 @@ export function rowToOffer(row: AffiliateProductRow): {
   price: string;
   url: string;
   currency: string;
-  source: 'awin';
+  source: 'awin' | 'daisycon';
   productId: number;
 } {
+  const net = (row.network || 'awin').toLowerCase();
+  const source: 'awin' | 'daisycon' = net === 'daisycon' ? 'daisycon' : 'awin';
   return {
     merchant: row.merchant_name.replace(/\s+NL$/i, '') || row.merchant_name,
     price: row.display_price || (row.price != null ? `€${row.price.toFixed(2).replace('.', ',')}` : ''),
     url: row.affiliate_url!,
     currency: row.currency || 'EUR',
-    source: 'awin',
+    source,
     productId: row.id,
   };
 }
