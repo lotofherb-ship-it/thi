@@ -10,7 +10,7 @@ import PortableText from './PortableText.astro';
 import ChatGuideOpener from './ChatGuideOpener.astro';
 import { urlFor } from '../lib/sanity';
 import { categoryHref } from '../lib/urls';
-import { resolveProductOffers } from '../lib/products/resolve';
+import { resolveProductOffers, offerCta } from '../lib/products/resolve';
 import { getChatScriptForSlug } from '../lib/chat-opener';
 import PickBuy from './PickBuy.astro';
 import type { Post, ComparisonProduct } from '../types';
@@ -75,6 +75,8 @@ const synthetic: ComparisonProduct = {
   tursoProductId: hr?.tursoProductId,
 };
 const offers = await resolveProductOffers(synthetic);
+const primaryOffer = offers[0] || null;
+const primaryCta = primaryOffer ? offerCta(primaryOffer) : null;
 
 const tocItems = (post.body || [])
   .filter((b: any) => b._type === 'block' && b.style === 'h2')
@@ -297,6 +299,28 @@ const articleHero = heroSrc || (chatScript ? chatScript.hero.photo : null);
         </div>
       </div>
     </section>
+
+    {/* Soft mid CTA after trust framing — not inside for/not-for */}
+    {primaryOffer && primaryCta && (
+      <aside class="guide-mid-cta" aria-label="Koopoptie">
+        <div class="guide-mid-cta-copy">
+          <span class="guide-mid-cta-kicker">Naar de shop</span>
+          <strong class="guide-mid-cta-name">{productName}</strong>
+          {hr?.bestFor && <span class="guide-mid-cta-claim">Beste voor: {hr.bestFor}</span>}
+        </div>
+        <a
+          class="guide-mid-cta-btn"
+          href={primaryOffer.url}
+          target="_blank"
+          rel="noopener noreferrer nofollow sponsored"
+        >
+          <span class="guide-mid-cta-action">{primaryCta.action}</span>
+          <span class="guide-mid-cta-meta">
+            {primaryCta.price ? `${primaryCta.price} · ` : ''}Partnerlink
+          </span>
+        </a>
+      </aside>
+    )}
 
     {hr?.overallScore != null && activeScores.length > 0 && (
       <section class="hr-score-strip" id="scores" aria-label="Scores">
