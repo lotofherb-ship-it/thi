@@ -475,17 +475,24 @@ a { color: inherit; }
 .entry-p {
   font: 400 15px/1.7 var(--font-body);
   color: var(--body);
-  margin-bottom: 16px;
+  margin: 0 0 1.1em;
+}
+.entry-content p:last-child,
+.entry-content .entry-p:last-child {
+  margin-bottom: 0;
 }
 .entry-content ul,
 .entry-content ol {
-  padding-left: 20px;
-  margin-bottom: 16px;
+  padding-left: 1.25em;
+  margin: 0 0 1.15em;
 }
 .entry-content li {
-  font: 400 15px/1.65 var(--font-body);
+  font: 400 15px/1.55 var(--font-body);
   color: var(--body);
-  margin-bottom: 6px;
+  margin: 0 0 0.55em;
+}
+.entry-content li:last-child {
+  margin-bottom: 0;
 }
 .entry-content a {
   color: var(--green-700);

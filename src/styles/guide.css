@@ -178,6 +178,97 @@
   margin-bottom: 1.1em;
 }
 
+/* Nested PortableText (.entry-content) must keep real paragraph rhythm.
+   Do NOT zero p margins — sibling * + * only hits the wrapper, not inner blocks. */
+.guide-prose .entry-content {
+  max-width: none;
+  margin-bottom: 0;
+}
+.guide-prose p,
+.guide-prose .entry-p {
+  font: 400 16.5px/1.65 var(--font-body);
+  color: var(--body);
+  margin: 0 0 1.15em;
+}
+.guide-prose p:last-child,
+.guide-prose .entry-p:last-child {
+  margin-bottom: 0;
+}
+.guide-prose ul,
+.guide-prose ol,
+.guide-prose .entry-list {
+  padding-left: 1.25em;
+  margin: 0 0 1.25em;
+}
+.guide-prose li {
+  font: 400 16.5px/1.55 var(--font-body);
+  color: var(--body);
+  margin: 0 0 0.65em;
+}
+.guide-prose li:last-child {
+  margin-bottom: 0;
+}
+.guide-prose h2,
+.guide-prose .entry-h2 {
+  font: 700 1.35rem/1.25 var(--font-head);
+  letter-spacing: -.014em;
+  color: var(--text);
+  margin: 2.1em 0 0.7em;
+  text-wrap: balance;
+  scroll-margin-top: 100px;
+}
+.guide-prose h3,
+.guide-prose .entry-h3 {
+  font: 600 1.05rem/1.3 var(--font-head);
+  color: var(--text);
+  margin: 1.55em 0 0.5em;
+}
+.guide-prose h4,
+.guide-prose .entry-h4 {
+  font: 700 1rem/1.3 var(--font-head);
+  color: var(--text);
+  margin: 1.35em 0 0.45em;
+}
+.guide-prose strong {
+  color: var(--text);
+}
+.guide-prose a {
+  color: var(--green-900);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.guide-prose figure,
+.guide-prose .entry-figure {
+  margin: 1.6em 0;
+  max-width: 100%;
+}
+.guide-prose figure img,
+.guide-prose .entry-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 520px;
+  object-fit: contain;
+  object-position: center;
+  background: var(--cream-2);
+  border: 1px solid var(--cream-3);
+  border-radius: 10px;
+}
+.guide-prose figcaption,
+.guide-prose .entry-caption {
+  font: 400 12.5px/1.45 var(--font-body);
+  color: var(--muted);
+  margin-top: 0.55em;
+  text-align: center;
+}
+.guide-prose blockquote,
+.guide-prose .entry-blockquote {
+  margin: 1.4em 0;
+}
+.guide-prose .table-wrap {
+  margin: 1.25em 0 1.5em;
+}
+
 .guide-bridge {
   font: 400 14.5px/1.5 var(--font-body);
   color: var(--body);
@@ -267,28 +358,12 @@
   color: var(--muted);
   margin-top: 2px;
 }
-.guide-prose > * + * { margin-top: .9em; }
-.guide-prose h2,
 .guide-section > h2 {
   font: 700 1.35rem/1.25 var(--font-head);
   letter-spacing: -.014em;
   color: var(--text);
-  margin: 2.2em 0 .55em;
+  margin: 2.2em 0 .7em;
   text-wrap: balance;
-}
-.guide-prose h3 {
-  font: 600 1.05rem/1.3 var(--font-head);
-  color: var(--text);
-  margin: 1.4em 0 .4em;
-}
-.guide-prose p { margin: 0; }
-.guide-prose strong { color: var(--text); }
-.guide-prose ul, .guide-prose ol { padding-left: 1.15em; }
-.guide-prose li { margin-bottom: .35em; }
-.guide-prose a {
-  color: var(--green-900);
-  text-decoration: underline;
-  text-underline-offset: 2px;
 }
 
 .guide-kt { margin: 28px 0; }
@@ -357,27 +432,34 @@
 
 .pick-callout {
   display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
   gap: 0;
   border: 1px solid var(--cream-3);
   background: var(--white);
   margin-bottom: 18px;
+  overflow: hidden;
 }
 
+/* Single media well — white matches typical product-shot backgrounds (no nested cream+white) */
 .pick-media {
-  background: var(--cream-2);
+  background: var(--white);
   border-right: 1px solid var(--cream-3);
-  min-height: 220px;
+  min-height: 240px;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 28px 24px;
   overflow: hidden;
 }
 .pick-media img {
-  width: 100%;
-  height: 100%;
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 280px;
   object-fit: contain;
-  padding: 20px;
+  object-position: center;
+  background: transparent;
 }
 .pick-media-fallback {
   font: 600 12px/1.35 var(--font-head);
@@ -391,7 +473,7 @@
   display: block;
   width: 100%;
   height: 100%;
-  min-height: 220px;
+  min-height: 240px;
   background:
     linear-gradient(135deg, var(--cream-2) 0%, var(--cream) 55%, var(--cream-2) 100%);
 }
@@ -399,8 +481,8 @@
 .pick-meta {
   display: flex;
   flex-direction: column;
-  padding: 16px 18px 18px;
-  gap: 10px;
+  padding: 22px 22px 24px;
+  gap: 14px;
 }
 
 .pick-product-name {
@@ -419,8 +501,8 @@
 .pick-buy {
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-top: 4px;
+  gap: 10px;
+  margin-top: 6px;
 }
 /* Quiet buy chrome — price+merchant is the CTA; title stays soft */
 .pick-buy-title {
@@ -483,9 +565,9 @@
 .pick-offer--alt .pick-offer-merchant span { color: var(--muted); }
 
 .pick-disc {
-  font: 400 11.5px/1.4 var(--font-body);
+  font: 400 11.5px/1.45 var(--font-body);
   color: var(--muted);
-  margin: 2px 0 0;
+  margin: 6px 0 0;
 }
 
 .pick-pc {
@@ -827,16 +909,6 @@
   text-decoration: underline;
   text-underline-offset: 2px;
 }
-.pick-media-fallback {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-height: 200px;
-  padding: 16px;
-  text-align: center;
-  font: 600 14px/1.35 var(--font-body);
-  color: var(--muted);
-}
 
 .guide-shell {
   max-width: var(--guide-measure);
@@ -852,10 +924,13 @@
   .pick-media {
     border-right: none;
     border-bottom: 1px solid var(--cream-3);
-    min-height: 180px;
-    aspect-ratio: 16 / 10;
+    min-height: 200px;
+    aspect-ratio: auto;
+    padding: 24px 20px;
   }
+  .pick-media img { max-height: 220px; }
   .pick-media-empty { min-height: 180px; }
+  .pick-meta { padding: 18px 16px 20px; gap: 12px; }
   .pick-pc,
   .guide-split { grid-template-columns: 1fr; }
   .hr-score-strip { grid-template-columns: 1fr; }

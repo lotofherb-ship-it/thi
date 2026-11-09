@@ -2,7 +2,7 @@
 /**
  * Simple Portable Text renderer for THI article body.
  * Handles: paragraphs, headings, lists, blockquotes, images, tables.
- * For more complex use, consider @portabletext/react with Astro's React integration.
+ * WP-migrated soft breaks (\n spans) are normalized into real <p> blocks.
  */
 import type { PortableTextBlock } from '@portabletext/types';
 import { urlFor } from '../lib/sanity';
@@ -30,50 +30,101 @@ function safeHref(href: string): string {
   return /^(https?:\/\/|\/|#)/.test(href) ? href : '#';
 }
 
+/** Sanity soft-break / blank span left by WP migration. */
+function isSoftBreak(child: any): boolean {
+  if (!child || (child._type && child._type !== 'span')) return false;
+  const text = child.text ?? '';
+  return typeof text === 'string' && text.includes('\n') && text.trim() === '';
+}
+
+/** Render one inline span (marks + link), without soft-break handling. */
+function renderSpan(child: any, block: any): string {
+  let text = escapeHtml(child.text || '');
+  // Newlines inside a longer span → soft break within the same paragraph
+  text = text.replace(/\n+/g, '<br />');
+
+  if (child.marks?.includes('strong')) text = `<strong>${text}</strong>`;
+  if (child.marks?.includes('em')) text = `<em>${text}</em>`;
+  if (child.marks?.includes('code')) text = `<code>${text}</code>`;
+
+  const markKey = child.marks?.find((m: string) =>
+    block.markDefs?.some((d: any) => d._key === m)
+  );
+  if (markKey) {
+    const markDef = block.markDefs?.find((d: any) => d._key === markKey);
+    if (markDef?._type === 'link') {
+      const href = safeHref(markDef.href);
+      const isExternal = /^https?:\/\//.test(href);
+      const rel = isExternal ? ' rel="noopener noreferrer"' : '';
+      const target = (markDef.blank || isExternal) ? ' target="_blank"' : '';
+      text = `<a href="${escapeHtml(href)}"${target}${rel}>${text}</a>`;
+    }
+  }
+  return text;
+}
+
+/**
+ * Build inline HTML for a block, splitting WP soft-break spans into
+ * separate paragraph strings so CSS margin can apply.
+ */
+function paragraphChunks(block: any): string[] {
+  const children = block.children || [];
+  const chunks: string[] = [];
+  let current = '';
+
+  const flush = () => {
+    const html = current.replace(/(?:<br\s*\/?>\s*)+$/g, '').trim();
+    if (html) chunks.push(html);
+    current = '';
+  };
+
+  for (const child of children) {
+    if (isSoftBreak(child)) {
+      flush();
+      continue;
+    }
+    current += renderSpan(child, block);
+  }
+  flush();
+  return chunks;
+}
+
 function getText(block: any): string {
-  if (!block.children) return '';
-  return block.children
-    .map((child: any) => {
-      // Escape raw text first — all marks wrap already-escaped content
-      let text = escapeHtml(child.text || '');
-      if (child.marks?.includes('strong')) text = `<strong>${text}</strong>`;
-      if (child.marks?.includes('em')) text = `<em>${text}</em>`;
-      if (child.marks?.includes('code')) text = `<code>${text}</code>`;
-      // Link marks: find a mark key that matches a markDef _key (UUIDs, not starting with '_')
-      const markKey = child.marks?.find((m: string) =>
-        block.markDefs?.some((d: any) => d._key === m)
-      );
-      if (markKey) {
-        const markDef = block.markDefs?.find((d: any) => d._key === markKey);
-        if (markDef?._type === 'link') {
-          const href = safeHref(markDef.href);
-          const isExternal = /^https?:\/\//.test(href);
-          const rel = isExternal ? ' rel="noopener noreferrer"' : '';
-          const target = (markDef.blank || isExternal) ? ' target="_blank"' : '';
-          text = `<a href="${escapeHtml(href)}"${target}${rel}>${text}</a>`;
-        }
-      }
-      return text;
-    })
-    .join('');
+  return paragraphChunks(block).join(' ');
 }
 
 function renderBlock(block: any): string {
   switch (block._type) {
     case 'block': {
-      const text = getText(block);
       switch (block.style) {
-        case 'h2': return `<h2 class="entry-h2" id="${slugify(text)}">${text}</h2>`;
-        case 'h3': return `<h3 class="entry-h3">${text}</h3>`;
-        case 'h4': return `<h4 class="entry-h4">${text}</h4>`;
-        case 'blockquote': return `<blockquote class="entry-blockquote"><p>${text}</p></blockquote>`;
-        default: return text ? `<p class="entry-p">${text}</p>` : '';
+        case 'h2': {
+          const text = getText(block);
+          return text ? `<h2 class="entry-h2" id="${slugify(text)}">${text}</h2>` : '';
+        }
+        case 'h3': {
+          const text = getText(block);
+          return text ? `<h3 class="entry-h3">${text}</h3>` : '';
+        }
+        case 'h4': {
+          const text = getText(block);
+          return text ? `<h4 class="entry-h4">${text}</h4>` : '';
+        }
+        case 'blockquote': {
+          const parts = paragraphChunks(block);
+          if (!parts.length) return '';
+          return `<blockquote class="entry-blockquote">${parts.map(p => `<p>${p}</p>`).join('')}</blockquote>`;
+        }
+        default: {
+          const parts = paragraphChunks(block);
+          return parts.map(p => `<p class="entry-p">${p}</p>`).join('');
+        }
       }
     }
 
     case 'image': {
       if (!block.asset) return '';
-      const src = urlFor(block).width(760).auto('format').url();
+      // Contain-friendly: no forced landscape crop on editorial figures
+      const src = urlFor(block).width(760).fit('max').auto('format').url();
       const alt = escapeHtml(block.alt || '');
       const caption = block.caption ? escapeHtml(block.caption) : '';
       return `
@@ -134,7 +185,8 @@ function renderBlocks(blocks: any[]): string {
         blocks[i].listItem === block.listItem &&
         (blocks[i].level || 1) === level
       ) {
-        items.push(`<li>${getText(blocks[i])}</li>`);
+        const itemHtml = paragraphChunks(blocks[i]).join('<br />') || getText(blocks[i]);
+        items.push(`<li>${itemHtml}</li>`);
         i++;
       }
 
@@ -154,35 +206,46 @@ const html = renderBlocks(value || []);
 
 <div class:list={['entry-content', className]} set:html={html} />
 
-<style>
-  .entry-figure {
+{/* :global — set:html nodes do not receive Astro scoped attrs */}
+<style is:global>
+  .entry-content .entry-figure {
     margin: 28px 0;
-    max-width: var(--col-max);
+    max-width: var(--col-max, 640px);
   }
-  .entry-figure img {
+  .entry-content .entry-figure img {
+    display: block;
     width: 100%;
-    border-radius: 12px;
+    height: auto;
+    max-height: 520px;
+    object-fit: contain;
+    object-position: center;
+    background: var(--cream-2);
+    border: 1px solid var(--cream-3);
+    border-radius: 10px;
   }
-  .entry-caption {
-    font: 400 12px/1.5 var(--font-body);
+  .entry-content .entry-caption {
+    font: 400 12.5px/1.45 var(--font-body);
     color: var(--muted);
     margin-top: 8px;
     text-align: center;
   }
-  .table-wrap {
+  .entry-content .table-wrap {
     overflow-x: auto;
     margin-bottom: 28px;
   }
-  .entry-list {
-    padding-left: 20px;
-    margin-bottom: 16px;
+  .entry-content .entry-list {
+    padding-left: 1.25em;
+    margin: 0 0 1.15em;
   }
-  .entry-list li {
-    font: 400 15px/1.65 var(--font-body);
+  .entry-content .entry-list li {
+    font: 400 15px/1.55 var(--font-body);
     color: var(--body);
-    margin-bottom: 6px;
+    margin: 0 0 0.55em;
   }
-  .entry-h4 {
+  .entry-content .entry-list li:last-child {
+    margin-bottom: 0;
+  }
+  .entry-content .entry-h4 {
     font: 700 16px/1.3 var(--font-head);
     color: var(--text);
     margin: 20px 0 8px;
