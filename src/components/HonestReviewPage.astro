@@ -10,8 +10,9 @@ import PortableText from './PortableText.astro';
 import ChatGuideOpener from './ChatGuideOpener.astro';
 import { urlFor } from '../lib/sanity';
 import { categoryHref } from '../lib/urls';
-import { resolveProductOffers, offerLine } from '../lib/products/resolve';
+import { resolveProductOffers } from '../lib/products/resolve';
 import { getChatScriptForSlug } from '../lib/chat-opener';
+import PickBuy from './PickBuy.astro';
 import type { Post, ComparisonProduct } from '../types';
 import '../styles/guide.css';
 
@@ -31,7 +32,7 @@ const heroSrc = post.heroImage
 
 /** Product card media — never landscape-crop a bottle shot */
 const productSrc = post.heroImage
-  ? urlFor(post.heroImage).width(720).fit('max').auto('format').url()
+  ? urlFor(post.heroImage).width(900).fit('max').auto('format').url()
   : hr?.imageUrl || null;
 
 const authorSrc = post.author?.avatar
@@ -74,9 +75,6 @@ const synthetic: ComparisonProduct = {
   tursoProductId: hr?.tursoProductId,
 };
 const offers = await resolveProductOffers(synthetic);
-
-const disclosure =
-  'The Health Issue kan een commissie ontvangen via affiliate-links. Dat beïnvloedt onze scores of eindoordeel niet.';
 
 const tocItems = (post.body || [])
   .filter((b: any) => b._type === 'block' && b.style === 'h2')
@@ -245,7 +243,7 @@ const articleHero = heroSrc || (chatScript ? chatScript.hero.photo : null);
       <div class="pick-callout">
         <div class="pick-media">
           {productSrc
-            ? <img src={productSrc} alt={productName} width="480" height="480" loading="eager" />
+            ? <img src={productSrc} alt={productName} width="640" height="640" loading="eager" />
             : <span class="pick-media-empty" aria-hidden="true" />}
         </div>
         <div class="pick-meta">
@@ -254,25 +252,15 @@ const articleHero = heroSrc || (chatScript ? chatScript.hero.photo : null);
           {hr?.overallScore != null && (
             <div class="pick-score"><strong>{hr.overallScore}</strong>/10</div>
           )}
-          <div class="pick-buy">
-            <div class="pick-buy-title">Kopen</div>
-            {offers.length > 0 ? (
-              offers.slice(0, 3).map((o, oi) => (
-                <a
-                  class:list={['pick-offer', { 'pick-offer--alt': oi > 0 }]}
-                  href={o.url}
-                  target="_blank"
-                  rel="noopener noreferrer nofollow sponsored"
-                >
-                  <span class="pick-offer-line">{offerLine(o)}</span>
-                  <span class="pick-offer-aff">Affiliate link</span>
-                </a>
-              ))
-            ) : (
-              <p class="pick-disc">Prijs/link volgt zodra Awin/Daisycon gekoppeld is.</p>
-            )}
-            <p class="pick-disc">{disclosure}</p>
-          </div>
+          {hr?.pros?.length ? (
+            <ul class="pick-scan-pros">
+              {hr.pros.slice(0, 3).map(pro => <li>{pro}</li>)}
+            </ul>
+          ) : null}
+          <PickBuy
+            offers={offers}
+            emptyHint="Prijs/link volgt zodra Awin/Daisycon gekoppeld is."
+          />
         </div>
       </div>
     </section>
@@ -415,24 +403,12 @@ const articleHero = heroSrc || (chatScript ? chatScript.hero.photo : null);
           Score {hr.overallScore}/10{hr.testPeriod ? ` · ${hr.testPeriod} getest` : ''}.
         </p>
       )}
-      <div class="pick-buy" style="max-width:320px">
-        <div class="pick-buy-title">Kopen</div>
-        {offers.length > 0 ? (
-          offers.slice(0, 2).map((o, oi) => (
-            <a
-              class:list={['pick-offer', { 'pick-offer--alt': oi > 0 }]}
-              href={o.url}
-              target="_blank"
-              rel="noopener noreferrer nofollow sponsored"
-            >
-              <span class="pick-offer-line">{offerLine(o)}</span>
-              <span class="pick-offer-aff">Affiliate link</span>
-            </a>
-          ))
-        ) : (
-          <p class="pick-disc">Prijs/link volgt zodra affiliate-feed gekoppeld is.</p>
-        )}
-        <p class="pick-disc">{disclosure}</p>
+      <div style="max-width:360px">
+        <PickBuy
+          offers={offers}
+          limit={2}
+          emptyHint="Prijs/link volgt zodra affiliate-feed gekoppeld is."
+        />
       </div>
     </section>
 

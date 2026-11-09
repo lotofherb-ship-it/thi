@@ -194,11 +194,40 @@ export function resolveProductImageUrl(
   return sanityUrl || product.feedImageUrl || product.imageUrl || null;
 }
 
+/** Strip shop TLDs for cleaner CTA (“Betersport.nl” → “Betersport”). */
+export function merchantDisplayName(merchant: string): string {
+  const raw = (merchant || 'webshop').trim();
+  if (!raw) return 'webshop';
+  return raw
+    .replace(/\.(nl|com|be|de|eu|net|shop|store)$/i, '')
+    .replace(/^www\./i, '')
+    .trim() || raw;
+}
+
 /** Quiet WC-style offer label: “€15,16 bij Superfoodstore”. */
 export function offerLine(offer: ProductOffer): string {
-  if (offer.price) return `${offer.price} bij ${offer.merchant}`;
-  return `Bekijk bij ${offer.merchant}`;
+  const shop = merchantDisplayName(offer.merchant);
+  if (offer.price) return `${offer.price} bij ${shop}`;
+  return `Bekijk bij ${shop}`;
 }
+
+/**
+ * Soft pre-PDP CTA: action + merchant primary, price secondary.
+ * Primary: “Bekijk bij Betersport” / alt: “Naar Vitaminstore”.
+ */
+export function offerCta(offer: ProductOffer, variant: 'primary' | 'alt' = 'primary'): {
+  action: string;
+  price: string;
+} {
+  const shop = merchantDisplayName(offer.merchant);
+  const action =
+    variant === 'alt' ? `Naar ${shop}` : `Bekijk bij ${shop}`;
+  return { action, price: offer.price || '' };
+}
+
+/** Compact ACM-ok footnote under buy modules (sitewide strip already exists). */
+export const PICK_DISC_SHORT =
+  'Partnerlink — commissie mogelijk, zelfde prijs voor jou.';
 
 export function pickLabel(
   product: ComparisonProduct,
