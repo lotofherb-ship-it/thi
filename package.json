@@ -11,7 +11,9 @@
     "sanity:typegen": "sanity typegen generate",
     "affiliate:search": "node scripts/search-affiliate.mjs",
     "affiliate:sync": "python3 ../affiliate/sync/affiliate_sync.py",
-    "pages:deploy": "wrangler pages deploy dist --project-name=thi-astro",
+    "stage:uploads": "node scripts/stage-uploads.mjs",
+    "pages:deploy": "npm run stage:uploads && wrangler pages deploy dist --project-name=thi-astro --branch=main",
+    "pages:ship": "npm run build && npm run pages:deploy",
     "migrate:dry": "node scripts/migrate-wp.mjs --dry-run",
     "migrate:import": "node scripts/migrate-wp.mjs --import",
     "migrate:resume": "node scripts/migrate-wp.mjs --import --skip-existing"

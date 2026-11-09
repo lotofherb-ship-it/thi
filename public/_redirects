@@ -2,6 +2,10 @@
 # Source: thi/data/thi-redirects.csv (WP redirect inventory from live environment)
 # Plus locked CPT kills (/hoeveel/, /recepten/) and archive catch-alls
 # Generator: python3 scripts/generate-redirects.py
+#
+# /wp-content/uploads/* is NOT redirected here — media is staged into
+# dist/wp-content/uploads via `npm run stage:uploads` (WP export copy).
+# That keeps old image URLs on Pages without proxying to SiteGround.
 # Note: WP Redirection REST (/wp-json/redirection/v1/redirect) returns 401 — CSV is the checked-in export.
 
 # --- WP CSV (paths; /category/→hub; recepten/hoeveel destinations remapped) ---
