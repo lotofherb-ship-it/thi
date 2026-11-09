@@ -7,27 +7,52 @@ import StaticPage from '../../components/StaticPage.astro';
   description="Hoe The Health Issue omgaat met persoonsgegevens en cookies."
   kicker="Juridisch"
   h1="Privacybeleid"
-  dek="Kort en leesbaar. Cookies en nieuwsbrief hierin meegenomen."
+  dek="Kort en leesbaar. Cookies, analytics en nieuwsbrief hierin meegenomen."
 >
   <h2>Wie is verantwoordelijk</h2>
-  <p>The Health Issue (Jouke de Jong). Contact: <a href="/contact/">contactpagina</a>.</p>
+  <p>
+    The Health Issue (Jouke de Jong). Contact: <a href="/contact/">contactpagina</a>
+    of <a href="mailto:hello@thehealthissue.nl">hello@thehealthissue.nl</a>.
+  </p>
 
   <h2>Welke gegevens</h2>
   <ul>
-    <li>Nieuwsbrief: e-mailadres als je je inschrijft.</li>
-    <li>Technische logs: IP/user-agent via hosting (Cloudflare e.d.) voor beveiliging.</li>
-    <li>Analytics: alleen als/wanneer we een privacyvriendelijke tool aanzetten — dan vermelden we die hier.</li>
+    <li>Nieuwsbrief: e-mailadres als je je inschrijft (provider volgt bij go-live; nu nog niet aangesloten op Astro).</li>
+    <li>Technische logs: IP/user-agent via hosting (Cloudflare) voor beveiliging en misbruikpreventie.</li>
+    <li>
+      Analytics: Google Analytics 4 (<code>G-LJ12W6K8SS</code>) alleen na jouw toestemming via onze
+      cookiebanner (Consent Mode v2). Geen reclameopslag vanuit onze tag zonder apart akkoord.
+    </li>
+    <li>CMS: redactionele content staat in Sanity; bezoekersdata gaan daar niet naartoe.</li>
   </ul>
 
   <h2>Cookies</h2>
   <p>
-    Functionele cookies voor de site. Geen tracking-cookies zonder toestemming.
-    Affiliate-partners kunnen eigen cookies zetten als je doorklikt naar een webshop.
+    Functionele opslag voor de site en jouw cookiekeuze. Tracking/analytische cookies alleen
+    met toestemming. Affiliate-partners kunnen eigen cookies zetten als je doorklikt naar een
+    webshop. Details: <a href="/cookiebeleid/">cookiebeleid</a>.
   </p>
 
-  <h2>Bewaartermijn & rechten</h2>
+  <h2>Grondslagen</h2>
+  <ul>
+    <li>Toestemming — analytische cookies / GA4.</li>
+    <li>Gerechtvaardigd belang — beveiliging, fraudedetectie, noodzakelijke techniek.</li>
+    <li>Toestemming / overeenkomst — nieuwsbrief zodra die live staat.</li>
+  </ul>
+
+  <h2>Bewaartermijn &amp; rechten</h2>
   <p>
-    Nieuwsbriefdata zolang je ingeschreven staat. Afmelden kan altijd.
-    Inzage/verwijdering: mail via <a href="/contact/">contact</a>.
+    Nieuwsbriefdata zolang je ingeschreven staat. Analytics volgens de bewaarinstelling in GA4.
+    Cookiekeuze blijft lokaal in je browser tot je die wist.
+    Je hebt recht op inzage, correctie, verwijdering en bezwaar. Klachten: Autoriteit Persoonsgegevens.
+    Neem contact op via <a href="/contact/">contact</a>.
   </p>
+
+  <h2>Affiliate</h2>
+  <p>
+    Hoe we verdienen met productlinks staat in de
+    <a href="/affiliate-disclosure/">affiliate disclosure</a>.
+  </p>
+
+  <p><em>Laatste update: november 2026.</em></p>
 </StaticPage>

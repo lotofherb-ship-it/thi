@@ -3,6 +3,7 @@ import '../styles/global.css';
 import SiteNav from '../components/SiteNav.astro';
 import DisclosureStrip from '../components/DisclosureStrip.astro';
 import SiteFooter from '../components/SiteFooter.astro';
+import CookieConsent from '../components/CookieConsent.astro';
 
 export interface Props {
   title: string;
@@ -56,10 +57,9 @@ const canonicalUrl = canonical ?? new URL(Astro.url.pathname, siteUrl).href;
 
   <title>{title}</title>
 
-  <!-- Preconnect fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <!-- Self-hosted fonts — no Google Fonts / jsDelivr preconnect -->
+  <link rel="preload" href="/fonts/bricolage-grotesque-normal-700-latin.woff2" as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href="/fonts/lato-normal-400-latin.woff2" as="font" type="font/woff2" crossorigin />
 </head>
 <body>
   <header class="thi-chrome">
@@ -70,6 +70,7 @@ const canonicalUrl = canonical ?? new URL(Astro.url.pathname, siteUrl).href;
     <slot />
   </main>
   <SiteFooter />
+  <CookieConsent />
 
   <!-- Reading progress script (global) -->
   <script>

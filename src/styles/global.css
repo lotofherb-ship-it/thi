@@ -3,8 +3,8 @@
    The Health Issue | Astro + Sanity rebuild
    ═══════════════════════════════════════════════════════════════ */
 
-/* ─── FONT IMPORTS — THI brand v2 (Bricolage + Lato) ─── */
-@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Lato:ital,wght@0,400;0,700;1,400&display=swap');
+/* ─── FONT IMPORTS — self-hosted Bricolage + Lato (no Google Fonts) ─── */
+@import './fonts.css';
 
 /* ─── THI BRAND v2 TOKENS (design/thi-brand-decisions-v2.md) ─── */
 :root {

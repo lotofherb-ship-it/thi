@@ -21,9 +21,17 @@ dist/
 .wrangler/
 .dev.vars
 
+# WP media staged for Pages (copied from thi/export/…/uploads at deploy time)
+public/wp-content/
+
 # Sanity / Typegen
 schema.json
 sanity.types.ts
 
 # Affiliate local DB copies (keep path in env, not the dump)
 *.db-journal
+
+# migration runtime
+migration/import-log.txt
+migration/import.pid
+migration/import.done

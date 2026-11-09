@@ -1,0 +1,397 @@
+---
+/**
+ * Custom NL cookie banner + Google Consent Mode v2 + GA4 (no third-party CMP).
+ * Defaults denied; GA4 script loads only after analytics consent.
+ */
+const measurementId = (import.meta.env.PUBLIC_GA4_MEASUREMENT_ID || '').trim();
+---
+
+{measurementId && (
+  <script is:inline define:vars={{ measurementId }}>
+    window.__THI_GA4_ID = measurementId;
+  </script>
+)}
+
+<!-- Consent Mode v2 defaults BEFORE any Google tag -->
+<script is:inline>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){window.dataLayer.push(arguments);}
+  window.gtag = window.gtag || gtag;
+  gtag('consent', 'default', {
+    ad_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied',
+    analytics_storage: 'denied',
+    functionality_storage: 'granted',
+    personalization_storage: 'denied',
+    security_storage: 'granted',
+    wait_for_update: 500,
+  });
+  gtag('set', 'ads_data_redaction', true);
+  gtag('set', 'url_passthrough', true);
+</script>
+
+<div
+  id="thi-cookie-banner"
+  class="thi-cookie"
+  hidden
+  role="dialog"
+  aria-modal="false"
+  aria-labelledby="thi-cookie-title"
+  aria-describedby="thi-cookie-desc"
+>
+  <div class="thi-cookie-panel">
+    <div class="thi-cookie-main" data-cookie-view="summary">
+      <p class="thi-cookie-kicker">Cookies</p>
+      <h2 id="thi-cookie-title" class="thi-cookie-title">Jouw keuze voor cookies</h2>
+      <p id="thi-cookie-desc" class="thi-cookie-desc">
+        We gebruiken noodzakelijke cookies om de site te laten werken.
+        Analytische cookies (Google Analytics) alleen met jouw toestemming —
+        zo zien we welke gidsen helpen, zonder reclamecookies van ons.
+        Meer in ons <a href="/cookiebeleid/">cookiebeleid</a>
+        en <a href="/privacybeleid/">privacybeleid</a>.
+      </p>
+      <div class="thi-cookie-actions">
+        <button type="button" class="thi-cookie-btn thi-cookie-btn-primary" data-cookie-accept>
+          Alles accepteren
+        </button>
+        <button type="button" class="thi-cookie-btn thi-cookie-btn-ghost" data-cookie-reject>
+          Alles weigeren
+        </button>
+        <button type="button" class="thi-cookie-btn thi-cookie-btn-link" data-cookie-prefs>
+          Voorkeuren
+        </button>
+      </div>
+    </div>
+
+    <div class="thi-cookie-prefs" data-cookie-view="prefs" hidden>
+      <p class="thi-cookie-kicker">Voorkeuren</p>
+      <h2 class="thi-cookie-title">Cookievoorkeuren</h2>
+      <p class="thi-cookie-desc">
+        Kies zelf. Noodzakelijke cookies staan altijd aan.
+        Details: <a href="/cookiebeleid/">cookiebeleid</a>.
+      </p>
+
+      <ul class="thi-cookie-cats" role="list">
+        <li class="thi-cookie-cat">
+          <div class="thi-cookie-cat-text">
+            <strong>Noodzakelijk</strong>
+            <span>Technisch nodig voor de website (bijv. jouw cookiekeuze onthouden).</span>
+          </div>
+          <span class="thi-cookie-switch thi-cookie-switch-on" aria-hidden="true">Aan</span>
+        </li>
+        <li class="thi-cookie-cat">
+          <div class="thi-cookie-cat-text">
+            <strong>Analytisch</strong>
+            <span>Google Analytics 4 (geanonimiseerd gebruik, Consent Mode v2).</span>
+          </div>
+          <label class="thi-cookie-toggle">
+            <input type="checkbox" id="thi-consent-analytics" />
+            <span class="thi-cookie-toggle-ui" aria-hidden="true"></span>
+            <span class="thi-cookie-toggle-label">Analytisch</span>
+          </label>
+        </li>
+      </ul>
+
+      <div class="thi-cookie-actions">
+        <button type="button" class="thi-cookie-btn thi-cookie-btn-primary" data-cookie-save>
+          Voorkeuren opslaan
+        </button>
+        <button type="button" class="thi-cookie-btn thi-cookie-btn-ghost" data-cookie-back>
+          Terug
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+  .thi-cookie {
+    position: fixed;
+    z-index: 10000;
+    inset: auto 0 0 0;
+    padding: 16px var(--site-gutter, 24px) 20px;
+    pointer-events: none;
+  }
+  .thi-cookie-panel {
+    pointer-events: auto;
+    max-width: 40rem;
+    margin: 0 auto;
+    background: var(--white, #fff);
+    color: var(--body, #575E55);
+    border: 1px solid var(--cream-3, #E0DFD9);
+    border-radius: var(--r-lg, 16px);
+    box-shadow: var(--sh-pop, 0 8px 32px rgba(28,58,19,.18));
+    padding: 22px 22px 18px;
+  }
+  .thi-cookie-kicker {
+    font: 700 11px/1 var(--font-body, Lato, system-ui, sans-serif);
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--sage, #698E79);
+    margin: 0 0 8px;
+  }
+  .thi-cookie-title {
+    font: 700 clamp(1.15rem, 2.4vw, 1.35rem)/1.2 var(--font-head, 'Bricolage Grotesque', system-ui, sans-serif);
+    color: var(--text, #141413);
+    letter-spacing: -.02em;
+    margin: 0 0 10px;
+  }
+  .thi-cookie-desc {
+    font: 400 14px/1.55 var(--font-body, Lato, system-ui, sans-serif);
+    margin: 0 0 16px;
+    color: var(--body, #575E55);
+  }
+  .thi-cookie-desc a {
+    color: var(--green-900, #1C3A13);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .thi-cookie-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .thi-cookie-btn {
+    appearance: none;
+    border: 1px solid transparent;
+    border-radius: var(--r-sm, 6px);
+    font: 700 13px/1 var(--font-body, Lato, system-ui, sans-serif);
+    padding: 11px 14px;
+    cursor: pointer;
+  }
+  .thi-cookie-btn-primary {
+    background: var(--celery, #D3FA99);
+    color: var(--green-900, #1C3A13);
+    border-color: var(--celery-d, #a8d96e);
+  }
+  .thi-cookie-btn-primary:hover { filter: brightness(.97); }
+  .thi-cookie-btn-ghost {
+    background: var(--cream, #FAF9F5);
+    color: var(--green-900, #1C3A13);
+    border-color: var(--cream-3, #E0DFD9);
+  }
+  .thi-cookie-btn-ghost:hover { background: var(--cream-2, #EEEEE9); }
+  .thi-cookie-btn-link {
+    background: transparent;
+    color: var(--green-900, #1C3A13);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+    padding-left: 6px;
+    padding-right: 6px;
+  }
+  .thi-cookie-cats {
+    list-style: none;
+    margin: 0 0 16px;
+    padding: 0;
+    display: grid;
+    gap: 10px;
+  }
+  .thi-cookie-cat {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    align-items: center;
+    padding: 12px 14px;
+    background: var(--cream, #FAF9F5);
+    border: 1px solid var(--cream-3, #E0DFD9);
+    border-radius: var(--r-md, 10px);
+  }
+  .thi-cookie-cat-text {
+    display: grid;
+    gap: 4px;
+    font: 400 13px/1.4 var(--font-body, Lato, system-ui, sans-serif);
+  }
+  .thi-cookie-cat-text strong {
+    font-weight: 700;
+    color: var(--text, #141413);
+  }
+  .thi-cookie-switch {
+    flex-shrink: 0;
+    font: 700 11px/1 var(--font-body, Lato, system-ui, sans-serif);
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--sage, #698E79);
+  }
+  .thi-cookie-toggle {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    flex-shrink: 0;
+  }
+  .thi-cookie-toggle input {
+    position: absolute;
+    opacity: 0;
+    width: 1px;
+    height: 1px;
+  }
+  .thi-cookie-toggle-ui {
+    width: 42px;
+    height: 24px;
+    border-radius: 99px;
+    background: var(--cream-3, #E0DFD9);
+    border: 1px solid var(--cream-3, #E0DFD9);
+    position: relative;
+    transition: background .15s ease;
+  }
+  .thi-cookie-toggle-ui::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--white, #fff);
+    box-shadow: 0 1px 3px rgba(0,0,0,.15);
+    transition: transform .15s ease;
+  }
+  .thi-cookie-toggle input:checked + .thi-cookie-toggle-ui {
+    background: var(--green-700, #2d5c20);
+    border-color: var(--green-700, #2d5c20);
+  }
+  .thi-cookie-toggle input:checked + .thi-cookie-toggle-ui::after {
+    transform: translateX(18px);
+  }
+  .thi-cookie-toggle input:focus-visible + .thi-cookie-toggle-ui {
+    outline: 2px solid var(--green-900, #1C3A13);
+    outline-offset: 2px;
+  }
+  .thi-cookie-toggle-label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  @media (max-width: 560px) {
+    .thi-cookie { padding: 12px 12px 16px; }
+    .thi-cookie-panel { padding: 18px 16px 14px; }
+    .thi-cookie-actions { flex-direction: column; align-items: stretch; }
+    .thi-cookie-btn-link { text-align: center; }
+    .thi-cookie-cat { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+
+<script>
+  type ConsentState = {
+    necessary: true;
+    analytics: boolean;
+    updatedAt: string;
+    version: 1;
+  };
+
+  const STORAGE_KEY = 'thi-consent-v1';
+  const DENIED = {
+    ad_storage: 'denied',
+    ad_user_data: 'denied',
+    ad_personalization: 'denied',
+    analytics_storage: 'denied',
+    personalization_storage: 'denied',
+  } as const;
+  const GRANTED_ANALYTICS = {
+    ...DENIED,
+    analytics_storage: 'granted',
+  } as const;
+
+  function readConsent(): ConsentState | null {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw) as ConsentState;
+      if (parsed?.version !== 1 || typeof parsed.analytics !== 'boolean') return null;
+      return parsed;
+    } catch {
+      return null;
+    }
+  }
+
+  function writeConsent(analytics: boolean): ConsentState {
+    const state: ConsentState = {
+      necessary: true,
+      analytics,
+      updatedAt: new Date().toISOString(),
+      version: 1,
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+    return state;
+  }
+
+  function applyConsent(analytics: boolean) {
+    if (typeof window.gtag !== 'function') return;
+    window.gtag('consent', 'update', analytics ? GRANTED_ANALYTICS : DENIED);
+    if (analytics) loadGa4();
+  }
+
+  function loadGa4() {
+    const id = window.__THI_GA4_ID;
+    if (!id || window.__THI_ga4Loaded) return;
+    window.__THI_ga4Loaded = true;
+    const s = document.createElement('script');
+    s.async = true;
+    s.src = `https://www.googletagmanager.com/gtag/js?id=${encodeURIComponent(id)}`;
+    document.head.appendChild(s);
+    window.gtag('js', new Date());
+    window.gtag('config', id, { anonymize_ip: true });
+  }
+
+  function showBanner(view: 'summary' | 'prefs' = 'summary') {
+    const root = document.getElementById('thi-cookie-banner');
+    if (!root) return;
+    root.hidden = false;
+    const summary = root.querySelector<HTMLElement>('[data-cookie-view="summary"]');
+    const prefs = root.querySelector<HTMLElement>('[data-cookie-view="prefs"]');
+    if (summary && prefs) {
+      summary.hidden = view !== 'summary';
+      prefs.hidden = view !== 'prefs';
+    }
+    if (view === 'prefs') {
+      const existing = readConsent();
+      const box = document.getElementById('thi-consent-analytics') as HTMLInputElement | null;
+      if (box) box.checked = existing?.analytics === true;
+    }
+  }
+
+  function hideBanner() {
+    const root = document.getElementById('thi-cookie-banner');
+    if (root) root.hidden = true;
+  }
+
+  function decide(analytics: boolean) {
+    writeConsent(analytics);
+    applyConsent(analytics);
+    hideBanner();
+  }
+
+  function bind() {
+    const root = document.getElementById('thi-cookie-banner');
+    if (!root) return;
+
+    root.querySelector('[data-cookie-accept]')?.addEventListener('click', () => decide(true));
+    root.querySelector('[data-cookie-reject]')?.addEventListener('click', () => decide(false));
+    root.querySelector('[data-cookie-prefs]')?.addEventListener('click', () => showBanner('prefs'));
+    root.querySelector('[data-cookie-back]')?.addEventListener('click', () => showBanner('summary'));
+    root.querySelector('[data-cookie-save]')?.addEventListener('click', () => {
+      const box = document.getElementById('thi-consent-analytics') as HTMLInputElement | null;
+      decide(Boolean(box?.checked));
+    });
+
+    window.__THI_openCookiePrefs = () => showBanner('prefs');
+
+    const existing = readConsent();
+    if (!existing) {
+      showBanner('summary');
+      return;
+    }
+    applyConsent(existing.analytics);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', bind);
+  } else {
+    bind();
+  }
+</script>
