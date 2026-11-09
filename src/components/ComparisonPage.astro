@@ -14,10 +14,11 @@ import {
   resolveProducts,
   pickLabel,
   resolveProductImageUrl,
-  offerLine,
+  offerCta,
   type ResolvedProduct,
 } from '../lib/products/resolve';
 import { getChatScriptForSlug } from '../lib/chat-opener';
+import PickBuy from './PickBuy.astro';
 import type { Post } from '../types';
 import '../styles/guide.css';
 
@@ -52,7 +53,7 @@ function shortName(name: string, max = 28): string {
 function productImage(p: ResolvedProduct): string | null {
   // No forced landscape crop — square/tall bottles stay contain-friendly
   const sanity = p.image
-    ? urlFor(p.image).width(720).fit('max').auto('format').url()
+    ? urlFor(p.image).width(900).fit('max').auto('format').url()
     : null;
   return resolveProductImageUrl(p, sanity);
 }
@@ -267,8 +268,10 @@ const publishedStamp = publishedLabel
                     target="_blank"
                     rel="noopener noreferrer nofollow sponsored"
                   >
-                    {offerLine(primary)}
-                    <span class="rec-stack-aff">Affiliate link</span>
+                    {offerCta(primary).action}
+                    <span class="rec-stack-aff">
+                      {primary.price ? `${primary.price} · ` : ''}Partnerlink
+                    </span>
                   </a>
                 ) : (
                   <span class="rec-stack-offer rec-stack-offer--muted">Prijs volgt</span>
@@ -304,7 +307,7 @@ const publishedStamp = publishedLabel
           <div class="pick-callout">
             <div class="pick-media">
               {img
-                ? <img src={img} alt={p.name} width="480" height="360" loading={i === 0 ? 'eager' : 'lazy'} />
+                ? <img src={img} alt={p.name} width="640" height="480" loading={i === 0 ? 'eager' : 'lazy'} />
                 : <span class="pick-media-empty" aria-hidden="true" />}
             </div>
             <div class="pick-meta">
@@ -312,28 +315,15 @@ const publishedStamp = publishedLabel
               {(p.verdict || p.tagline) && (
                 <p class="pick-summary">{p.verdict || p.tagline}</p>
               )}
-              <div class="pick-buy">
-                <div class="pick-buy-title">Kopen</div>
-                {offers.length > 0 ? (
-                  offers.slice(0, 3).map((o, oi) => (
-                    <a
-                      class:list={['pick-offer', { 'pick-offer--alt': oi > 0 }]}
-                      href={o.url}
-                      target="_blank"
-                      rel="noopener noreferrer nofollow sponsored"
-                    >
-                      <span class="pick-offer-line">{offerLine(o)}</span>
-                      <span class="pick-offer-aff">Affiliate link</span>
-                    </a>
-                  ))
-                ) : (
-                  <p class="pick-disc">Prijs/link volgt zodra affiliate-feed gekoppeld is.</p>
-                )}
-                {p.reviewUrl && (
-                  <a class="pick-review-link" href={p.reviewUrl}>Lees de eerlijke review →</a>
-                )}
-                <p class="pick-disc">{disclosure}</p>
-              </div>
+              {p.pros?.length ? (
+                <ul class="pick-scan-pros">
+                  {p.pros.slice(0, 3).map(pro => <li>{pro}</li>)}
+                </ul>
+              ) : null}
+              <PickBuy
+                offers={offers}
+                reviewUrl={p.reviewUrl}
+              />
             </div>
           </div>
         </section>
@@ -368,9 +358,13 @@ const publishedStamp = publishedLabel
                       <td>{specValue(p, col.key)}</td>
                     ))}
                     <td>
-                      {href ? (
+                      {href && offer ? (
                         <a class="gt-cta" href={href} target="_blank" rel="noopener noreferrer nofollow sponsored">
-                          {offer?.price || 'Bekijk'} →
+                          {offerCta(offer).action} →
+                        </a>
+                      ) : href ? (
+                        <a class="gt-cta" href={href} target="_blank" rel="noopener noreferrer nofollow sponsored">
+                          Bekijk →
                         </a>
                       ) : '—'}
                     </td>
@@ -463,35 +457,22 @@ const publishedStamp = publishedLabel
           <div class="pick-callout">
             <div class="pick-media">
               {img
-                ? <img src={img} alt="" width="480" height="360" loading="lazy" />
+                ? <img src={img} alt="" width="640" height="480" loading="lazy" />
                 : <span class="pick-media-empty" aria-hidden="true" />}
             </div>
             <div class="pick-meta">
               {(p.verdict || p.tagline) && (
                 <p class="pick-summary">{p.verdict || p.tagline}</p>
               )}
-              <div class="pick-buy">
-                <div class="pick-buy-title">Kopen</div>
-                {offers.length > 0 ? (
-                  offers.slice(0, 3).map((o, oi) => (
-                    <a
-                      class:list={['pick-offer', { 'pick-offer--alt': oi > 0 }]}
-                      href={o.url}
-                      target="_blank"
-                      rel="noopener noreferrer nofollow sponsored"
-                    >
-                      <span class="pick-offer-line">{offerLine(o)}</span>
-                      <span class="pick-offer-aff">Affiliate link</span>
-                    </a>
-                  ))
-                ) : (
-                  <p class="pick-disc">Prijs/link volgt zodra affiliate-feed gekoppeld is.</p>
-                )}
-                {p.reviewUrl && (
-                  <a class="pick-review-link" href={p.reviewUrl}>Lees de eerlijke review →</a>
-                )}
-                <p class="pick-disc">{disclosure}</p>
-              </div>
+              {p.pros?.length ? (
+                <ul class="pick-scan-pros">
+                  {p.pros.slice(0, 3).map(pro => <li>{pro}</li>)}
+                </ul>
+              ) : null}
+              <PickBuy
+                offers={offers}
+                reviewUrl={p.reviewUrl}
+              />
             </div>
           </div>
 

@@ -1,0 +1,70 @@
+---
+/**
+ * Money-page buy module — soft pre-PDP CTA (action + merchant, price secondary).
+ * Used by comparison pick cards + honest review hero/footer.
+ */
+import {
+  offerCta,
+  PICK_DISC_SHORT,
+  type ProductOffer,
+} from '../lib/products/resolve';
+
+interface Props {
+  offers: ProductOffer[];
+  disclosure?: string;
+  /** Max merchant buttons (default 3). */
+  limit?: number;
+  emptyHint?: string;
+  /** Optional review bridge under CTAs. */
+  reviewUrl?: string;
+  reviewLabel?: string;
+  /** Compact footnote only (default). Pass false to hide card disclosure. */
+  showDisc?: boolean;
+}
+
+const {
+  offers,
+  disclosure = PICK_DISC_SHORT,
+  limit = 3,
+  emptyHint = 'Prijs/link volgt zodra affiliate-feed gekoppeld is.',
+  reviewUrl,
+  reviewLabel = 'Lees de eerlijke review →',
+  showDisc = true,
+} = Astro.props;
+
+const shown = offers.slice(0, limit);
+---
+
+<div class="pick-buy">
+  {shown.length > 0 ? (
+    shown.map((o, oi) => {
+      const { action, price } = offerCta(o, oi === 0 ? 'primary' : 'alt');
+      return (
+        <a
+          class:list={['pick-offer', { 'pick-offer--alt': oi > 0 }]}
+          href={o.url}
+          target="_blank"
+          rel="noopener noreferrer nofollow sponsored"
+        >
+          <span class="pick-offer-cta">{action}</span>
+          <span class="pick-offer-meta">
+            {price ? <span class="pick-offer-price">{price}</span> : null}
+            {price ? <span class="pick-offer-sep" aria-hidden="true">·</span> : null}
+            <span class="pick-offer-aff">Partnerlink</span>
+          </span>
+        </a>
+      );
+    })
+  ) : (
+    <p class="pick-disc">{emptyHint}</p>
+  )}
+  {reviewUrl && (
+    <a class="pick-review-link" href={reviewUrl}>{reviewLabel}</a>
+  )}
+  {showDisc && shown.length > 0 && (
+    <p class="pick-disc">
+      {disclosure}{' '}
+      <a href="/affiliate-disclosure/">Meer info</a>
+    </p>
+  )}
+</div>
