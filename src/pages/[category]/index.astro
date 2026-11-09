@@ -7,6 +7,7 @@ import BaseLayout from '../../layouts/BaseLayout.astro';
 import { urlFor } from '../../lib/sanity';
 import { postHref as canonicalPostHref } from '../../lib/urls';
 import { getAllCategories, getCategoryBySlug, getPostsByCategory } from '../../lib/content';
+import { sortHubPosts } from '../../lib/audit-content';
 import type { Category, Post } from '../../types';
 import '../../styles/site.css';
 
@@ -20,7 +21,7 @@ export async function getStaticPaths() {
 
 const { category } = Astro.params;
 const cat: Category | null = await getCategoryBySlug(category!);
-const posts: Post[] = await getPostsByCategory(category!);
+const posts: Post[] = sortHubPosts(await getPostsByCategory(category!));
 
 if (!cat) return Astro.redirect('/404');
 

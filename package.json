@@ -11,9 +11,12 @@
     "sanity:typegen": "sanity typegen generate",
     "affiliate:search": "node scripts/search-affiliate.mjs",
     "affiliate:sync": "python3 ../affiliate/sync/affiliate_sync.py",
-    "pages:deploy": "wrangler pages deploy dist --project-name=thi-astro",
+    "pages:deploy": "npm run stage:uploads && npx wrangler pages deploy dist --project-name=thi-astro --branch=main --commit-dirty=true",
+    "redirects:generate": "python3 scripts/generate-redirects.py",
     "migrate:dry": "node scripts/migrate-wp.mjs --dry-run",
-    "migrate:import": "node scripts/migrate-wp.mjs --import"
+    "migrate:import": "node scripts/migrate-wp.mjs --import",
+    "stage:uploads": "node scripts/stage-uploads.mjs",
+    "pages:ship": "npm run build && npm run pages:deploy"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.9",

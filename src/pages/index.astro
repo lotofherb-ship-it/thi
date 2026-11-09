@@ -1,20 +1,18 @@
 ---
 /**
- * Home — calm choice library (WC 2.0 P0).
- * First viewport: brand + promise + 3–6 updated guides with format chips.
- * Not magazine sprawl, not empty.
+ * Home — klusjes-first (money-core + keep converters).
+ * Featured rail is curated from audit MONEY CORE, not recency junk.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { urlFor } from '../lib/sanity';
 import { postHref } from '../lib/urls';
-import { getAllPosts, getAllCategories } from '../lib/content';
-import type { Post, Category } from '../types';
+import { getAllPosts } from '../lib/content';
+import { pickHomepageFeatures } from '../lib/audit-content';
+import type { Post } from '../types';
 import '../styles/site.css';
 
-const [posts, categories]: [Post[], Category[]] = await Promise.all([
-  getAllPosts(),
-  getAllCategories(),
-]);
+const posts: Post[] = await getAllPosts();
+const featured = pickHomepageFeatures(posts, 6);
 
 function formatLabel(post: Post) {
   if (post.template === 'comparison') return 'Vergelijking';
@@ -41,51 +39,14 @@ function cover(post: Post): string | null {
   return first?.imageUrl || null;
 }
 
-/** Library items: editorial posts + rekentools, sorted by freshness */
-type LibraryItem = {
-  href: string;
-  title: string;
-  dek: string;
-  chip: string;
-  updated?: string;
-  img: string | null;
-};
-
-const postItems: LibraryItem[] = posts.map(p => ({
-  href: postHref(p),
-  title: p.title,
-  dek: p.excerpt || '',
-  chip: formatLabel(p),
-  updated: p.updatedAt || p.publishedAt,
-  img: cover(p),
-}));
-
-const calcItems: LibraryItem[] = [
-  {
-    href: '/voeding/calculators/magnesium/',
-    title: 'Magnesium-check',
-    dek: 'Indicatie voor elementaire magnesiumbehoefte — daarna product kiezen.',
-    chip: 'Rekentool',
-    updated: '2026-10-01T10:00:00.000Z',
-    img: 'https://cdn.shopify.com/s/files/1/1864/5043/files/37.png?v=1685112596',
-  },
-  {
-    href: '/voeding/calculators/eiwit/',
-    title: 'Eiwitrekenmachine',
-    dek: 'Snelle schatting g/kg voor onderhoud of krachttraining.',
-    chip: 'Rekentool',
-    updated: '2026-09-15T10:00:00.000Z',
-    img: 'https://cdn.shopify.com/s/files/1/1864/5043/files/38.png?v=1685112638',
-  },
+const topicLinks = [
+  { href: '/supplementen/', label: 'Supplementen' },
+  { href: '/training/', label: 'Training' },
+  { href: '/gezondheid/', label: 'Gezondheid' },
+  { href: '/vergelijken/', label: 'Vergelijken' },
+  { href: '/reviews/', label: 'Reviews' },
+  { href: '/methode/', label: 'Methode →' },
 ];
-
-const library = [...postItems, ...calcItems]
-  .sort((a, b) => {
-    const ta = a.updated ? new Date(a.updated).getTime() : 0;
-    const tb = b.updated ? new Date(b.updated).getTime() : 0;
-    return tb - ta;
-  })
-  .slice(0, 6);
 ---
 
 <BaseLayout
@@ -98,49 +59,53 @@ const library = [...postItems, ...calcItems]
         <p class="wc-home-brand">The Health Issue</p>
         <h1 class="wc-home-promise">Keuzehulp zonder marketingruis</h1>
         <p class="wc-home-dek">
-          Vergelijkingen, eerlijke reviews en rekentools — oordeel eerst, trade-offs erbij,
-          affiliate zichtbaar.
+          Vergelijkingen en eerlijke reviews voor supplementen en training gear —
+          oordeel eerst, trade-offs erbij, affiliate zichtbaar.
         </p>
         <div class="wc-topics">
-          {categories.map(c => (
-            <a class="wc-topic" href={`/${c.slug.current}/`}>{c.title}</a>
+          {topicLinks.map(({ href, label }) => (
+            <a class="wc-topic" href={href}>{label}</a>
           ))}
-          <a class="wc-topic" href="/voeding/calculators/">Rekentools</a>
-          <a class="wc-topic" href="/methode/">Methode →</a>
         </div>
       </header>
 
-      <section class="wc-library" aria-label="Bijgewerkte gidsen">
+      <section class="wc-library" aria-label="Money pages en converters">
         <div class="wc-sec-head">
-          <h2>Bijgewerkt</h2>
-          <a href="/supplementen/">Alle gidsen →</a>
+          <h2>Topkeuzes</h2>
+          <a href="/vergelijken/">Alle vergelijkingen →</a>
         </div>
         <ul class="wc-library-list">
-          {library.map(item => (
-            <li>
-              <a class="wc-library-card" href={item.href}>
-                <div class="wc-library-body">
-                  <span class="wc-format-chip" data-format={item.chip}>{item.chip}</span>
-                  <h3 class="wc-library-title">{item.title}</h3>
-                  {item.dek && (
-                    <p class="wc-library-dek">
-                      {item.dek.slice(0, 120)}{item.dek.length > 120 ? '…' : ''}
-                    </p>
-                  )}
-                  {item.updated && (
-                    <p class="wc-library-meta">
-                      Bijgewerkt {dateLabel(item.updated)}
-                    </p>
-                  )}
-                </div>
-                <div class="wc-library-thumb">
-                  {item.img
-                    ? <img src={item.img} alt="" width="160" height="120" loading="eager" />
-                    : <span class="wc-library-thumb-empty" aria-hidden="true" />}
-                </div>
-              </a>
-            </li>
-          ))}
+          {featured.map(post => {
+            const img = cover(post);
+            const chip = formatLabel(post);
+            const updated = post.updatedAt || post.publishedAt;
+            const dek = post.excerpt || '';
+            return (
+              <li>
+                <a class="wc-library-card" href={postHref(post)}>
+                  <div class="wc-library-body">
+                    <span class="wc-format-chip" data-format={chip}>{chip}</span>
+                    <h3 class="wc-library-title">{post.title}</h3>
+                    {dek && (
+                      <p class="wc-library-dek">
+                        {dek.slice(0, 120)}{dek.length > 120 ? '…' : ''}
+                      </p>
+                    )}
+                    {updated && (
+                      <p class="wc-library-meta">
+                        Bijgewerkt {dateLabel(updated)}
+                      </p>
+                    )}
+                  </div>
+                  <div class="wc-library-thumb">
+                    {img
+                      ? <img src={img} alt="" width="160" height="120" loading="eager" />
+                      : <span class="wc-library-thumb-empty" aria-hidden="true" />}
+                  </div>
+                </a>
+              </li>
+            );
+          })}
         </ul>
       </section>
     </div>

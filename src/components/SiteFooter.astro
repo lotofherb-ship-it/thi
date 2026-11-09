@@ -28,8 +28,8 @@ const year = new Date().getFullYear();
         <div class="thi-footer-col-title">Populair</div>
         <ul>
           <li><a href="/supplementen/beste-magnesium-bisglycinaat/">Beste magnesium</a></li>
-          <li><a href="/supplementen/mattisson-magnesium-bisglycinaat-review/">Mattisson review</a></li>
-          <li><a href="/voeding/calculators/">Rekentools</a></li>
+          <li><a href="/supplementen/plnkt-review/">PLNKT review</a></li>
+          <li><a href="/supplementen/beste-ashwagandha-kopen/">Beste ashwagandha</a></li>
           <li><a href="/gezondheid/beste-elektrolyten-poeder/">Beste elektrolyten</a></li>
         </ul>
       </div>
@@ -56,7 +56,11 @@ const year = new Date().getFullYear();
       <div class="thi-footer-copy">© {year} The Health Issue</div>
       <nav class="thi-footer-legal" aria-label="Juridische links">
         <a href="/privacybeleid/">Privacy</a>
+        <a href="/cookiebeleid/">Cookies</a>
         <a href="/affiliate-disclosure/">Affiliate</a>
+        <button type="button" class="thi-footer-cookie-btn" data-open-cookie-prefs>
+          Cookie-instellingen
+        </button>
       </nav>
     </section>
   </div>
@@ -144,11 +148,36 @@ const year = new Date().getFullYear();
     font: 400 12px/1 var(--font-body);
     color: rgba(250,249,245,.4);
   }
-  .thi-footer-legal { display: flex; gap: 14px; }
+  .thi-footer-legal {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 14px;
+    align-items: center;
+  }
   .thi-footer-legal a { color: rgba(250,249,245,.5); text-decoration: none; }
   .thi-footer-legal a:hover { color: var(--cream); }
+  .thi-footer-cookie-btn {
+    appearance: none;
+    background: none;
+    border: 0;
+    padding: 0;
+    margin: 0;
+    font: inherit;
+    color: rgba(250,249,245,.5);
+    cursor: pointer;
+    text-decoration: none;
+  }
+  .thi-footer-cookie-btn:hover { color: var(--cream); }
   @media (max-width: 720px) {
     .thi-footer-top { flex-direction: column; }
     .thi-footer-main { grid-template-columns: 1fr 1fr; }
   }
 </style>
+
+<script>
+  document.querySelectorAll('[data-open-cookie-prefs]').forEach((el) => {
+    el.addEventListener('click', () => {
+      window.__THI_openCookiePrefs?.();
+    });
+  });
+</script>

@@ -12,9 +12,9 @@ import {
   postBySlugQuery,
   postsByCategoryQuery,
   categoryBySlugQuery,
-  recentPostsQuery,
 } from './sanity';
 import { fixtureCategories, fixturePosts } from './fixtures/content';
+import { isCutPost, withoutCutPosts } from './audit-content';
 
 /** Shell / CI flag — not PUBLIC_*, so read via process.env during SSG. */
 const allowFixtures =
@@ -68,17 +68,24 @@ function assertHasPosts(posts: Post[], context: string): void {
   }
 }
 
-/** Sanity only in production; fixtures fill gaps only when ALLOW_FIXTURES=1. */
+function sortByDate(posts: Post[]): Post[] {
+  return [...posts].sort((a, b) => {
+    const da = a.publishedAt || '';
+    const db = b.publishedAt || '';
+    return db.localeCompare(da);
+  });
+}
+
+/**
+ * Published posts for preview/SSG — CUT audit slugs excluded (reversible via CSV).
+ * MONEY CORE + KEEP never filtered even if CSV drifts.
+ */
 export async function getAllPosts(): Promise<Post[]> {
   if (!allowFixtures) {
     const remote = await fetchOrThrow<Post[]>(allPostsQuery);
-    const posts = remote || [];
+    const posts = withoutCutPosts(remote || []);
     assertHasPosts(posts, 'getAllPosts');
-    return [...posts].sort((a, b) => {
-      const da = a.publishedAt || '';
-      const db = b.publishedAt || '';
-      return db.localeCompare(da);
-    });
+    return sortByDate(posts);
   }
 
   let remote: Post[] = [];
@@ -91,25 +98,29 @@ export async function getAllPosts(): Promise<Post[]> {
   for (const p of remote) {
     if (p.slug?.current) map.set(p.slug.current, p);
   }
-  return [...map.values()].sort((a, b) => {
-    const da = a.publishedAt || '';
-    const db = b.publishedAt || '';
-    return db.localeCompare(da);
-  });
+  return sortByDate(withoutCutPosts([...map.values()]));
 }
 
 export async function getPostBySlug(slug: string): Promise<Post | null> {
   if (!allowFixtures) {
     const remote = await fetchOrThrow<Post | null>(postBySlugQuery, { slug });
-    return remote?.slug?.current ? remote : null;
+    if (!remote?.slug?.current) return null;
+    // CUT posts are not built — edge _redirects handle the URL with a hard 301.
+    if (isCutPost(remote)) return null;
+    return remote;
   }
   try {
     const remote = await fetchOrThrow<Post | null>(postBySlugQuery, { slug });
-    if (remote?.slug?.current) return remote;
+    if (remote?.slug?.current) {
+      if (isCutPost(remote)) return null;
+      return remote;
+    }
   } catch {
     /* fall through to fixtures */
   }
-  return fixturePosts.find(p => p.slug.current === slug) || null;
+  const fixture = fixturePosts.find(p => p.slug.current === slug) || null;
+  if (fixture && isCutPost(fixture)) return null;
+  return fixture;
 }
 
 export async function getAllCategories(): Promise<Category[]> {
@@ -147,11 +158,7 @@ export async function getCategoryBySlug(slug: string): Promise<Category | null> 
 export async function getPostsByCategory(category: string): Promise<Post[]> {
   if (!allowFixtures) {
     const remote = await fetchOrThrow<Post[]>(postsByCategoryQuery, { category });
-    return [...(remote || [])].sort((a, b) => {
-      const da = a.publishedAt || '';
-      const db = b.publishedAt || '';
-      return db.localeCompare(da);
-    });
+    return sortByDate(withoutCutPosts(remote || []));
   }
   let remote: Post[] = [];
   try {
@@ -164,24 +171,11 @@ export async function getPostsByCategory(category: string): Promise<Post[]> {
   for (const p of remote) {
     if (p.slug?.current) map.set(p.slug.current, p);
   }
-  return [...map.values()].sort((a, b) => {
-    const da = a.publishedAt || '';
-    const db = b.publishedAt || '';
-    return db.localeCompare(da);
-  });
+  return sortByDate(withoutCutPosts([...map.values()]));
 }
 
 export async function getRecentPosts(): Promise<Post[]> {
-  if (!allowFixtures) {
-    const remote = await fetchOrThrow<Post[]>(recentPostsQuery);
-    return remote || [];
-  }
-  try {
-    const remote = await fetchOrThrow<Post[]>(recentPostsQuery);
-    if (remote?.length) return remote;
-  } catch {
-    /* fall through */
-  }
+  // Use filtered getAllPosts so CUT titles never appear in sidebars.
   return (await getAllPosts()).slice(0, 5);
 }
 
