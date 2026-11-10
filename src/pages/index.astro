@@ -1,37 +1,43 @@
 ---
 /**
- * Home — klusjes-first (money-core + keep converters).
- * Featured rail is curated from audit MONEY CORE, not recency junk.
+ * Home: Wirecutter-ref three-rail ATF (finder + mosaic + side rails).
+ * Equal card grid only below the fold. THI cream/green; no em dashes.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { urlFor } from '../lib/sanity';
 import { postHref } from '../lib/urls';
 import { getAllPosts } from '../lib/content';
-import { pickHomepageFeatures } from '../lib/audit-content';
+import {
+  homepageTopPick,
+  isMoneyCorePath,
+  normalizePostPath,
+  pickHomepageFeatures,
+} from '../lib/audit-content';
 import type { Post } from '../types';
 import '../styles/site.css';
 
 const posts: Post[] = await getAllPosts();
-const featured = pickHomepageFeatures(posts, 6);
+const featured = pickHomepageFeatures(posts, 15);
 
-function formatLabel(post: Post) {
-  if (post.template === 'comparison') return 'Vergelijking';
-  if (post.template === 'honest-review') return 'Eerlijke review';
-  return 'Gids';
+/** Short card/list title: drop year + SEO clause; never emit em dashes. */
+function cardTitle(post: Post): string {
+  const raw = post.title || '';
+  const head = raw.split(':')[0] || raw;
+  return (
+    head
+      .replace(/\u2014/g, ',') // Jouke: no em dashes on the website
+      .replace(/\s*\(20\d{2}\)\s*/g, ' ')
+      .replace(/\s*20\d{2}\s*/g, ' ')
+      .replace(/\s+van\s*$/i, '')
+      .replace(/\s+,/g, ',')
+      .replace(/\s+/g, ' ')
+      .trim() || raw.replace(/\u2014/g, ',')
+  );
 }
 
-function dateLabel(iso?: string) {
-  if (!iso) return null;
-  return new Date(iso).toLocaleDateString('nl-NL', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
-}
-
-function cover(post: Post): string | null {
+function cover(post: Post, size = 640): string | null {
   if (post.heroImage) {
-    return urlFor(post.heroImage).width(480).height(360).auto('format').url();
+    return urlFor(post.heroImage).width(size).height(size).auto('format').url();
   }
   if (post.coverImageUrl) return post.coverImageUrl;
   if (post.honestReview?.imageUrl) return post.honestReview.imageUrl;
@@ -39,75 +45,263 @@ function cover(post: Post): string | null {
   return first?.imageUrl || null;
 }
 
-const topicLinks = [
-  { href: '/supplementen/', label: 'Supplementen' },
-  { href: '/training/', label: 'Training' },
-  { href: '/gezondheid/', label: 'Gezondheid' },
-  { href: '/vergelijken/', label: 'Vergelijken' },
-  { href: '/reviews/', label: 'Reviews' },
-  { href: '/methode/', label: 'Methode →' },
+function dateLabel(iso?: string): string | null {
+  if (!iso) return null;
+  const then = new Date(iso).getTime();
+  if (Number.isNaN(then)) return null;
+  const days = Math.round((Date.now() - then) / 86400000);
+  if (days <= 0) return 'Vandaag';
+  if (days === 1) return 'Gisteren';
+  if (days < 7) return `${days} dagen geleden`;
+  return new Date(iso).toLocaleDateString('nl-NL', {
+    day: 'numeric',
+    month: 'short',
+  });
+}
+
+const fameLead = featured[0] ?? null;
+const mosaicPosts = featured.slice(0, 4);
+const mosaicFeature = mosaicPosts[0] ?? null;
+const mosaicA = mosaicPosts[1] ?? null;
+const mosaicB = mosaicPosts[2] ?? null;
+const mosaicWide = mosaicPosts[3] ?? null;
+
+const latest = [...posts]
+  .sort((a, b) => {
+    const da = a.updatedAt || a.publishedAt || '';
+    const db = b.updatedAt || b.publishedAt || '';
+    return db.localeCompare(da);
+  })
+  .filter(p => !mosaicPosts.some(m => m._id === p._id))
+  .slice(0, 6);
+
+const relevant = featured
+  .filter(p => isMoneyCorePath(normalizePostPath(postHref(p))))
+  .slice(0, 6);
+
+const belowFold = featured.slice(4, 12);
+
+const finderSuggestions = [
+  { href: '/gezondheid/beste-elektrolyten-poeder/', label: 'Elektrolyten' },
+  { href: '/supplementen/beste-magnesium-bisglycinaat/', label: 'Magnesium' },
+  { href: '/training/beste-roeitrainers/', label: 'Roeitrainer' },
+  { href: '/supplementen/beste-ashwagandha-kopen/', label: 'Ashwagandha' },
 ];
 ---
 
 <BaseLayout
-  title="The Health Issue — Keuzehulp voor gezondheidsproducten"
+  title="The Health Issue: Keuzehulp voor gezondheidsproducten"
   description="Onafhankelijke gidsen en reviews. Oordeel eerst, trade-offs erbij, affiliate-geld zichtbaar."
 >
-  <div class="wc-page">
+  <div class="wc-page wc-home-grid">
     <div class="wc-wrap">
-      <header class="wc-home-hero">
-        <p class="wc-home-brand">The Health Issue</p>
-        <h1 class="wc-home-promise">Keuzehulp zonder marketingruis</h1>
-        <p class="wc-home-dek">
-          Vergelijkingen en eerlijke reviews voor supplementen en training gear —
-          oordeel eerst, trade-offs erbij, affiliate zichtbaar.
-        </p>
-        <div class="wc-topics">
-          {topicLinks.map(({ href, label }) => (
-            <a class="wc-topic" href={href}>{label}</a>
+      {/* Finder-style field (WC Ask Finder → THI guide search) */}
+      <form class="wc-home-finder" action="/vergelijken/" method="get" role="search">
+        <label class="wc-home-finder-label" for="home-finder">
+          Zoek een gids
+        </label>
+        <div class="wc-home-finder-field">
+          <span class="wc-home-finder-icon" aria-hidden="true">⌕</span>
+          <input
+            id="home-finder"
+            class="wc-home-finder-input"
+            type="search"
+            name="q"
+            placeholder="Zoek een gids: magnesium, roeitrainer, ashwagandha…"
+            autocomplete="off"
+          />
+          <a class="wc-home-finder-go" href="/vergelijken/">Vergelijken</a>
+        </div>
+        <div class="wc-home-finder-chips" aria-label="Suggesties">
+          {finderSuggestions.map(({ href, label }) => (
+            <a class="wc-home-finder-chip" href={href}>{label}</a>
           ))}
         </div>
-      </header>
+      </form>
 
-      <section class="wc-library" aria-label="Money pages en converters">
-        <div class="wc-sec-head">
-          <h2>Topkeuzes</h2>
-          <a href="/vergelijken/">Alle vergelijkingen →</a>
-        </div>
-        <ul class="wc-library-list">
-          {featured.map(post => {
-            const img = cover(post);
-            const chip = formatLabel(post);
-            const updated = post.updatedAt || post.publishedAt;
-            const dek = post.excerpt || '';
-            return (
-              <li>
-                <a class="wc-library-card" href={postHref(post)}>
-                  <div class="wc-library-body">
-                    <span class="wc-format-chip" data-format={chip}>{chip}</span>
-                    <h3 class="wc-library-title">{post.title}</h3>
-                    {dek && (
-                      <p class="wc-library-dek">
-                        {dek.slice(0, 120)}{dek.length > 120 ? '…' : ''}
-                      </p>
+      <p class="wc-home-trust">
+        We beoordelen onafhankelijk. Via onze links kunnen we commissie krijgen, zonder extra kosten voor jou.
+      </p>
+
+      {/* THREE-COLUMN ATF: mirror wirecutter-ref.png */}
+      <div class="wc-home-rails">
+        {/* Left: Hall of Fame → Onze topkeuzes + Het laatste */}
+        <aside class="wc-home-rail wc-home-rail-left">
+          {fameLead && (
+            <a class="wc-home-fame" href="/vergelijken/">
+              <div class="wc-home-fame-media">
+                {cover(fameLead, 480) ? (
+                  <img
+                    src={cover(fameLead, 480)!}
+                    alt=""
+                    width="480"
+                    height="320"
+                    loading="eager"
+                    decoding="async"
+                  />
+                ) : (
+                  <span class="wc-home-card-media-empty" aria-hidden="true" />
+                )}
+              </div>
+              <h2 class="wc-home-fame-title">Onze topkeuzes</h2>
+              <p class="wc-home-fame-dek">
+                Gidsen die we blijven aanraden: oordeel eerst, trade-offs erbij, affiliate zichtbaar.
+              </p>
+            </a>
+          )}
+
+          <section class="wc-home-latest" aria-labelledby="latest-title">
+            <h2 id="latest-title" class="wc-home-rail-h">Het laatste</h2>
+            <ul class="wc-home-latest-list">
+              {latest.map(post => (
+                <li>
+                  <a href={postHref(post)}>
+                    <span class="wc-home-latest-title">{cardTitle(post)}</span>
+                    {dateLabel(post.updatedAt || post.publishedAt) && (
+                      <span class="wc-home-latest-meta">
+                        {dateLabel(post.updatedAt || post.publishedAt)}
+                      </span>
                     )}
-                    {updated && (
-                      <p class="wc-library-meta">
-                        Bijgewerkt {dateLabel(updated)}
-                      </p>
-                    )}
-                  </div>
-                  <div class="wc-library-thumb">
-                    {img
-                      ? <img src={img} alt="" width="160" height="120" loading="eager" />
-                      : <span class="wc-library-thumb-empty" aria-hidden="true" />}
-                  </div>
-                </a>
-              </li>
-            );
-          })}
-        </ul>
-      </section>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </section>
+        </aside>
+
+        {/* Center: asymmetric image mosaic (visual heart) */}
+        <section class="wc-home-rail wc-home-rail-center" aria-label="Uitgelichte gidsen">
+          <div class="wc-home-mosaic">
+            {mosaicFeature && (
+              <a class="wc-home-mosaic-cell wc-home-mosaic-feature" href={postHref(mosaicFeature)} title={mosaicFeature.title}>
+                <div class="wc-home-mosaic-media">
+                  {cover(mosaicFeature, 800) ? (
+                    <img src={cover(mosaicFeature, 800)!} alt="" width="800" height="800" loading="eager" decoding="async" />
+                  ) : (
+                    <span class="wc-home-card-media-empty" aria-hidden="true" />
+                  )}
+                </div>
+                <span class="wc-home-mosaic-caption">{cardTitle(mosaicFeature)}</span>
+              </a>
+            )}
+            {mosaicA && (
+              <a class="wc-home-mosaic-cell wc-home-mosaic-a" href={postHref(mosaicA)} title={mosaicA.title}>
+                <div class="wc-home-mosaic-media">
+                  {cover(mosaicA, 480) ? (
+                    <img src={cover(mosaicA, 480)!} alt="" width="480" height="480" loading="eager" decoding="async" />
+                  ) : (
+                    <span class="wc-home-card-media-empty" aria-hidden="true" />
+                  )}
+                </div>
+                <span class="wc-home-mosaic-caption">{cardTitle(mosaicA)}</span>
+              </a>
+            )}
+            {mosaicB && (
+              <a class="wc-home-mosaic-cell wc-home-mosaic-b" href={postHref(mosaicB)} title={mosaicB.title}>
+                <div class="wc-home-mosaic-media">
+                  {cover(mosaicB, 480) ? (
+                    <img src={cover(mosaicB, 480)!} alt="" width="480" height="480" loading="eager" decoding="async" />
+                  ) : (
+                    <span class="wc-home-card-media-empty" aria-hidden="true" />
+                  )}
+                </div>
+                <span class="wc-home-mosaic-caption">{cardTitle(mosaicB)}</span>
+              </a>
+            )}
+            {mosaicWide && (
+              <a class="wc-home-mosaic-cell wc-home-mosaic-wide" href={postHref(mosaicWide)} title={mosaicWide.title}>
+                <div class="wc-home-mosaic-media">
+                  {cover(mosaicWide, 960) ? (
+                    <img src={cover(mosaicWide, 960)!} alt="" width="960" height="480" loading="eager" decoding="async" />
+                  ) : (
+                    <span class="wc-home-card-media-empty" aria-hidden="true" />
+                  )}
+                </div>
+                <span class="wc-home-mosaic-caption">{cardTitle(mosaicWide)}</span>
+              </a>
+            )}
+          </div>
+        </section>
+
+        {/* Right: Daily deals → Nu relevant (money guides / Topkeuze) */}
+        <aside class="wc-home-rail wc-home-rail-right">
+          <section class="wc-home-relevant" aria-labelledby="relevant-title">
+            <h2 id="relevant-title" class="wc-home-rail-h">Nu relevant</h2>
+            <p class="wc-home-relevant-dek">Topkeuzes uit onze money guides.</p>
+            <ul class="wc-home-relevant-list">
+              {relevant.map(post => {
+                const img = cover(post, 160);
+                const pick = homepageTopPick(post);
+                return (
+                  <li>
+                    <a class="wc-home-relevant-item" href={postHref(post)} title={post.title}>
+                      <div class="wc-home-relevant-thumb">
+                        {img ? (
+                          <img src={img} alt="" width="72" height="72" loading="eager" decoding="async" />
+                        ) : (
+                          <span class="wc-home-card-media-empty" aria-hidden="true" />
+                        )}
+                      </div>
+                      <div class="wc-home-relevant-body">
+                        <span class="wc-home-relevant-title">{cardTitle(post)}</span>
+                        {pick && (
+                          <span class="wc-home-relevant-pick">
+                            <em>Topkeuze:</em> {pick}
+                          </span>
+                        )}
+                      </div>
+                    </a>
+                  </li>
+                );
+              })}
+            </ul>
+          </section>
+        </aside>
+      </div>
+
+      {/* Below-fold denser library (optional; not ATF) */}
+      {belowFold.length > 0 && (
+        <section class="wc-home-library" aria-labelledby="library-title">
+          <div class="wc-home-library-head">
+            <h2 id="library-title">Meer gidsen</h2>
+            <a href="/vergelijken/">Alle vergelijkingen</a>
+          </div>
+          <ul class="wc-home-cards">
+            {belowFold.map((post, i) => {
+              const img = cover(post, 480);
+              const pick = homepageTopPick(post);
+              return (
+                <li>
+                  <a class="wc-home-card" href={postHref(post)} title={post.title}>
+                    <div class="wc-home-card-media">
+                      {img ? (
+                        <img
+                          src={img}
+                          alt=""
+                          width="480"
+                          height="480"
+                          loading={i < 4 ? 'eager' : 'lazy'}
+                          decoding="async"
+                        />
+                      ) : (
+                        <span class="wc-home-card-media-empty" aria-hidden="true" />
+                      )}
+                    </div>
+                    <div class="wc-home-card-body">
+                      <h3 class="wc-home-card-title">{cardTitle(post)}</h3>
+                      {pick && (
+                        <p class="wc-home-card-verdict">
+                          <em>Topkeuze:</em> {pick}
+                        </p>
+                      )}
+                    </div>
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
     </div>
   </div>
 </BaseLayout>
