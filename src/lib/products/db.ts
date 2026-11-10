@@ -15,6 +15,7 @@ import { fileURLToPath } from 'node:url';
 
 export interface AffiliateProductRow {
   id: number;
+  network?: string | null;
   product_name: string;
   merchant_name: string;
   merchant_id?: number | null;
@@ -65,6 +66,7 @@ function mapRow(row: Record<string, unknown>): AffiliateProductRow | null {
   if (!url) return null;
   return {
     id: Number(row.id),
+    network: row.network != null ? String(row.network) : 'awin',
     product_name: String(row.product_name || ''),
     merchant_name: String(row.merchant_name || ''),
     merchant_id: row.merchant_id != null ? Number(row.merchant_id) : null,
@@ -107,7 +109,7 @@ function getRemote(): Client | null {
 }
 
 const SELECT_COLS = `
-  id, product_name, merchant_name, merchant_id, price, display_price,
+  id, network, product_name, merchant_name, merchant_id, price, display_price,
   currency, ean, brand, affiliate_url, image_url, category
 `;
 
@@ -197,15 +199,16 @@ export function rowToOffer(row: AffiliateProductRow): {
   price: string;
   url: string;
   currency: string;
-  source: 'awin';
+  source: 'awin' | 'daisycon';
   productId: number;
 } {
+  const net = (row.network || 'awin').toLowerCase();
   return {
     merchant: row.merchant_name.replace(/\s+NL$/i, '') || row.merchant_name,
     price: row.display_price || (row.price != null ? `€${row.price.toFixed(2).replace('.', ',')}` : ''),
     url: row.affiliate_url!,
     currency: row.currency || 'EUR',
-    source: 'awin',
+    source: net === 'daisycon' ? 'daisycon' : 'awin',
     productId: row.id,
   };
 }

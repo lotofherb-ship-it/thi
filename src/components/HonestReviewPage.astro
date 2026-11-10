@@ -79,6 +79,11 @@ const synthetic: ComparisonProduct = {
   rating: hr?.overallScore ? hr.overallScore / 2 : 0,
   imageUrl: hr?.imageUrl,
   tursoProductId: hr?.tursoProductId,
+  // Manual commerce (PLNKT tidd.ly, Lot of Herb, Daisycon backup URLs) — must
+  // reach resolve() or PickBuy shows the empty-feed stub forever.
+  affiliateUrl: hr?.affiliateUrl,
+  shop: hr?.shop,
+  price: hr?.price,
 };
 const offers = await resolveProductOffers(synthetic);
 const primaryOffer = offers[0] || null;

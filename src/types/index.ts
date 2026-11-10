@@ -113,6 +113,10 @@ export interface HonestReview {
   imageUrl?: string;
   /** Affiliate products.db id for live offers (same as comparison pick). */
   tursoProductId?: number;
+  /** Manual affiliate URL when product is not in Awin/Daisycon (e.g. PLNKT). */
+  affiliateUrl?: string;
+  shop?: string;
+  price?: string;
   pros?: string[];
   cons?: string[];
   scores?: HonestReviewScore;

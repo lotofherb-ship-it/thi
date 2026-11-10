@@ -191,6 +191,20 @@ export const post = defineType({
         { name: 'bestFor', type: 'string', title: 'Best voor (bijv. "Sporters die beter willen herstellen")' },
         { name: 'overallScore', type: 'number', title: 'Eindscore (0–10)', validation: R => R.min(0).max(10) },
         {
+          name: 'tursoProductId',
+          type: 'number',
+          title: 'Turso product ID',
+          description: 'Awin/Daisycon products.id — preferred commerce pointer',
+        },
+        {
+          name: 'affiliateUrl',
+          type: 'url',
+          title: 'Affiliate URL (handmatig)',
+          description: 'Fallback als product niet in Awin/Daisycon zit (bijv. PLNKT tidd.ly)',
+        },
+        { name: 'shop', type: 'string', title: 'Webshop' },
+        { name: 'price', type: 'string', title: 'Prijs (handmatig, bijv. €34,95)' },
+        {
           name: 'scores',
           type: 'object',
           title: 'Deelscores',
