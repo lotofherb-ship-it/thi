@@ -115,6 +115,14 @@ const relevant = featured
 const belowFold = featured
   .filter(p => p._id !== hero?._id)
   .slice(0, 4);
+
+/** Quiet Finder suggestions → real /vergelijken/?q= search (no chip spam). */
+const finderSuggestions = [
+  { q: 'elektrolyten', label: 'Beste elektrolyten' },
+  { q: 'magnesium', label: 'Beste magnesium' },
+  { q: 'roeitrainer', label: 'Beste roeitrainer' },
+  { q: 'ashwagandha', label: 'Beste ashwagandha' },
+];
 ---
 
 <BaseLayout
@@ -123,24 +131,46 @@ const belowFold = featured
 >
   <div class="wc-page wc-home-grid">
     <div class="wc-wrap">
-      {/* Finder-style field (WC Ask Finder → THI guide search). No chip spam. */}
-      <form class="wc-home-finder" action="/vergelijken/" method="get" role="search">
-        <label class="wc-home-finder-label" for="home-finder">
-          Zoek een gids
-        </label>
-        <div class="wc-home-finder-field">
-          <span class="wc-home-finder-icon" aria-hidden="true">⌕</span>
-          <input
-            id="home-finder"
-            class="wc-home-finder-input"
-            type="search"
-            name="q"
-            placeholder="Zoek een gids: magnesium, roeitrainer, ashwagandha…"
-            autocomplete="off"
-          />
-          <a class="wc-home-finder-go" href="/vergelijken/">Vergelijken</a>
+      {/* WC Finder hierarchy in LOH tokens: headline → dek → field → quiet suggestions. */}
+      <section class="wc-home-finder" aria-label="Gids zoeken">
+        <div class="wc-home-finder-intro">
+          <h2 class="wc-home-finder-title">Wat zoek je?</h2>
+          <p class="wc-home-finder-dek">
+            Zoek in onze vergelijkingen. Oordeel eerst, trade-offs erbij, affiliate zichtbaar.
+          </p>
         </div>
-      </form>
+        <form
+          class="wc-home-finder-form"
+          action="/vergelijken/"
+          method="get"
+          role="search"
+          aria-label="Zoek een gids"
+        >
+          <label class="wc-home-finder-label" for="home-finder">
+            Zoek een gids
+          </label>
+          <div class="wc-home-finder-field">
+            <span class="wc-home-finder-icon" aria-hidden="true">⌕</span>
+            <input
+              id="home-finder"
+              class="wc-home-finder-input"
+              type="search"
+              name="q"
+              placeholder="Vertel wat je zoekt, bijvoorbeeld magnesium"
+              autocomplete="off"
+              enterkeyhint="search"
+            />
+            <button class="wc-home-finder-go" type="submit">Zoeken</button>
+          </div>
+        </form>
+        <ul class="wc-home-finder-suggest" aria-label="Populaire zoekopdrachten">
+          {finderSuggestions.map(({ q, label }) => (
+            <li>
+              <a href={`/vergelijken/?q=${encodeURIComponent(q)}`}>{label}</a>
+            </li>
+          ))}
+        </ul>
+      </section>
 
       <p class="wc-home-trust">
         We beoordelen onafhankelijk. Via onze links kunnen we commissie krijgen, zonder extra kosten voor jou.
