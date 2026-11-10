@@ -21,6 +21,14 @@ import {
 import { getChatScriptForSlug } from '../lib/chat-opener';
 import PickBuy from './PickBuy.astro';
 import type { Post } from '../types';
+import {
+  articleSchema as buildArticleSchema,
+  breadcrumbList,
+  faqPageSchema,
+  guessBrand,
+  itemListSchema,
+} from '../lib/schema';
+import { postHref } from '../lib/urls';
 import '../styles/guide.css';
 
 interface Props {
@@ -92,29 +100,6 @@ function specValue(p: ResolvedProduct, key: string): string {
   return hit?.value || '—';
 }
 
-const articleSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'Article',
-  headline: post.seoTitle || post.title,
-  description: post.seoDescription || post.excerpt,
-  datePublished: post.publishedAt,
-  dateModified: post.updatedAt || post.publishedAt,
-  author: post.author ? { '@type': 'Person', name: post.author.name } : undefined,
-  publisher: { '@type': 'Organization', name: 'The Health Issue', url: 'https://thehealthissue.nl' },
-};
-
-const faqSchema = post.faq?.length
-  ? {
-      '@context': 'https://schema.org',
-      '@type': 'FAQPage',
-      mainEntity: post.faq.map(f => ({
-        '@type': 'Question',
-        name: f.question,
-        acceptedAnswer: { '@type': 'Answer', text: f.answer },
-      })),
-    }
-  : null;
-
 /** Pain-Point Router — fixture registry until Sanity chatScript ships. */
 const chatScript = getChatScriptForSlug(post.slug?.current);
 const coverSrc =
@@ -138,14 +123,36 @@ const tocPickLinks: { href: string; label: string }[] = [];
     tocPickLinks.push({ href: `#pick-${i + 1}`, label });
   });
 }
+
+const pageUrl = postHref(post);
+const articleSchema = buildArticleSchema({
+  post,
+  image: coverSrc,
+  includeReviewedBy: Boolean(post.expertReviewer),
+});
+const faqSchema = faqPageSchema(post.faq);
+const crumbSchema = breadcrumbList(post);
+const listSchema = itemListSchema(
+  products.map((p, i) => ({
+    name: p.name,
+    position: i + 1,
+    url: p.reviewUrl || `${pageUrl}#pick-${i + 1}`,
+    image: productImage(p),
+    brand: guessBrand(p.name) || null,
+  })),
+);
 ---
 
 <BaseLayout
   title={post.seoTitle || post.title}
   description={post.seoDescription || post.excerpt || ''}
+  image={coverSrc || undefined}
+  ogType="article"
 >
   <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
+  <script type="application/ld+json" set:html={JSON.stringify(crumbSchema)} />
   {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
+  {listSchema && <script type="application/ld+json" set:html={JSON.stringify(listSchema)} />}
 
   <article class="guide" id="guide-start">
     <nav class="guide-crumb" aria-label="Kruimelpad">
@@ -217,6 +224,7 @@ const tocPickLinks: { href: string; label: string }[] = [];
           alt=""
           width="1200"
           height="675"
+          sizes="(max-width: 820px) 100vw, 820px"
           decoding="async"
           fetchpriority="high"
         />

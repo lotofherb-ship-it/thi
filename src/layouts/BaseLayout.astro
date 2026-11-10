@@ -4,6 +4,7 @@ import SiteNav from '../components/SiteNav.astro';
 import DisclosureStrip from '../components/DisclosureStrip.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import CookieConsent from '../components/CookieConsent.astro';
+import { SITE_URL, absoluteUrl, sitewideGraph } from '../lib/schema';
 
 export interface Props {
   title: string;
@@ -11,6 +12,8 @@ export interface Props {
   image?: string;
   canonical?: string;
   noindex?: boolean;
+  /** Open Graph type — use `article` on posts. */
+  ogType?: 'website' | 'article';
 }
 
 const {
@@ -19,10 +22,13 @@ const {
   image = '/og-default.jpg',
   canonical,
   noindex = false,
+  ogType = 'website',
 } = Astro.props;
 
-const siteUrl = 'https://thehealthissue.nl';
-const canonicalUrl = canonical ?? new URL(Astro.url.pathname, siteUrl).href;
+// Canonicals always use production host (even when previewing on pages.dev).
+const canonicalUrl = canonical ?? new URL(Astro.url.pathname, SITE_URL).href;
+const ogImage = absoluteUrl(image) || `${SITE_URL}/og-default.jpg`;
+const siteGraph = sitewideGraph();
 ---
 
 <!DOCTYPE html>
@@ -33,14 +39,14 @@ const canonicalUrl = canonical ?? new URL(Astro.url.pathname, siteUrl).href;
   <meta name="description" content={description} />
   {noindex && <meta name="robots" content="noindex,nofollow" />}
 
-  <!-- Canonical -->
+  <!-- Canonical (production host) -->
   <link rel="canonical" href={canonicalUrl} />
 
   <!-- Open Graph -->
-  <meta property="og:type"        content="website" />
+  <meta property="og:type"        content={ogType} />
   <meta property="og:title"       content={title} />
   <meta property="og:description" content={description} />
-  <meta property="og:image"       content={image.startsWith('http') ? image : `${siteUrl}${image}`} />
+  <meta property="og:image"       content={ogImage} />
   <meta property="og:url"         content={canonicalUrl} />
   <meta property="og:locale"      content="nl_NL" />
   <meta property="og:site_name"   content="The Health Issue" />
@@ -49,13 +55,17 @@ const canonicalUrl = canonical ?? new URL(Astro.url.pathname, siteUrl).href;
   <meta name="twitter:card"        content="summary_large_image" />
   <meta name="twitter:title"       content={title} />
   <meta name="twitter:description" content={description} />
-  <meta name="twitter:image"       content={image.startsWith('http') ? image : `${siteUrl}${image}`} />
+  <meta name="twitter:image"       content={ogImage} />
 
   <!-- Favicon -->
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-  <link rel="icon" type="image/png" href="/favicon.png" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+  <link rel="apple-touch-icon" href="/logo.png" />
 
   <title>{title}</title>
+
+  <!-- Sitewide Organization + WebSite -->
+  <script type="application/ld+json" set:html={JSON.stringify(siteGraph)} />
 
   <!-- Self-hosted fonts — no Google Fonts / jsDelivr preconnect -->
   <link rel="preload" href="/fonts/bricolage-grotesque-normal-700-latin.woff2" as="font" type="font/woff2" crossorigin />

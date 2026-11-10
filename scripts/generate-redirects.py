@@ -215,6 +215,10 @@ def main() -> None:
         "# Generator: python3 scripts/generate-redirects.py",
         "# Preview-only cleanup — no DNS flip. CUT posts 301; no soft-404s.",
         "",
+        "# --- SEO discoverability ---",
+        "/sitemap.xml  /sitemap-index.xml  301",
+        "/sitemap  /sitemap-index.xml  301",
+        "",
     ]
 
     seen: set[str] = set()

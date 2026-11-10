@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "scripts": {
     "dev": "astro dev",
-    "build": "astro build",
+    "build": "astro build && node scripts/alias-sitemap.mjs",
     "preview": "astro preview",
     "sanity": "sanity dev",
     "sanity:deploy": "sanity deploy",
