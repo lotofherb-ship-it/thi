@@ -4,6 +4,10 @@
 # Generator: python3 scripts/generate-redirects.py
 # Preview-only cleanup — no DNS flip. CUT posts 301; no soft-404s.
 
+# --- SEO discoverability ---
+/sitemap.xml  /sitemap-index.xml  301
+/sitemap  /sitemap-index.xml  301
+
 # --- WP CSV (paths; /category/→hub; recepten/hoeveel + audit CUT dest remapped) ---
 /privacy/  /privacybeleid/  301
 /privacy  /privacybeleid/  301
