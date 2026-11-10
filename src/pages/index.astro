@@ -39,14 +39,10 @@ function cover(post: Post): string | null {
   return first?.imageUrl || null;
 }
 
-const topicLinks = [
-  { href: '/supplementen/', label: 'Supplementen' },
-  { href: '/training/', label: 'Training' },
-  { href: '/gezondheid/', label: 'Gezondheid' },
-  { href: '/vergelijken/', label: 'Vergelijken' },
-  { href: '/reviews/', label: 'Reviews' },
-  { href: '/methode/', label: 'Methode →' },
-];
+const lead = featured[0] ?? null;
+const leadImg = lead ? cover(lead) : null;
+const leadHref = lead ? postHref(lead) : '/vergelijken/';
+const leadLabel = lead ? formatLabel(lead) : 'Vergelijking';
 ---
 
 <BaseLayout
@@ -54,22 +50,62 @@ const topicLinks = [
   description="Onafhankelijke gidsen en reviews. Oordeel eerst, trade-offs erbij, affiliate-geld zichtbaar."
 >
   <div class="wc-page">
-    <div class="wc-wrap">
-      <header class="wc-home-hero">
-        <p class="wc-home-brand">The Health Issue</p>
-        <h1 class="wc-home-promise">Keuzehulp zonder marketingruis</h1>
-        <p class="wc-home-dek">
-          Vergelijkingen en eerlijke reviews voor supplementen en training gear —
-          oordeel eerst, trade-offs erbij, affiliate zichtbaar.
-        </p>
-        <div class="wc-topics">
-          {topicLinks.map(({ href, label }) => (
-            <a class="wc-topic" href={href}>{label}</a>
-          ))}
+    <header class="wc-home-hero">
+      <div class="wc-home-hero-grid wc-wrap">
+        <div class="wc-home-hero-copy">
+          {/*
+            Nav keeps the wordmark+celery lockup. Hero does NOT reprint it.
+            Brand stays hero-level via green Bricolage promise + brand named in dek.
+          */}
+          <h1 class="wc-home-promise">Keuzehulp zonder marketingruis</h1>
+          <p class="wc-home-dek">
+            <span class="wc-home-brand-inline">The Health Issue</span>
+            vergelijkt supplementen en training gear — oordeel eerst, trade-offs erbij,
+            affiliate zichtbaar.
+          </p>
+          <div class="wc-home-ctas">
+            <a class="wc-home-cta wc-home-cta--primary" href="/vergelijken/">
+              Bekijk vergelijkingen
+            </a>
+            <a class="wc-home-cta wc-home-cta--secondary" href="/methode/">
+              Zo kiezen wij
+            </a>
+          </div>
         </div>
-      </header>
 
-      <section class="wc-library" aria-label="Money pages en converters">
+        <div class="wc-home-hero-visual">
+          <a
+            class="wc-home-hero-shot"
+            href={leadHref}
+            aria-label={lead ? `${leadLabel}: ${lead.title}` : 'Alle vergelijkingen'}
+          >
+            <div class="wc-home-hero-shot-frame">
+              {leadImg ? (
+                <img
+                  src={leadImg}
+                  alt=""
+                  width="480"
+                  height="360"
+                  loading="eager"
+                  decoding="async"
+                />
+              ) : (
+                <span class="wc-home-hero-shot-empty" aria-hidden="true" />
+              )}
+            </div>
+            {lead && (
+              <span class="wc-home-hero-shot-caption">
+                <span class="wc-home-hero-shot-kicker">{leadLabel}</span>
+                <span class="wc-home-hero-shot-title">{lead.title}</span>
+              </span>
+            )}
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <div class="wc-wrap">
+      <section class="wc-library" id="topkeuzes" aria-label="Money pages en converters">
         <div class="wc-sec-head">
           <h2>Topkeuzes</h2>
           <a href="/vergelijken/">Alle vergelijkingen →</a>
