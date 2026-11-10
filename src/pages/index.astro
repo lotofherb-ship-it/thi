@@ -1,8 +1,8 @@
 ---
 /**
- * Home: calm 1:1 Wirecutter ATF skeleton in THI LOH style.
- * Sparse three rails (fewer items, more air). No finder chips.
- * Below-fold library stays well below the first viewport.
+ * Home: calm 1:1 Wirecutter ATF in THI LOH style.
+ * Center = hero_spot (one 3:2 editorial image + headline/byline/dek + Related).
+ * Not a product mosaic. No finder chips. No em dashes.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { urlFor } from '../lib/sanity';
@@ -36,6 +36,10 @@ function cardTitle(post: Post): string {
   );
 }
 
+function noEmDash(s: string): string {
+  return s.replace(/\u2014/g, ',').replace(/\s+/g, ' ').trim();
+}
+
 function cover(post: Post, size = 640): string | null {
   if (post.heroImage) {
     return urlFor(post.heroImage).width(size).height(size).auto('format').url();
@@ -44,6 +48,14 @@ function cover(post: Post, size = 640): string | null {
   if (post.honestReview?.imageUrl) return post.honestReview.imageUrl;
   const first = post.comparisonProducts?.find(p => p.imageUrl);
   return first?.imageUrl || null;
+}
+
+/** WC hero_spot uses ~3:2 editorial crop. */
+function coverHero(post: Post): string | null {
+  if (post.heroImage) {
+    return urlFor(post.heroImage).width(960).height(640).fit('crop').auto('format').url();
+  }
+  return cover(post, 960);
 }
 
 function dateLabel(iso?: string): string | null {
@@ -60,12 +72,31 @@ function dateLabel(iso?: string): string | null {
   });
 }
 
-const fameLead = featured[0] ?? null;
-/** Center: three large tiles only (tall + two stacked). No wide bottom row. */
-const mosaicPosts = featured.slice(0, 3);
-const mosaicFeature = mosaicPosts[0] ?? null;
-const mosaicA = mosaicPosts[1] ?? null;
-const mosaicB = mosaicPosts[2] ?? null;
+function heroDek(post: Post): string | null {
+  const raw = post.excerpt || post.seoDescription || post.quickAnswer || '';
+  if (!raw) return null;
+  const cleaned = noEmDash(raw);
+  return cleaned.length > 180 ? `${cleaned.slice(0, 177).trim()}…` : cleaned;
+}
+
+/** Prefer a more editorial/honest-review piece for center hero when available. */
+function pickHero(list: Post[]): Post | null {
+  const editorial = list.find(
+    p => p.template === 'honest-review' || p.template === 'standard' || p.template === 'nutrient',
+  );
+  return editorial ?? list[0] ?? null;
+}
+
+const hero = pickHero(featured);
+const fameLead = featured.find(p => p._id !== hero?._id) ?? featured[0] ?? null;
+
+const related = featured
+  .filter(p => p._id !== hero?._id)
+  .slice(0, 3);
+
+const excludeIds = new Set(
+  [hero, ...related].filter(Boolean).map(p => p!._id),
+);
 
 const latest = [...posts]
   .sort((a, b) => {
@@ -73,16 +104,16 @@ const latest = [...posts]
     const db = b.updatedAt || b.publishedAt || '';
     return db.localeCompare(da);
   })
-  .filter(p => !mosaicPosts.some(m => m._id === p._id))
+  .filter(p => !excludeIds.has(p._id))
   .slice(0, 3);
 
 const relevant = featured
   .filter(p => isMoneyCorePath(normalizePostPath(postHref(p))))
-  .filter(p => !mosaicPosts.some(m => m._id === p._id))
+  .filter(p => p._id !== hero?._id)
   .slice(0, 3);
 
 const belowFold = featured
-  .filter(p => !mosaicPosts.some(m => m._id === p._id))
+  .filter(p => p._id !== hero?._id)
   .slice(0, 4);
 ---
 
@@ -115,19 +146,19 @@ const belowFold = featured
         We beoordelen onafhankelijk. Via onze links kunnen we commissie krijgen, zonder extra kosten voor jou.
       </p>
 
-      {/* THREE-COLUMN ATF: calm WC skeleton, LOH tokens */}
+      {/* THREE-COLUMN ATF: left lists / center hero_spot / right deals */}
       <div class="wc-home-rails">
         {/* Left: Onze topkeuzes + sparse Het laatste */}
         <aside class="wc-home-rail wc-home-rail-left">
           {fameLead && (
             <a class="wc-home-fame" href="/vergelijken/">
               <div class="wc-home-fame-media">
-                {cover(fameLead, 480) ? (
+                {cover(fameLead, 240) ? (
                   <img
-                    src={cover(fameLead, 480)!}
+                    src={cover(fameLead, 240)!}
                     alt=""
-                    width="480"
-                    height="320"
+                    width="192"
+                    height="192"
                     loading="eager"
                     decoding="async"
                   />
@@ -135,10 +166,12 @@ const belowFold = featured
                   <span class="wc-home-card-media-empty" aria-hidden="true" />
                 )}
               </div>
-              <h2 class="wc-home-fame-title">Onze topkeuzes</h2>
-              <p class="wc-home-fame-dek">
-                Gidsen die we blijven aanraden: oordeel eerst, trade-offs erbij, affiliate zichtbaar.
-              </p>
+              <div class="wc-home-fame-copy">
+                <h2 class="wc-home-fame-title">Onze topkeuzes</h2>
+                <p class="wc-home-fame-dek">
+                  Gidsen die we blijven aanraden: oordeel eerst, trade-offs erbij, affiliate zichtbaar.
+                </p>
+              </div>
             </a>
           )}
 
@@ -161,46 +194,48 @@ const belowFold = featured
           </section>
         </aside>
 
-        {/* Center: three large photos only (tall + two stacked) */}
-        <section class="wc-home-rail wc-home-rail-center" aria-label="Uitgelichte gidsen">
-          <div class="wc-home-mosaic">
-            {mosaicFeature && (
-              <a class="wc-home-mosaic-cell wc-home-mosaic-feature" href={postHref(mosaicFeature)} title={mosaicFeature.title}>
-                <div class="wc-home-mosaic-media">
-                  {cover(mosaicFeature, 800) ? (
-                    <img src={cover(mosaicFeature, 800)!} alt="" width="800" height="800" loading="eager" decoding="async" />
-                  ) : (
-                    <span class="wc-home-card-media-empty" aria-hidden="true" />
-                  )}
-                </div>
-                <span class="wc-home-mosaic-caption">{cardTitle(mosaicFeature)}</span>
+        {/* Center: WC hero_spot — one 3:2 editorial image, not a product mosaic */}
+        <section class="wc-home-rail wc-home-rail-center" aria-label="Uitgelicht verhaal">
+          {hero && (
+            <article class="wc-home-hero">
+              <a class="wc-home-hero-media" href={postHref(hero)} title={hero.title}>
+                {coverHero(hero) ? (
+                  <img
+                    src={coverHero(hero)!}
+                    alt=""
+                    width="960"
+                    height="640"
+                    loading="eager"
+                    decoding="async"
+                    fetchpriority="high"
+                  />
+                ) : (
+                  <span class="wc-home-card-media-empty" aria-hidden="true" />
+                )}
               </a>
-            )}
-            {mosaicA && (
-              <a class="wc-home-mosaic-cell wc-home-mosaic-a" href={postHref(mosaicA)} title={mosaicA.title}>
-                <div class="wc-home-mosaic-media">
-                  {cover(mosaicA, 480) ? (
-                    <img src={cover(mosaicA, 480)!} alt="" width="480" height="480" loading="eager" decoding="async" />
-                  ) : (
-                    <span class="wc-home-card-media-empty" aria-hidden="true" />
-                  )}
+              <h2 class="wc-home-hero-title">
+                <a href={postHref(hero)}>{cardTitle(hero)}</a>
+              </h2>
+              {hero.author?.name && (
+                <p class="wc-home-hero-byline">door {hero.author.name}</p>
+              )}
+              {heroDek(hero) && (
+                <p class="wc-home-hero-dek">{heroDek(hero)}</p>
+              )}
+              {related.length > 0 && (
+                <div class="wc-home-hero-related">
+                  <p class="wc-home-hero-related-label">Gerelateerd</p>
+                  <ul class="wc-home-hero-related-list">
+                    {related.map(post => (
+                      <li>
+                        <a href={postHref(post)}>{cardTitle(post)}</a>
+                      </li>
+                    ))}
+                  </ul>
                 </div>
-                <span class="wc-home-mosaic-caption">{cardTitle(mosaicA)}</span>
-              </a>
-            )}
-            {mosaicB && (
-              <a class="wc-home-mosaic-cell wc-home-mosaic-b" href={postHref(mosaicB)} title={mosaicB.title}>
-                <div class="wc-home-mosaic-media">
-                  {cover(mosaicB, 480) ? (
-                    <img src={cover(mosaicB, 480)!} alt="" width="480" height="480" loading="eager" decoding="async" />
-                  ) : (
-                    <span class="wc-home-card-media-empty" aria-hidden="true" />
-                  )}
-                </div>
-                <span class="wc-home-mosaic-caption">{cardTitle(mosaicB)}</span>
-              </a>
-            )}
-          </div>
+              )}
+            </article>
+          )}
         </section>
 
         {/* Right: short Nu relevant list (WC Daily deals density) */}
