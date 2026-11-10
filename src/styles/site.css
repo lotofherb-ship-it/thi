@@ -124,15 +124,15 @@
     linear-gradient(135deg, var(--cream-2) 0%, var(--cream) 55%, var(--cream-2) 100%);
 }
 
-/* Home: Wirecutter-ref three-rail ATF (finder + mosaic + side rails) */
+/* Home: calm 1:1 WC ATF in LOH tokens (sparse rails, generous air) */
 .wc-home-grid {
   background: var(--cream);
-  padding-top: 12px;
+  padding-top: 20px;
 }
 
-/* Finder (WC Ask Finder → THI guide search) */
+/* Finder (WC Ask Finder → THI guide search). No suggestion chips. */
 .wc-home-finder {
-  margin: 0 0 10px;
+  margin: 0 0 14px;
 }
 .wc-home-finder-label {
   position: absolute;
@@ -145,8 +145,8 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 48px;
-  padding: 6px 8px 6px 14px;
+  min-height: 52px;
+  padding: 6px 8px 6px 16px;
   border: 1px solid var(--cream-3);
   border-radius: 999px;
   background: var(--white);
@@ -167,7 +167,7 @@
 .wc-home-finder-input::placeholder { color: var(--muted); }
 .wc-home-finder-go {
   flex: 0 0 auto;
-  padding: 8px 14px;
+  padding: 9px 16px;
   border-radius: 999px;
   background: var(--green-900);
   color: var(--cream);
@@ -176,58 +176,43 @@
   white-space: nowrap;
 }
 .wc-home-finder-go:hover { background: var(--green-700, #2d5c20); }
-.wc-home-finder-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px 10px;
-  padding: 8px 4px 0;
-}
-.wc-home-finder-chip {
-  font: 600 0.78rem/1 var(--font-body);
-  color: var(--body);
-  text-decoration: none;
-}
-.wc-home-finder-chip:hover {
-  color: var(--green-900);
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
 
 .wc-home-trust {
-  margin: 0 0 14px;
+  margin: 0 0 28px;
   text-align: center;
-  font: 400 0.78rem/1.4 var(--font-body);
+  font: 400 0.78rem/1.45 var(--font-body);
   color: var(--muted);
 }
 
-/* Three rails — left / mosaic / right */
+/* Three rails — left / mosaic / right (WC proportions + LOH air) */
 .wc-home-rails {
   display: grid;
-  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.55fr) minmax(0, 0.95fr);
-  gap: 18px 20px;
+  grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.6fr) minmax(0, 0.9fr);
+  gap: 28px 40px;
   align-items: start;
-  margin-bottom: 28px;
+  margin-bottom: 64px;
+  min-height: min(70vh, 640px);
 }
 .wc-home-rail-h {
-  margin: 0 0 8px;
-  font: 700 1.05rem/1.2 var(--font-head);
+  margin: 0 0 12px;
+  font: 700 1.1rem/1.2 var(--font-head);
   color: var(--green-900);
   letter-spacing: -0.015em;
 }
 
-/* Left: Onze topkeuzes + Het laatste */
+/* Left: Onze topkeuzes + sparse Het laatste */
 .wc-home-fame {
   display: block;
   text-decoration: none;
   color: inherit;
-  margin-bottom: 18px;
+  margin-bottom: 28px;
 }
 .wc-home-fame-media {
   aspect-ratio: 4 / 3;
   background: var(--cream-2);
   border: 1px solid var(--cream-3);
   overflow: hidden;
-  margin-bottom: 10px;
+  margin-bottom: 12px;
 }
 .wc-home-fame-media img {
   width: 100%;
@@ -236,13 +221,13 @@
   display: block;
 }
 .wc-home-fame-title {
-  margin: 0 0 4px;
-  font: 700 1.05rem/1.2 var(--font-head);
+  margin: 0 0 6px;
+  font: 700 1.08rem/1.2 var(--font-head);
   color: var(--green-900);
 }
 .wc-home-fame-dek {
   margin: 0;
-  font: 400 0.84rem/1.4 var(--font-body);
+  font: 400 0.86rem/1.45 var(--font-body);
   color: var(--body);
 }
 .wc-home-latest-list {
@@ -255,7 +240,7 @@
 }
 .wc-home-latest-list a {
   display: block;
-  padding: 10px 0;
+  padding: 14px 0;
   text-decoration: none;
   color: inherit;
 }
@@ -265,22 +250,22 @@
 }
 .wc-home-latest-title {
   display: block;
-  font: 700 0.9rem/1.3 var(--font-head);
+  font: 700 0.92rem/1.35 var(--font-head);
   color: var(--green-900);
 }
 .wc-home-latest-meta {
   display: block;
-  margin-top: 2px;
+  margin-top: 4px;
   font: 400 0.72rem/1.3 var(--font-body);
   color: var(--muted);
 }
 
-/* Center mosaic — 1 tall + 2 stacked + 1 wide */
+/* Center mosaic — 3 large tiles only (tall + two stacked) */
 .wc-home-mosaic {
   display: grid;
-  grid-template-columns: 1.25fr 0.85fr;
-  grid-template-rows: minmax(140px, 1fr) minmax(140px, 1fr) auto;
-  gap: 8px;
+  grid-template-columns: 1.35fr 1fr;
+  grid-template-rows: minmax(160px, 1fr) minmax(160px, 1fr);
+  gap: 14px 16px;
 }
 .wc-home-mosaic-cell {
   display: flex;
@@ -305,10 +290,6 @@
   grid-column: 2;
   grid-row: 2;
 }
-.wc-home-mosaic-wide {
-  grid-column: 1 / -1;
-  grid-row: 3;
-}
 .wc-home-mosaic-media {
   flex: 1;
   min-height: 0;
@@ -317,11 +298,7 @@
   overflow: hidden;
 }
 .wc-home-mosaic-feature .wc-home-mosaic-media {
-  min-height: 280px;
-}
-.wc-home-mosaic-wide .wc-home-mosaic-media {
-  aspect-ratio: 2.4 / 1;
-  min-height: 120px;
+  min-height: 420px;
 }
 .wc-home-mosaic-a .wc-home-mosaic-media,
 .wc-home-mosaic-b .wc-home-mosaic-media {
@@ -335,16 +312,16 @@
 }
 .wc-home-mosaic-caption {
   display: block;
-  padding: 6px 0 2px;
-  font: 700 0.88rem/1.25 var(--font-head);
+  padding: 10px 0 2px;
+  font: 700 0.95rem/1.3 var(--font-head);
   color: var(--green-900);
   letter-spacing: -0.01em;
 }
 
-/* Right: Nu relevant (deals-style) */
+/* Right: Nu relevant (WC Daily deals density: text + thumb) */
 .wc-home-relevant-dek {
-  margin: -2px 0 10px;
-  font: 400 0.8rem/1.35 var(--font-body);
+  margin: -4px 0 14px;
+  font: 400 0.82rem/1.4 var(--font-body);
   color: var(--body);
 }
 .wc-home-relevant-list {
@@ -354,10 +331,10 @@
 }
 .wc-home-relevant-item {
   display: grid;
-  grid-template-columns: 64px minmax(0, 1fr);
-  gap: 10px;
+  grid-template-columns: minmax(0, 1fr) 72px;
+  gap: 14px;
   align-items: start;
-  padding: 10px 0;
+  padding: 16px 0;
   border-top: 1px solid var(--cream-3);
   text-decoration: none;
   color: inherit;
@@ -371,7 +348,7 @@
   text-underline-offset: 2px;
 }
 .wc-home-relevant-thumb {
-  width: 64px;
+  width: 72px;
   aspect-ratio: 1 / 1;
   background: var(--cream-2);
   border: 1px solid var(--cream-3);
@@ -385,13 +362,13 @@
 }
 .wc-home-relevant-title {
   display: block;
-  font: 700 0.88rem/1.25 var(--font-head);
+  font: 700 0.92rem/1.3 var(--font-head);
   color: var(--green-900);
 }
 .wc-home-relevant-pick {
   display: block;
-  margin-top: 3px;
-  font: 400 0.75rem/1.35 var(--font-body);
+  margin-top: 6px;
+  font: 400 0.78rem/1.4 var(--font-body);
   color: var(--body);
 }
 .wc-home-relevant-pick em {
@@ -400,9 +377,10 @@
   color: var(--green-900);
 }
 
-/* Below-fold denser library (not ATF) */
+/* Below-fold library only (never fights ATF) */
 .wc-home-library {
-  padding: 8px 0 0;
+  padding: 32px 0 0;
+  margin-top: 16px;
   border-top: 1px solid var(--cream-3);
 }
 .wc-home-library-head {
@@ -410,7 +388,7 @@
   align-items: baseline;
   justify-content: space-between;
   gap: 12px;
-  padding: 16px 0 10px;
+  padding: 8px 0 16px;
   margin-bottom: 4px;
 }
 .wc-home-library-head h2 {
@@ -431,10 +409,10 @@
 .wc-home-cards {
   list-style: none;
   margin: 0;
-  padding: 0 0 40px;
+  padding: 0 0 48px;
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 10px 12px;
+  gap: 18px 20px;
 }
 
 .wc-home-card {
@@ -759,25 +737,27 @@
 
 @media (max-width: 1100px) {
   .wc-home-rails {
-    grid-template-columns: minmax(0, 1fr) minmax(0, 1.35fr);
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr);
+    gap: 24px 28px;
   }
   .wc-home-rail-right {
     grid-column: 1 / -1;
   }
   .wc-home-relevant-list {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 0 16px;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0 24px;
   }
-  .wc-home-cards { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .wc-home-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 800px) {
-  .wc-home-rails { grid-template-columns: 1fr; gap: 22px; }
+  .wc-home-rails { grid-template-columns: 1fr; gap: 32px; }
   .wc-home-rail-center { order: -1; } /* mosaic first: visual heart */
   .wc-home-rail-right { grid-column: auto; }
   .wc-home-relevant-list { grid-template-columns: 1fr; }
-  .wc-home-mosaic-feature .wc-home-mosaic-media { min-height: 200px; }
-  .wc-home-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .wc-home-mosaic-feature .wc-home-mosaic-media { min-height: 220px; }
+  .wc-home-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+  .wc-home-library { margin-top: 8px; padding-top: 24px; }
   .wc-lead { grid-template-columns: 1fr; }
   .wc-story { grid-template-columns: minmax(0, 1fr) 100px; gap: 14px; }
   .wc-story-thumb { width: 100px; }
@@ -787,11 +767,13 @@
   .wc-library-title { font-size: 1.05rem; }
 }
 @media (max-width: 520px) {
-  .wc-home-finder-field { min-height: 44px; padding-left: 12px; }
-  .wc-home-finder-go { padding: 7px 12px; }
+  .wc-home-finder-field { min-height: 46px; padding-left: 12px; }
+  .wc-home-finder-go { padding: 8px 14px; }
+  .wc-home-trust { margin-bottom: 22px; }
   .wc-home-mosaic {
     grid-template-columns: 1fr 1fr;
     grid-template-rows: auto;
+    gap: 12px;
   }
   .wc-home-mosaic-feature {
     grid-column: 1 / -1;
@@ -803,8 +785,7 @@
   }
   .wc-home-mosaic-a,
   .wc-home-mosaic-b { grid-row: auto; grid-column: auto; }
-  .wc-home-mosaic-wide { grid-column: 1 / -1; }
-  .wc-home-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px 10px; }
+  .wc-home-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 14px; }
   .wc-home-card-title { font-size: 0.84rem; }
   .wc-home-card-verdict { font-size: 0.72rem; }
   .wc-home-library-head { align-items: flex-start; flex-direction: column; gap: 4px; }
