@@ -1,13 +1,13 @@
 /**
  * Content-audit buckets for preview (thi-astro.pages.dev).
- * CUT list is generated into src/data/audit-cuts.json — do not delete Sanity media.
+ * CUT list is generated into src/data/audit-cuts.json. Do not delete Sanity media.
  * Restore: edit data/thi-content-audit-redirects.csv → python3 scripts/generate-redirects.py → rebuild.
  */
 import auditCuts from '../data/audit-cuts.json';
 import type { Post } from '../types';
 import { postHref } from './urls';
 
-/** MONEY CORE — 15 commercial converters (protect). */
+/** MONEY CORE: 15 commercial converters (protect). */
 export const MONEY_CORE_PATHS = [
   '/supplementen/plnkt-review/',
   '/supplementen/mijn-ervaring-met-inkoherb-eindelijk-minder-vaak-naar-de-wc/',
@@ -26,7 +26,7 @@ export const MONEY_CORE_PATHS = [
   '/training/beste-roeitrainer-met-waterweerstand-2026-onze-top-5-vergeleken/',
 ] as const;
 
-/** Homepage feature order — dense library grid (Wirecutter-style), money-core first. */
+/** Homepage feature order: dense library grid (Wirecutter-style), money-core first. */
 export const HOMEPAGE_FEATURE_PATHS = [
   '/gezondheid/beste-elektrolyten-poeder/',
   '/supplementen/beste-magnesium-bisglycinaat/',
@@ -38,6 +38,11 @@ export const HOMEPAGE_FEATURE_PATHS = [
   '/training/beste-massage-gun/',
   '/supplementen/vitakruid-ashwagandha-ksm66-review/',
   '/training/beste-yogamat/',
+  '/training/beste-crossfit-schoenen/',
+  '/training/beste-crossfit-springtouwen/',
+  '/training/beste-hangboards-voor-boulderen-en-klimmen/',
+  '/training/beste-roeitrainer-voor-thuis/',
+  '/training/beste-roeitrainer-met-waterweerstand-2026-onze-top-5-vergeleken/',
 ] as const;
 
 /**
@@ -54,11 +59,17 @@ export const HOMEPAGE_TOP_PICKS: Record<string, string> = {
     'Inkoherb (Lot of Herb)',
   '/training/beste-pull-up-bar/': 'deurframe pull-up bar (budget + stabiel)',
   '/training/beste-massage-gun/': 'krachtige mid-range massage gun',
-  '/supplementen/vitakruid-ashwagandha-ksm66-review/': 'Vitakruid KSM-66 — helder etiket',
+  '/supplementen/vitakruid-ashwagandha-ksm66-review/': 'Vitakruid KSM-66, helder etiket',
   '/training/beste-yogamat/': 'mat met grip + dikte voor thuis',
+  '/training/beste-crossfit-schoenen/': 'stabiele mid-range crossfit schoen',
+  '/training/beste-crossfit-springtouwen/': 'kabel springtouw met lager',
+  '/training/beste-hangboards-voor-boulderen-en-klimmen/': 'hangboard met progressive edges',
+  '/training/beste-roeitrainer-voor-thuis/': 'compacte thuis roeitrainer',
+  '/training/beste-roeitrainer-met-waterweerstand-2026-onze-top-5-vergeleken/':
+    'waterweerstand roeitrainer',
 };
 
-/** KEEP converters — stay published; prefer in hubs when ranking. */
+/** KEEP converters: stay published; prefer in hubs when ranking. */
 export const KEEP_PATHS = [
   '/voeding/soorten-havermout/',
   '/training/grip-trainer-kopen/',
@@ -150,7 +161,7 @@ export function sortHubPosts(posts: Post[]): Post[] {
   });
 }
 
-export function pickHomepageFeatures(posts: Post[], limit = 9): Post[] {
+export function pickHomepageFeatures(posts: Post[], limit = 12): Post[] {
   const byPath = new Map(posts.map(p => [normalizePostPath(postHref(p)), p]));
   const picked: Post[] = [];
   for (const path of HOMEPAGE_FEATURE_PATHS) {

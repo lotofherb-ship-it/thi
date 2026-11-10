@@ -1,8 +1,7 @@
 ---
 /**
- * Home — Wirecutter-style guide library grid.
- * Slim nav (layout) + short intro + category chips + dense guide cards.
- * No lean single-product hero; brand wordmark lives in nav only.
+ * Home: Wirecutter-style dense guide library grid.
+ * Slim nav (layout) + quiet dek + chips + image-led cards. No lean hero.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { urlFor } from '../lib/sanity';
@@ -13,17 +12,25 @@ import type { Post } from '../types';
 import '../styles/site.css';
 
 const posts: Post[] = await getAllPosts();
-const featured = pickHomepageFeatures(posts, 9);
+const featured = pickHomepageFeatures(posts, 12);
 
-function formatLabel(post: Post) {
-  if (post.template === 'comparison') return 'Vergelijking';
-  if (post.template === 'honest-review') return 'Eerlijke review';
-  return 'Gids';
+/** Short card title: drop year + trailing SEO clause after colon. */
+function cardTitle(post: Post): string {
+  const raw = post.title || '';
+  const head = raw.split(':')[0] || raw;
+  return (
+    head
+      .replace(/\s*\(20\d{2}\)\s*/g, ' ')
+      .replace(/\s*20\d{2}\s*/g, ' ')
+      .replace(/\s+van\s*$/i, '')
+      .replace(/\s+/g, ' ')
+      .trim() || raw
+  );
 }
 
 function cover(post: Post): string | null {
   if (post.heroImage) {
-    return urlFor(post.heroImage).width(640).height(480).auto('format').url();
+    return urlFor(post.heroImage).width(480).height(480).auto('format').url();
   }
   if (post.coverImageUrl) return post.coverImageUrl;
   if (post.honestReview?.imageUrl) return post.honestReview.imageUrl;
@@ -40,17 +47,14 @@ const categoryChips = [
 ---
 
 <BaseLayout
-  title="The Health Issue — Keuzehulp voor gezondheidsproducten"
+  title="The Health Issue: Keuzehulp voor gezondheidsproducten"
   description="Onafhankelijke gidsen en reviews. Oordeel eerst, trade-offs erbij, affiliate-geld zichtbaar."
 >
   <div class="wc-page wc-home-grid">
     <div class="wc-wrap">
-      <div class="wc-home-intro">
-        <p>
-          <strong>Onafhankelijke gidsen</strong> voor supplementen en training gear —
-          oordeel eerst, trade-offs erbij, affiliate zichtbaar.
-        </p>
-      </div>
+      <p class="wc-home-dek">
+        Onafhankelijke gidsen voor supplementen en training gear.
+      </p>
 
       <nav class="wc-home-cats" aria-label="Categorieën">
         {categoryChips.map(({ href, label }) => (
@@ -60,26 +64,26 @@ const categoryChips = [
 
       <section class="wc-home-library" aria-labelledby="library-title">
         <div class="wc-home-library-head">
-          <h1 id="library-title">Gidsen &amp; topkeuzes</h1>
-          <a href="/vergelijken/">Alle vergelijkingen →</a>
+          <h1 id="library-title">Gidsen</h1>
+          <a href="/vergelijken/">Alle vergelijkingen</a>
         </div>
 
         <ul class="wc-home-cards">
           {featured.map((post, i) => {
             const img = cover(post);
-            const chip = formatLabel(post);
             const pick = homepageTopPick(post);
+            const title = cardTitle(post);
             return (
               <li>
-                <a class="wc-home-card" href={postHref(post)}>
+                <a class="wc-home-card" href={postHref(post)} title={post.title}>
                   <div class="wc-home-card-media">
                     {img ? (
                       <img
                         src={img}
                         alt=""
-                        width="640"
+                        width="480"
                         height="480"
-                        loading={i < 3 ? 'eager' : 'lazy'}
+                        loading={i < 8 ? 'eager' : 'lazy'}
                         decoding="async"
                       />
                     ) : (
@@ -87,8 +91,7 @@ const categoryChips = [
                     )}
                   </div>
                   <div class="wc-home-card-body">
-                    <span class="wc-home-card-chip">{chip}</span>
-                    <h2 class="wc-home-card-title">{post.title}</h2>
+                    <h2 class="wc-home-card-title">{title}</h2>
                     {pick && (
                       <p class="wc-home-card-verdict">
                         <em>Topkeuze:</em> {pick}
