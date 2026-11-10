@@ -20,6 +20,7 @@ import {
 } from '../lib/products/resolve';
 import { getChatScriptForSlug } from '../lib/chat-opener';
 import PickBuy from './PickBuy.astro';
+import AudienceSplit from './AudienceSplit.astro';
 import type { Post } from '../types';
 import {
   articleSchema as buildArticleSchema,
@@ -111,6 +112,24 @@ const topOffers = topProduct ? productOffers(topProduct) : [];
 const topPrimary = topOffers[0] || null;
 const topCta = topPrimary ? offerCta(topPrimary) : null;
 const showRecThumbs = products.some(p => Boolean(productImage(p)));
+
+const forItems = (
+  post.keyTakeaways?.length
+    ? post.keyTakeaways.slice(0, 3)
+    : [
+        'Je een eerlijke topkeuze wilt zonder uren research',
+        'Je wilt weten wat er wél en níet in het product zit',
+        'Je prijs/kwaliteit belangrijker vindt dan marketing',
+      ]
+)
+  .map(t => String(t).trim())
+  .filter(Boolean);
+
+const notItems = [
+  'Je medisch advies zoekt — raadpleeg dan een arts',
+  'Je alleen op laagste prijs wilt selecteren',
+  'Je claims zonder bronnen of nuance verwacht',
+];
 
 /** One TOC link per pick role — skip duplicate “Ook goed” entries. */
 const tocPickLinks: { href: string; label: string }[] = [];
@@ -472,26 +491,12 @@ const listSchema = itemListSchema(
     <section class="guide-section" id="voor-wie">
       <h2>Voor wie dit is (en voor wie niet)</h2>
       {post.whoForProse && <p>{post.whoForProse}</p>}
-      <div class="guide-split">
-        <div class="guide-split-box guide-split-box--for">
-          <h3>Wel voor jou als…</h3>
-          <ul>
-            {(post.keyTakeaways?.slice(0, 3) || [
-              'Je een eerlijke topkeuze wilt zonder uren research',
-              'Je wilt weten wat er wél en níet in het product zit',
-              'Je prijs/kwaliteit belangrijker vindt dan marketing',
-            ]).map(t => <li>{t}</li>)}
-          </ul>
-        </div>
-        <div class="guide-split-box guide-split-box--not">
-          <h3>Niet voor jou als…</h3>
-          <ul>
-            <li>Je medisch advies zoekt — raadpleeg dan een arts</li>
-            <li>Je alleen op laagste prijs wilt selecteren</li>
-            <li>Je claims zonder bronnen of nuance verwacht</li>
-          </ul>
-        </div>
-      </div>
+      <AudienceSplit
+        forTitle="Wel voor jou als…"
+        notTitle="Niet voor jou als…"
+        forItems={forItems}
+        notItems={notItems}
+      />
     </section>
 
     <section class="guide-section" id="methode">

@@ -1,0 +1,46 @@
+---
+/**
+ * Wirecutter-style for / not-for split used on money pages.
+ * Hides empty columns so a missing “Wel geschikt” list doesn’t leave a barren half.
+ */
+interface Props {
+  forTitle?: string;
+  notTitle?: string;
+  forItems?: string[];
+  notItems?: string[];
+}
+
+const {
+  forTitle = 'Wel geschikt als…',
+  notTitle = 'Minder geschikt als…',
+  forItems = [],
+  notItems = [],
+} = Astro.props;
+
+const forList = (forItems || []).map(t => String(t).trim()).filter(Boolean);
+const notList = (notItems || []).map(t => String(t).trim()).filter(Boolean);
+const showFor = forList.length > 0;
+const showNot = notList.length > 0;
+const both = showFor && showNot;
+---
+
+{(showFor || showNot) && (
+  <div class:list={['guide-split', { 'guide-split--single': !both }]}>
+    {showFor && (
+      <div class="guide-split-box guide-split-box--for">
+        <h3>{forTitle}</h3>
+        <ul>
+          {forList.map(t => <li>{t}</li>)}
+        </ul>
+      </div>
+    )}
+    {showNot && (
+      <div class="guide-split-box guide-split-box--not">
+        <h3>{notTitle}</h3>
+        <ul>
+          {notList.map(t => <li>{t}</li>)}
+        </ul>
+      </div>
+    )}
+  </div>
+)}
