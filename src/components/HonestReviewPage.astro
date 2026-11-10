@@ -14,6 +14,7 @@ import { categoryHref } from '../lib/urls';
 import { resolveProductCommerce, offerCta } from '../lib/products/resolve';
 import { getChatScriptForSlug } from '../lib/chat-opener';
 import PickBuy from './PickBuy.astro';
+import AudienceSplit from './AudienceSplit.astro';
 import type { Post, ComparisonProduct } from '../types';
 import {
   breadcrumbList,
@@ -103,6 +104,13 @@ const tocItems = (post.body || [])
     const id = text.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
     return { text: shortTocLabel(text), id };
   });
+
+const forItems = [
+  ...(hr?.bestFor ? [hr.bestFor] : []),
+  ...(post.keyTakeaways?.slice(0, 2) || []),
+]
+  .map(t => String(t).trim())
+  .filter(Boolean);
 
 const notFor =
   hr?.notFor?.length
@@ -307,21 +315,12 @@ const crumbSchema = breadcrumbList(post);
 
     <section class="guide-section" id="voor-wie">
       <h2>Voor wie dit product is</h2>
-      <div class="guide-split">
-        <div class="guide-split-box guide-split-box--for">
-          <h3>Wel geschikt als…</h3>
-          <ul>
-            {hr?.bestFor ? <li>{hr.bestFor}</li> : null}
-            {(post.keyTakeaways?.slice(0, 2) || []).map(t => <li>{t}</li>)}
-          </ul>
-        </div>
-        <div class="guide-split-box guide-split-box--not">
-          <h3>Minder geschikt als…</h3>
-          <ul>
-            {notFor.map(t => <li>{t}</li>)}
-          </ul>
-        </div>
-      </div>
+      <AudienceSplit
+        forTitle="Wel geschikt als…"
+        notTitle="Minder geschikt als…"
+        forItems={forItems}
+        notItems={notFor}
+      />
     </section>
 
     {/* Soft mid CTA after trust framing — not inside for/not-for */}
