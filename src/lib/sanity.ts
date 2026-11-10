@@ -54,6 +54,13 @@ export const postBySlugQuery = `
       shop, affiliateUrl, image, pros, cons, verdict, tursoProductId
     },
     comparisonDisclosure,
+    whoForProse,
+    whoFor,
+    notFor,
+    methodProse,
+    methodCriteria,
+    trustNarrative,
+    alsoConsidered[] { name, blurb },
     honestReview {
       productName, testPeriod, bestFor, overallScore, scores, weeklyEntries,
       notFor, tagline, verdict, imageUrl, pros, cons,

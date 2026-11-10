@@ -113,9 +113,10 @@ const topPrimary = topOffers[0] || null;
 const topCta = topPrimary ? offerCta(topPrimary) : null;
 const showRecThumbs = products.some(p => Boolean(productImage(p)));
 
+/** Personas for “Wel voor jou” — never reuse keyTakeaways (those are quotable facts). */
 const forItems = (
-  post.keyTakeaways?.length
-    ? post.keyTakeaways.slice(0, 3)
+  post.whoFor?.length
+    ? post.whoFor
     : [
         'Je een eerlijke topkeuze wilt zonder uren research',
         'Je wilt weten wat er wél en níet in het product zit',
@@ -125,11 +126,35 @@ const forItems = (
   .map(t => String(t).trim())
   .filter(Boolean);
 
-const notItems = [
-  'Je medisch advies zoekt — raadpleeg dan een arts',
-  'Je alleen op laagste prijs wilt selecteren',
-  'Je claims zonder bronnen of nuance verwacht',
-];
+const notItems = (
+  post.notFor?.length
+    ? post.notFor
+    : [
+        'Je medisch advies zoekt — raadpleeg dan een arts',
+        'Je alleen op laagste prijs wilt selecteren',
+        'Je claims zonder bronnen of nuance verwacht',
+      ]
+)
+  .map(t => String(t).trim())
+  .filter(Boolean);
+
+const methodParagraphs = (post.methodProse || '')
+  .split(/\n\s*\n/)
+  .map(p => p.trim())
+  .filter(Boolean);
+
+const methodCriteria = (
+  post.methodCriteria?.length
+    ? post.methodCriteria
+    : [
+        'Samenstelling, dosering en vorm (capsule, poeder, vloeistof)',
+        'Prijs per effectieve dosis, niet alleen stickerprijs',
+        'Verkrijgbaarheid in NL-webshops via onze affiliate-feed',
+        'Trade-offs zichtbaar: geen product is perfect voor iedereen',
+      ]
+)
+  .map(t => String(t).trim())
+  .filter(Boolean);
 
 /** One TOC link per pick role — skip duplicate “Ook goed” entries. */
 const tocPickLinks: { href: string; label: string }[] = [];
@@ -501,22 +526,27 @@ const listSchema = itemListSchema(
 
     <section class="guide-section" id="methode">
       <h2>Hoe we kozen</h2>
-      <p>
-        We begonnen met wat mensen in Nederland écht kopen: bisglycinaat-formules die via
-        gangbare webshops leverbaar zijn. Daarna filterden we op etikethelderheid (elementair
-        magnesium), vulstoffen en of de dosering realistisch is voor dagelijks gebruik.
-      </p>
-      <p>
-        Prijs beoordelen we per effectieve dosis — niet op de sticker. Affiliate-commissie speelt
-        geen rol in de ranking: elke koopoptie toont de link en de bron. Producten die alleen via
-        onduidelijke dropshippers lopen, vallen af.
-      </p>
-      <ul>
-        <li>Samenstelling, dosering en vorm (capsule, poeder, vloeistof)</li>
-        <li>Prijs per effectieve dosis, niet alleen stickerprijs</li>
-        <li>Verkrijgbaarheid in NL-webshops via onze affiliate-feed</li>
-        <li>Trade-offs zichtbaar: geen product is perfect voor iedereen</li>
-      </ul>
+      {methodParagraphs.length > 0 ? (
+        methodParagraphs.map(p => <p>{p}</p>)
+      ) : (
+        <>
+          <p>
+            We begonnen met wat mensen in Nederland écht kopen via gangbare webshops. Daarna
+            filterden we op etikethelderheid (dosering per portie), vorm (poeder, tablet, capsule)
+            en of de claim past bij het gebruik — niet op marketingtaal.
+          </p>
+          <p>
+            Prijs beoordelen we per effectieve dosis — niet op de sticker. Affiliate-commissie speelt
+            geen rol in de ranking: elke koopoptie toont de link en de bron. Producten die alleen via
+            onduidelijke dropshippers lopen, vallen af.
+          </p>
+        </>
+      )}
+      {methodCriteria.length > 0 && (
+        <ul>
+          {methodCriteria.map(c => <li>{c}</li>)}
+        </ul>
+      )}
     </section>
 
     {/* Full pick chapters — prose + pros/flaws (second pass) */}

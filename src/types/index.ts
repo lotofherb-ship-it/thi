@@ -166,5 +166,13 @@ export interface Post {
   trustNarrative?: string;
   /** Optional continuous “voor wie” prose above the wel/niet split. */
   whoForProse?: string;
+  /** Comparison “Wel voor jou” personas (preferred over keyTakeaways for that job). */
+  whoFor?: string[];
+  /** Comparison / shared “Niet voor jou” personas. */
+  notFor?: string[];
+  /** Comparison method prose (replaces category-hardcoded fallback). */
+  methodProse?: string;
+  /** Optional method criteria bullets under methodProse. */
+  methodCriteria?: string[];
   honestReview?: HonestReview;
 }
