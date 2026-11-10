@@ -178,6 +178,83 @@ export const post = defineType({
       initialValue: 'Dit artikel bevat affiliate links. Als je via onze links koopt, ontvangen wij een kleine commissie — zonder extra kosten voor jou.',
     }),
 
+    // ── Comparison editorial (Wirecutter section jobs — content-driven)
+    defineField({
+      name: 'whoForProse',
+      title: 'Voor wie — korte inleiding',
+      type: 'text',
+      rows: 2,
+      group: 'content',
+      hidden: ({ document }) => document?.template !== 'comparison',
+      description: 'Optionele zin boven de wel/niet-split. Personas, geen stof-encyclopedie.',
+    }),
+    defineField({
+      name: 'whoFor',
+      title: 'Wel voor jou als…',
+      type: 'array',
+      group: 'content',
+      hidden: ({ document }) => document?.template !== 'comparison',
+      of: [{ type: 'string' }],
+      validation: Rule => Rule.max(5),
+      description: 'Kooppersona’s / situaties (niet mechanismen of studie-samenvattingen).',
+    }),
+    defineField({
+      name: 'notFor',
+      title: 'Niet voor jou als…',
+      type: 'array',
+      group: 'content',
+      hidden: ({ document }) =>
+        document?.template !== 'comparison' && document?.template !== 'honest-review',
+      of: [{ type: 'string' }],
+      validation: Rule => Rule.max(5),
+      description: 'Minimaal 2 concrete situaties. Bij honest-review: ook honestReview.notFor.',
+    }),
+    defineField({
+      name: 'methodProse',
+      title: 'Hoe we kozen — methode',
+      type: 'text',
+      rows: 5,
+      group: 'content',
+      hidden: ({ document }) => document?.template !== 'comparison',
+      description: 'Inspecteerbare methode voor déze gids. Lege = generieke fallback (geen magnesium-copy).',
+    }),
+    defineField({
+      name: 'methodCriteria',
+      title: 'Methode — criteria bullets',
+      type: 'array',
+      group: 'content',
+      hidden: ({ document }) => document?.template !== 'comparison',
+      of: [{ type: 'string' }],
+      validation: Rule => Rule.max(6),
+    }),
+    defineField({
+      name: 'trustNarrative',
+      title: 'Vertrouwen — eigen copy',
+      type: 'text',
+      rows: 3,
+      group: 'content',
+      hidden: ({ document }) => document?.template !== 'comparison',
+    }),
+    defineField({
+      name: 'alsoConsidered',
+      title: 'Wat we ook bekeken (afvallers)',
+      type: 'array',
+      group: 'content',
+      hidden: ({ document }) => document?.template !== 'comparison',
+      of: [
+        {
+          type: 'object',
+          name: 'alsoConsideredItem',
+          fields: [
+            { name: 'name', type: 'string', title: 'Naam / type', validation: (R) => R.required() },
+            { name: 'blurb', type: 'text', title: 'Kill-reden', validation: (R) => R.required() },
+          ],
+          preview: { select: { title: 'name', subtitle: 'blurb' } },
+        },
+      ],
+      validation: Rule => Rule.max(8),
+    }),
+
     // ── Honest review fields (alleen bij template: honest-review)
     defineField({
       name: 'honestReview',
@@ -189,6 +266,13 @@ export const post = defineType({
         { name: 'productName', type: 'string', title: 'Productnaam' },
         { name: 'testPeriod', type: 'string', title: 'Testperiode (bijv. "8 weken")' },
         { name: 'bestFor', type: 'string', title: 'Best voor (bijv. "Sporters die beter willen herstellen")' },
+        {
+          name: 'notFor',
+          type: 'array',
+          title: 'Minder geschikt als…',
+          of: [{ type: 'string' }],
+          validation: R => R.max(5),
+        },
         { name: 'overallScore', type: 'number', title: 'Eindscore (0–10)', validation: R => R.min(0).max(10) },
         {
           name: 'tursoProductId',
