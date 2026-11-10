@@ -1,7 +1,6 @@
 ---
 import '../styles/global.css';
 import SiteNav from '../components/SiteNav.astro';
-import DisclosureStrip from '../components/DisclosureStrip.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import CookieConsent from '../components/CookieConsent.astro';
 import { SITE_URL, absoluteUrl, sitewideGraph } from '../lib/schema';
@@ -74,7 +73,6 @@ const siteGraph = sitewideGraph();
 <body>
   <header class="thi-chrome">
     <SiteNav />
-    <DisclosureStrip />
   </header>
   <main>
     <slot />
