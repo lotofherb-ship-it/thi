@@ -5,6 +5,7 @@
  */
 import {
   offerCta,
+  merchantDisplayName,
   PICK_DISC_SHORT,
   type ProductOffer,
 } from '../lib/products/resolve';
@@ -32,7 +33,18 @@ const {
   showDisc = true,
 } = Astro.props;
 
-const shown = offers.slice(0, limit);
+/** One CTA per merchant — Awin+Daisycon same shop must not double the button. */
+const uniqueByMerchant: ProductOffer[] = [];
+const seenShops = new Set<string>();
+for (const o of offers) {
+  const key = merchantDisplayName(o.merchant).toLowerCase();
+  if (seenShops.has(key)) continue;
+  seenShops.add(key);
+  uniqueByMerchant.push(o);
+}
+
+/** Primary + one quiet alt — avoid Partnerlink spam on every button. */
+const shown = uniqueByMerchant.slice(0, Math.min(limit, 2));
 ---
 
 <div class="pick-buy">
@@ -47,11 +59,11 @@ const shown = offers.slice(0, limit);
           rel="noopener noreferrer nofollow sponsored"
         >
           <span class="pick-offer-cta">{action}</span>
-          <span class="pick-offer-meta">
-            {price ? <span class="pick-offer-price">{price}</span> : null}
-            {price ? <span class="pick-offer-sep" aria-hidden="true">·</span> : null}
-            <span class="pick-offer-aff">Partnerlink</span>
-          </span>
+          {price ? (
+            <span class="pick-offer-meta">
+              <span class="pick-offer-price">{price}</span>
+            </span>
+          ) : null}
         </a>
       );
     })

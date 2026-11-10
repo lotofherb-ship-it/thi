@@ -28,15 +28,22 @@ const heroSrc = post.heroImage
   : null;
 
 const authorSrc = post.author?.avatar
-  ? urlFor(post.author.avatar).width(80).height(80).auto('format').url()
+  ? urlFor(post.author.avatar).width(96).height(96).fit('crop').auto('format').url()
   : null;
+
+function shortTocLabel(text: string): string {
+  const t = text.trim();
+  if (t.length <= 22) return t;
+  const cut = t.slice(0, 20).replace(/\s+\S*$/, '');
+  return `${cut || t.slice(0, 20)}…`;
+}
 
 const tocItems = (post.body || [])
   .filter((b: any) => b._type === 'block' && b.style === 'h2')
   .map((b: any) => {
     const text = b.children?.map((c: any) => c.text).join('') || '';
     const id = text.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
-    return { text, id };
+    return { text: shortTocLabel(text), id };
   });
 
 const publishedLabel = post.publishedAt
@@ -96,21 +103,23 @@ const crumbSchema = breadcrumbList(post);
 
     {post.author && (
       <div class="guide-byline">
-        <div class="guide-avatar">
+        <div class="guide-avatar guide-avatar--lg">
           {authorSrc
-            ? <img src={authorSrc} alt="" width="44" height="44" />
+            ? <img src={authorSrc} alt={post.author.name} width="48" height="48" />
             : initials(post.author.name)}
         </div>
         <div>
           <div class="guide-byline-name">Door {post.author.name}</div>
-          {post.author.credentials && (
-            <p class="guide-byline-role">{post.author.credentials}</p>
-          )}
-          {publishedLabel && (
-            <p class="guide-byline-role" style="color:var(--muted);font-size:12.5px">
-              Gepubliceerd {publishedLabel}
-            </p>
-          )}
+          <p class="guide-byline-role">{post.author.credentials || 'Oprichter'}</p>
+          <p class="guide-byline-meta">
+            {publishedLabel && (
+              <>Gepubliceerd <time datetime={post.publishedAt}>{publishedLabel}</time></>
+            )}
+            {publishedLabel && updatedLabel ? ' · ' : ''}
+            {updatedLabel && (
+              <>Bijgewerkt <time datetime={stampIso}>{updatedLabel}</time></>
+            )}
+          </p>
         </div>
       </div>
     )}

@@ -8,9 +8,10 @@
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PortableText from './PortableText.astro';
 import ChatGuideOpener from './ChatGuideOpener.astro';
+import AuthorBox from './AuthorBox.astro';
 import { urlFor } from '../lib/sanity';
 import { categoryHref } from '../lib/urls';
-import { resolveProductOffers, offerCta } from '../lib/products/resolve';
+import { resolveProductCommerce, offerCta } from '../lib/products/resolve';
 import { getChatScriptForSlug } from '../lib/chat-opener';
 import PickBuy from './PickBuy.astro';
 import type { Post, ComparisonProduct } from '../types';
@@ -36,13 +37,8 @@ const heroSrc = post.heroImage
   ? urlFor(post.heroImage).width(960).height(540).fit('crop').auto('format').url()
   : null;
 
-/** Product card media — never landscape-crop a bottle shot */
-const productSrc = post.heroImage
-  ? urlFor(post.heroImage).width(900).fit('max').auto('format').url()
-  : hr?.imageUrl || null;
-
 const authorSrc = post.author?.avatar
-  ? urlFor(post.author.avatar).width(96).height(96).auto('format').url()
+  ? urlFor(post.author.avatar).width(96).height(96).fit('crop').auto('format').url()
   : null;
 
 const scoreDimensions = [
@@ -85,16 +81,27 @@ const synthetic: ComparisonProduct = {
   shop: hr?.shop,
   price: hr?.price,
 };
-const offers = await resolveProductOffers(synthetic);
+const { offers, feedImageUrl } = await resolveProductCommerce(synthetic);
 const primaryOffer = offers[0] || null;
 const primaryCta = primaryOffer ? offerCta(primaryOffer) : null;
+
+/** Pack shot: editorial URL → merchant feed → never landscape article hero as bottle. */
+const productSrc = hr?.imageUrl || feedImageUrl || null;
+
+/** Short TOC labels — long H2 titles must wrap cleanly, never clip. */
+function shortTocLabel(text: string): string {
+  const t = text.trim();
+  if (t.length <= 22) return t;
+  const cut = t.slice(0, 20).replace(/\s+\S*$/, '');
+  return `${cut || t.slice(0, 20)}…`;
+}
 
 const tocItems = (post.body || [])
   .filter((b: any) => b._type === 'block' && b.style === 'h2')
   .map((b: any) => {
     const text = b.children?.map((c: any) => c.text).join('') || '';
     const id = text.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
-    return { text, id };
+    return { text: shortTocLabel(text), id };
   });
 
 const notFor =
@@ -152,58 +159,55 @@ const crumbSchema = breadcrumbList(post);
       <span aria-current="page">{productName}</span>
     </nav>
 
-    <p class="guide-kicker">
-      {post.category ? `${post.category.title} · ` : ''}Eerlijke review · één product
-    </p>
     <h1 class="guide-h1">{post.title}</h1>
 
     {post.excerpt && <p class="guide-lede guide-lede--standfirst">{post.excerpt}</p>}
 
     {post.author && (
       <div class="guide-byline">
-        <div class="guide-avatar">
+        <div class="guide-avatar guide-avatar--lg">
           {authorSrc
-            ? <img src={authorSrc} alt="" width="44" height="44" />
+            ? <img src={authorSrc} alt={post.author.name} width="48" height="48" />
             : initials(post.author.name)}
         </div>
         <div>
           <div class="guide-byline-name">Door {post.author.name}</div>
-          <p class="guide-byline-meta">
-            {updatedLabel && (
-              <>
-                Bijgewerkt <time datetime={stampIso}>{updatedLabel}</time>
-                {hr?.testPeriod ? ` · ${hr.testPeriod} getest` : ''}
-              </>
-            )}
+          <p class="guide-byline-role">
+            {post.author.credentials || 'Oprichter'}
           </p>
-          {post.author.credentials && (
-            <p class="guide-byline-role">{post.author.credentials}</p>
-          )}
+          <p class="guide-byline-meta">
+            {publishedLabel && (
+              <>Gepubliceerd <time datetime={post.publishedAt}>{publishedLabel}</time></>
+            )}
+            {publishedLabel && updatedLabel ? ' · ' : ''}
+            {updatedLabel && (
+              <>Bijgewerkt <time datetime={stampIso}>{updatedLabel}</time></>
+            )}
+            {hr?.testPeriod ? ` · ${hr.testPeriod} getest` : ''}
+          </p>
         </div>
       </div>
     )}
 
-    {/* Affiliate honesty: sitewide DisclosureStrip only (P0-1) */}
-
-    {/* Light ATF cue — soft shop path without urgency spam */}
+    {/* Dense ATF shop strip — no KOOPOPTIE eyebrow, price on CTA, one primary button */}
     {primaryOffer && primaryCta && (
-      <p class="guide-atf-cue" aria-label="Snel naar shop">
-        <span class="guide-atf-cue-kicker">Koopoptie</span>
-        <span class="guide-atf-cue-name">{productName}</span>
-        <span class="guide-atf-cue-actions">
-          <a href="#beoordeling">Naar beoordeling</a>
-          <span class="guide-atf-cue-sep" aria-hidden="true">·</span>
-          <a
-            class="guide-atf-cue-buy"
-            href={primaryOffer.url}
-            target="_blank"
-            rel="noopener noreferrer nofollow sponsored"
-          >
-            {primaryCta.action}
-            <span class="guide-atf-cue-aff">Partnerlink</span>
-          </a>
-        </span>
-      </p>
+      <div class="guide-atf-cue" aria-label="Snel naar shop">
+        <div class="guide-atf-cue-copy">
+          <strong class="guide-atf-cue-name">{productName}</strong>
+          <a class="guide-atf-cue-review" href="#beoordeling">Naar beoordeling</a>
+        </div>
+        <a
+          class="guide-atf-cue-buy"
+          href={primaryOffer.url}
+          target="_blank"
+          rel="noopener noreferrer nofollow sponsored"
+        >
+          <span class="guide-atf-cue-action">{primaryCta.action}</span>
+          {primaryCta.price ? (
+            <span class="guide-atf-cue-meta">{primaryCta.price}</span>
+          ) : null}
+        </a>
+      </div>
     )}
 
     {articleHero && (
@@ -322,9 +326,8 @@ const crumbSchema = breadcrumbList(post);
 
     {/* Soft mid CTA after trust framing — not inside for/not-for */}
     {primaryOffer && primaryCta && (
-      <aside class="guide-mid-cta" aria-label="Koopoptie">
+      <aside class="guide-mid-cta" aria-label="Naar de shop">
         <div class="guide-mid-cta-copy">
-          <span class="guide-mid-cta-kicker">Naar de shop</span>
           <strong class="guide-mid-cta-name">{productName}</strong>
           {hr?.bestFor && <span class="guide-mid-cta-claim">Beste voor: {hr.bestFor}</span>}
         </div>
@@ -335,9 +338,9 @@ const crumbSchema = breadcrumbList(post);
           rel="noopener noreferrer nofollow sponsored"
         >
           <span class="guide-mid-cta-action">{primaryCta.action}</span>
-          <span class="guide-mid-cta-meta">
-            {primaryCta.price ? `${primaryCta.price} · ` : ''}Partnerlink
-          </span>
+          {primaryCta.price ? (
+            <span class="guide-mid-cta-meta">{primaryCta.price}</span>
+          ) : null}
         </a>
       </aside>
     )}
@@ -376,7 +379,7 @@ const crumbSchema = breadcrumbList(post);
 
     {post.body && post.body.length > 0 && (
       <div class="guide-prose">
-        <PortableText value={post.body} />
+        <PortableText value={post.body} defaultOffer={primaryOffer} />
       </div>
     )}
 
@@ -469,20 +472,14 @@ const crumbSchema = breadcrumbList(post);
     )}
 
     {post.author && (
-      <footer class="guide-author">
-        <div class="guide-avatar" style="width:56px;height:56px;font-size:16px">
-          {authorSrc
-            ? <img src={authorSrc} alt="" width="56" height="56" />
-            : initials(post.author.name)}
-        </div>
-        <div>
-          <div class="guide-author-name">{post.author.name}</div>
-          {post.author.credentials && (
-            <div class="guide-author-role">{post.author.credentials}</div>
-          )}
-          {post.author.bio && <p class="guide-author-bio">{post.author.bio}</p>}
-        </div>
-      </footer>
+      <AuthorBox
+        author={post.author}
+        variant="full"
+        publishedLabel={publishedLabel}
+        publishedIso={post.publishedAt}
+        updatedLabel={updatedLabel}
+        updatedIso={stampIso}
+      />
     )}
   </article>
 </BaseLayout>

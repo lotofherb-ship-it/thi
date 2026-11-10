@@ -30,7 +30,7 @@ export const postFields = `
   seoTitle,
   seoDescription,
   category-> { title, slug },
-  author-> { name, slug, avatar, credentials },
+  author-> { name, slug, avatar, credentials, bio },
 `;
 
 // All published posts (for static paths)
