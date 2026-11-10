@@ -33,10 +33,19 @@ export const postFields = `
   author-> { name, slug, avatar, credentials, bio },
 `;
 
+/** Lightweight pick fields for homepage / hub cards (Topkeuze one-liner + cover fallback). */
+export const postCardFields = `
+  comparisonProducts[0..2] {
+    name, badge, imageUrl
+  },
+  honestReview { productName, imageUrl, tagline },
+`;
+
 // All published posts (for static paths)
 export const allPostsQuery = `
   *[_type == "post" && defined(slug.current)] | order(publishedAt desc) {
     ${postFields}
+    ${postCardFields}
   }
 `;
 
@@ -74,6 +83,7 @@ export const postsByCategoryQuery = `
   *[_type == "post" && category->slug.current == $category && defined(slug.current)]
   | order(publishedAt desc) {
     ${postFields}
+    ${postCardFields}
   }
 `;
 
@@ -118,7 +128,7 @@ export const allComparisonPostsQuery = `
   | order(publishedAt desc) {
     ${postFields}
     comparisonProducts[0..2] {
-      name, badge, rating, price
+      name, badge, rating, price, imageUrl
     },
   }
 `;
@@ -128,6 +138,6 @@ export const allReviewPostsQuery = `
   *[_type == "post" && template == "honest-review" && defined(slug.current)]
   | order(publishedAt desc) {
     ${postFields}
-    honestReview { overallScore, bestFor },
+    honestReview { overallScore, bestFor, productName, imageUrl, tagline },
   }
 `;

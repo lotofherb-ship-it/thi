@@ -1,18 +1,19 @@
 ---
 /**
- * Home — klusjes-first (money-core + keep converters).
- * Featured rail is curated from audit MONEY CORE, not recency junk.
+ * Home — Wirecutter-style guide library grid.
+ * Slim nav (layout) + short intro + category chips + dense guide cards.
+ * No lean single-product hero; brand wordmark lives in nav only.
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import { urlFor } from '../lib/sanity';
 import { postHref } from '../lib/urls';
 import { getAllPosts } from '../lib/content';
-import { pickHomepageFeatures } from '../lib/audit-content';
+import { homepageTopPick, pickHomepageFeatures } from '../lib/audit-content';
 import type { Post } from '../types';
 import '../styles/site.css';
 
 const posts: Post[] = await getAllPosts();
-const featured = pickHomepageFeatures(posts, 6);
+const featured = pickHomepageFeatures(posts, 9);
 
 function formatLabel(post: Post) {
   if (post.template === 'comparison') return 'Vergelijking';
@@ -20,18 +21,9 @@ function formatLabel(post: Post) {
   return 'Gids';
 }
 
-function dateLabel(iso?: string) {
-  if (!iso) return null;
-  return new Date(iso).toLocaleDateString('nl-NL', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  });
-}
-
 function cover(post: Post): string | null {
   if (post.heroImage) {
-    return urlFor(post.heroImage).width(480).height(360).auto('format').url();
+    return urlFor(post.heroImage).width(640).height(480).auto('format').url();
   }
   if (post.coverImageUrl) return post.coverImageUrl;
   if (post.honestReview?.imageUrl) return post.honestReview.imageUrl;
@@ -39,13 +31,11 @@ function cover(post: Post): string | null {
   return first?.imageUrl || null;
 }
 
-const topicLinks = [
+const categoryChips = [
   { href: '/supplementen/', label: 'Supplementen' },
   { href: '/training/', label: 'Training' },
   { href: '/gezondheid/', label: 'Gezondheid' },
   { href: '/vergelijken/', label: 'Vergelijken' },
-  { href: '/reviews/', label: 'Reviews' },
-  { href: '/methode/', label: 'Methode →' },
 ];
 ---
 
@@ -53,54 +43,57 @@ const topicLinks = [
   title="The Health Issue — Keuzehulp voor gezondheidsproducten"
   description="Onafhankelijke gidsen en reviews. Oordeel eerst, trade-offs erbij, affiliate-geld zichtbaar."
 >
-  <div class="wc-page">
+  <div class="wc-page wc-home-grid">
     <div class="wc-wrap">
-      <header class="wc-home-hero">
-        <p class="wc-home-brand">The Health Issue</p>
-        <h1 class="wc-home-promise">Keuzehulp zonder marketingruis</h1>
-        <p class="wc-home-dek">
-          Vergelijkingen en eerlijke reviews voor supplementen en training gear —
+      <div class="wc-home-intro">
+        <p>
+          <strong>Onafhankelijke gidsen</strong> voor supplementen en training gear —
           oordeel eerst, trade-offs erbij, affiliate zichtbaar.
         </p>
-        <div class="wc-topics">
-          {topicLinks.map(({ href, label }) => (
-            <a class="wc-topic" href={href}>{label}</a>
-          ))}
-        </div>
-      </header>
+      </div>
 
-      <section class="wc-library" aria-label="Money pages en converters">
-        <div class="wc-sec-head">
-          <h2>Topkeuzes</h2>
+      <nav class="wc-home-cats" aria-label="Categorieën">
+        {categoryChips.map(({ href, label }) => (
+          <a class="wc-home-cat" href={href}>{label}</a>
+        ))}
+      </nav>
+
+      <section class="wc-home-library" aria-labelledby="library-title">
+        <div class="wc-home-library-head">
+          <h1 id="library-title">Gidsen &amp; topkeuzes</h1>
           <a href="/vergelijken/">Alle vergelijkingen →</a>
         </div>
-        <ul class="wc-library-list">
-          {featured.map(post => {
+
+        <ul class="wc-home-cards">
+          {featured.map((post, i) => {
             const img = cover(post);
             const chip = formatLabel(post);
-            const updated = post.updatedAt || post.publishedAt;
-            const dek = post.excerpt || '';
+            const pick = homepageTopPick(post);
             return (
               <li>
-                <a class="wc-library-card" href={postHref(post)}>
-                  <div class="wc-library-body">
-                    <span class="wc-format-chip" data-format={chip}>{chip}</span>
-                    <h3 class="wc-library-title">{post.title}</h3>
-                    {dek && (
-                      <p class="wc-library-dek">
-                        {dek.slice(0, 120)}{dek.length > 120 ? '…' : ''}
-                      </p>
-                    )}
-                    {updated && (
-                      <p class="wc-library-meta">
-                        Bijgewerkt {dateLabel(updated)}
-                      </p>
+                <a class="wc-home-card" href={postHref(post)}>
+                  <div class="wc-home-card-media">
+                    {img ? (
+                      <img
+                        src={img}
+                        alt=""
+                        width="640"
+                        height="480"
+                        loading={i < 3 ? 'eager' : 'lazy'}
+                        decoding="async"
+                      />
+                    ) : (
+                      <span class="wc-home-card-media-empty" aria-hidden="true" />
                     )}
                   </div>
-                  <div class="wc-library-thumb">
-                    {img
-                      ? <img src={img} alt="" width="160" height="120" loading="eager" />
-                      : <span class="wc-library-thumb-empty" aria-hidden="true" />}
+                  <div class="wc-home-card-body">
+                    <span class="wc-home-card-chip">{chip}</span>
+                    <h2 class="wc-home-card-title">{post.title}</h2>
+                    {pick && (
+                      <p class="wc-home-card-verdict">
+                        <em>Topkeuze:</em> {pick}
+                      </p>
+                    )}
                   </div>
                 </a>
               </li>
