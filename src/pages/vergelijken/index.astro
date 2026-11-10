@@ -1,4 +1,9 @@
 ---
+/**
+ * Vergelijkingen hub + guide search (?q=).
+ * Static build: list is prerendered; client script filters on q.
+ * No em dashes.
+ */
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import { urlFor } from '../../lib/sanity';
 import { postHref } from '../../lib/urls';
@@ -13,11 +18,33 @@ function thumb(post: Post) {
     ? urlFor(post.heroImage).width(320).height(240).auto('format').url()
     : null;
 }
+
+function noEmDash(s: string): string {
+  return s.replace(/\u2014/g, ',').replace(/\s+/g, ' ').trim();
+}
+
+function searchBlob(post: Post): string {
+  const slug =
+    typeof post.slug === 'string'
+      ? post.slug
+      : post.slug && typeof post.slug === 'object' && 'current' in post.slug
+        ? String((post.slug as { current?: string }).current || '')
+        : '';
+  const parts = [
+    post.title,
+    post.excerpt,
+    post.seoDescription,
+    post.category?.title,
+    slug,
+    postHref(post),
+  ];
+  return noEmDash(parts.filter(Boolean).join(' ')).toLowerCase();
+}
 ---
 
 <BaseLayout
-  title="Vergelijkingen — The Health Issue"
-  description="Alle productvergelijkingen van The Health Issue."
+  title="Vergelijkingen | The Health Issue"
+  description="Alle productvergelijkingen van The Health Issue. Zoek op onderwerp of product."
 >
   <div class="wc-page">
     <div class="wc-wrap">
@@ -26,15 +53,47 @@ function thumb(post: Post) {
         <h1>Vergelijkingen</h1>
         <p class="wc-dek">Topkeuzes met methode, trade-offs en zichtbare koopopties.</p>
       </header>
-      <ul class="wc-story-list">
+
+      <form
+        class="wc-guide-search"
+        action="/vergelijken/"
+        method="get"
+        role="search"
+        aria-label="Zoek in vergelijkingen"
+        data-guide-search-form
+      >
+        <label class="wc-home-finder-label" for="guide-search-q">Zoek in vergelijkingen</label>
+        <div class="wc-guide-search-field">
+          <span class="wc-home-finder-icon" aria-hidden="true">⌕</span>
+          <input
+            id="guide-search-q"
+            class="wc-guide-search-input"
+            type="search"
+            name="q"
+            placeholder="Zoek op onderwerp, bijvoorbeeld magnesium"
+            autocomplete="off"
+            enterkeyhint="search"
+            data-guide-search-input
+          />
+          <button class="wc-guide-search-go" type="submit">Zoeken</button>
+        </div>
+      </form>
+
+      <p class="wc-guide-search-status" data-guide-search-status hidden></p>
+      <p class="wc-guide-search-empty" data-guide-search-empty hidden>
+        Geen vergelijkingen gevonden. Probeer een ander woord, of bekijk alle gidsen hieronder.
+      </p>
+
+      <ul class="wc-story-list" data-guide-search-list>
         {posts.map(post => {
           const src = thumb(post);
+          const excerpt = post.excerpt ? noEmDash(post.excerpt).slice(0, 140) : '';
           return (
-            <li>
+            <li data-search-text={searchBlob(post)}>
               <a class="wc-story" href={postHref(post)}>
                 <div>
-                  <h2 class="wc-story-title">{post.title}</h2>
-                  {post.excerpt && <p class="wc-story-dek">{post.excerpt.slice(0, 140)}…</p>}
+                  <h2 class="wc-story-title">{noEmDash(post.title)}</h2>
+                  {excerpt && <p class="wc-story-dek">{excerpt}…</p>}
                   <div class="wc-story-meta">
                     <strong>{post.category?.title || 'Vergelijking'}</strong>
                     {post.author && ` · ${post.author.name}`}
@@ -52,4 +111,58 @@ function thumb(post: Post) {
       </ul>
     </div>
   </div>
+
+  <script>
+    function normalize(q: string): string {
+      return q.trim().toLowerCase().replace(/\s+/g, ' ');
+    }
+
+    function applyGuideSearch() {
+      const params = new URLSearchParams(window.location.search);
+      const q = normalize(params.get('q') || '');
+      const input = document.querySelector<HTMLInputElement>('[data-guide-search-input]');
+      const status = document.querySelector<HTMLElement>('[data-guide-search-status]');
+      const empty = document.querySelector<HTMLElement>('[data-guide-search-empty]');
+      const items = Array.from(
+        document.querySelectorAll<HTMLElement>('[data-guide-search-list] > li'),
+      );
+
+      if (input && input.value !== (params.get('q') || '')) {
+        input.value = params.get('q') || '';
+      }
+
+      if (!q) {
+        items.forEach((li) => {
+          li.hidden = false;
+        });
+        if (status) {
+          status.hidden = true;
+          status.textContent = '';
+        }
+        if (empty) empty.hidden = true;
+        return;
+      }
+
+      const terms = q.split(' ').filter(Boolean);
+      let shown = 0;
+      items.forEach((li) => {
+        const hay = li.getAttribute('data-search-text') || '';
+        const match = terms.every((t) => hay.includes(t));
+        li.hidden = !match;
+        if (match) shown += 1;
+      });
+
+      if (status) {
+        status.hidden = false;
+        status.textContent =
+          shown === 1
+            ? `1 vergelijking voor “${q}”`
+            : `${shown} vergelijkingen voor “${q}”`;
+      }
+      if (empty) empty.hidden = shown > 0;
+    }
+
+    applyGuideSearch();
+    window.addEventListener('popstate', applyGuideSearch);
+  </script>
 </BaseLayout>
