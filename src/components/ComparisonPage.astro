@@ -121,15 +121,23 @@ const coverSrc =
   (chatScript ? chatScript.hero.photo : null) ||
   post.coverImageUrl ||
   null;
-const publishedStamp = publishedLabel
-  ? `Gepubliceerd ${publishedLabel}`
-  : null;
-
 const topProduct = products[0] || null;
 const topOffers = topProduct ? productOffers(topProduct) : [];
 const topPrimary = topOffers[0] || null;
 const topCta = topPrimary ? offerCta(topPrimary) : null;
 const showRecThumbs = products.some(p => Boolean(productImage(p)));
+
+/** One TOC link per pick role — skip duplicate “Ook goed” entries. */
+const tocPickLinks: { href: string; label: string }[] = [];
+{
+  const seen = new Set<string>();
+  products.forEach((p, i) => {
+    const { label } = pickLabel(p, i);
+    if (seen.has(label)) return;
+    seen.add(label);
+    tocPickLinks.push({ href: `#pick-${i + 1}`, label });
+  });
+}
 ---
 
 <BaseLayout
@@ -169,11 +177,13 @@ const showRecThumbs = products.some(p => Boolean(productImage(p)));
             {post.author.credentials || 'Oprichter'}
           </p>
           <p class="guide-byline-meta">
+            {publishedLabel && (
+              <>Gepubliceerd <time datetime={post.publishedAt}>{publishedLabel}</time></>
+            )}
+            {publishedLabel && updatedLabel ? ' · ' : ''}
             {updatedLabel && (
               <>Bijgewerkt <time datetime={stampIso}>{updatedLabel}</time></>
             )}
-            {updatedLabel && publishedStamp ? ' · ' : ''}
-            {publishedStamp}
           </p>
         </div>
       </div>
@@ -213,18 +223,15 @@ const showRecThumbs = products.some(p => Boolean(productImage(p)));
       </figure>
     )}
 
-    {/* Sticky jump bar — short pick labels only (no product names → no overflow) */}
+    {/* Sticky jump bar — short unique labels only (no product names, no 3× Ook goed) */}
     {products.length > 0 && (
       <nav class="guide-tocbar" aria-label="In deze gids">
         <div class="guide-tocbar-inner">
           {chatScript && <a href="#chat-guide-opener">Snel antwoord</a>}
           <a href="#aanraden">Aanraden</a>
-          {products.map((p, i) => {
-            const { label } = pickLabel(p, i);
-            return (
-              <a href={`#pick-${i + 1}`}>{label}</a>
-            );
-          })}
+          {tocPickLinks.map(({ href, label }) => (
+            <a href={href}>{label}</a>
+          ))}
           {products.length > 1 && <a href="#vergelijking">Vergelijking</a>}
           <a href="#vertrouwen">Vertrouwen</a>
           <a href="#voor-wie">Voor wie</a>
@@ -381,15 +388,6 @@ const showRecThumbs = products.some(p => Boolean(productImage(p)));
           ) : null}
         </a>
       </aside>
-    )}
-
-    {post.author && (
-      <AuthorBox
-        author={post.author}
-        variant="compact"
-        updatedLabel={updatedLabel}
-        updatedIso={stampIso}
-      />
     )}
 
     {/* Mid-guide research cluster */}
@@ -618,6 +616,8 @@ const showRecThumbs = products.some(p => Boolean(productImage(p)));
       <AuthorBox
         author={post.author}
         variant="full"
+        publishedLabel={publishedLabel}
+        publishedIso={post.publishedAt}
         updatedLabel={updatedLabel}
         updatedIso={stampIso}
       />

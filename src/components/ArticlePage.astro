@@ -27,9 +27,9 @@ const authorSrc = post.author?.avatar
 
 function shortTocLabel(text: string): string {
   const t = text.trim();
-  if (t.length <= 28) return t;
-  const cut = t.slice(0, 26).replace(/\s+\S*$/, '');
-  return `${cut || t.slice(0, 26)}…`;
+  if (t.length <= 22) return t;
+  const cut = t.slice(0, 20).replace(/\s+\S*$/, '');
+  return `${cut || t.slice(0, 20)}…`;
 }
 
 const tocItems = (post.body || [])
@@ -105,11 +105,13 @@ const articleSchema = {
           <div class="guide-byline-name">Door {post.author.name}</div>
           <p class="guide-byline-role">{post.author.credentials || 'Oprichter'}</p>
           <p class="guide-byline-meta">
-            {updatedLabel
-              ? <>Bijgewerkt <time datetime={stampIso}>{updatedLabel}</time></>
-              : publishedLabel
-                ? <>Gepubliceerd {publishedLabel}</>
-                : null}
+            {publishedLabel && (
+              <>Gepubliceerd <time datetime={post.publishedAt}>{publishedLabel}</time></>
+            )}
+            {publishedLabel && updatedLabel ? ' · ' : ''}
+            {updatedLabel && (
+              <>Bijgewerkt <time datetime={stampIso}>{updatedLabel}</time></>
+            )}
           </p>
         </div>
       </div>

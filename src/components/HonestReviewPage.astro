@@ -82,12 +82,12 @@ const primaryCta = primaryOffer ? offerCta(primaryOffer) : null;
 /** Pack shot: editorial URL → merchant feed → never landscape article hero as bottle. */
 const productSrc = hr?.imageUrl || feedImageUrl || null;
 
-/** Short TOC labels — long H2 product titles overflow the sticky bar. */
+/** Short TOC labels — long H2 titles must wrap cleanly, never clip. */
 function shortTocLabel(text: string): string {
   const t = text.trim();
-  if (t.length <= 28) return t;
-  const cut = t.slice(0, 26).replace(/\s+\S*$/, '');
-  return `${cut || t.slice(0, 26)}…`;
+  if (t.length <= 22) return t;
+  const cut = t.slice(0, 20).replace(/\s+\S*$/, '');
+  return `${cut || t.slice(0, 20)}…`;
 }
 
 const tocItems = (post.body || [])
@@ -183,12 +183,14 @@ const articleHero = heroSrc || (chatScript ? chatScript.hero.photo : null);
             {post.author.credentials || 'Oprichter'}
           </p>
           <p class="guide-byline-meta">
-            {updatedLabel && (
-              <>
-                Bijgewerkt <time datetime={stampIso}>{updatedLabel}</time>
-                {hr?.testPeriod ? ` · ${hr.testPeriod} getest` : ''}
-              </>
+            {publishedLabel && (
+              <>Gepubliceerd <time datetime={post.publishedAt}>{publishedLabel}</time></>
             )}
+            {publishedLabel && updatedLabel ? ' · ' : ''}
+            {updatedLabel && (
+              <>Bijgewerkt <time datetime={stampIso}>{updatedLabel}</time></>
+            )}
+            {hr?.testPeriod ? ` · ${hr.testPeriod} getest` : ''}
           </p>
         </div>
       </div>
@@ -349,15 +351,6 @@ const articleHero = heroSrc || (chatScript ? chatScript.hero.photo : null);
       </aside>
     )}
 
-    {post.author && (
-      <AuthorBox
-        author={post.author}
-        variant="compact"
-        updatedLabel={updatedLabel}
-        updatedIso={stampIso}
-      />
-    )}
-
     {hr?.overallScore != null && activeScores.length > 0 && (
       <section class="hr-score-strip" id="scores" aria-label="Scores">
         <div class="hr-score-big">
@@ -488,6 +481,8 @@ const articleHero = heroSrc || (chatScript ? chatScript.hero.photo : null);
       <AuthorBox
         author={post.author}
         variant="full"
+        publishedLabel={publishedLabel}
+        publishedIso={post.publishedAt}
         updatedLabel={updatedLabel}
         updatedIso={stampIso}
       />

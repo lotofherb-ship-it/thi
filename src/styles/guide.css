@@ -15,29 +15,34 @@
   z-index: 40;
   background: rgba(250, 249, 245, .97);
   backdrop-filter: blur(6px);
+  border-top: 1px solid var(--cream-3);
   border-bottom: 1px solid var(--cream-3);
   margin: 0 -20px 20px;
-  padding: 0 12px;
+  padding: 0 16px;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   scrollbar-width: thin;
 }
 .guide-tocbar-inner {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 4px 2px;
   align-items: center;
-  min-height: 42px;
+  justify-content: flex-start;
+  min-height: 44px;
   padding: 6px 0;
   width: 100%;
+  max-width: var(--guide-measure, 40.5rem);
+  margin: 0 auto;
 }
 .guide-tocbar a {
-  flex-shrink: 0;
-  font: 600 12.5px/1 var(--font-body);
+  flex: 0 0 auto;
+  font: 600 12.5px/1.2 var(--font-body);
   color: var(--body);
   text-decoration: none;
-  padding: 7px 10px;
+  padding: 8px 10px;
   white-space: nowrap;
-  border-radius: 2px;
+  border-radius: 4px;
 }
 .guide-tocbar a:hover { color: var(--green-900); background: var(--cream-2); }
 .guide-tocbar a.is-active {
@@ -124,9 +129,9 @@
   display: flex;
   gap: 12px;
   align-items: flex-start;
-  margin-bottom: 18px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--cream-3);
+  /* No border — ATF strip / next section owns the single rule (avoids double dividers) */
+  margin-bottom: 14px;
+  padding-bottom: 0;
 }
 .guide-avatar {
   width: 36px;
@@ -1271,15 +1276,15 @@
     min-height: 48px;
     padding: 11px 12px;
   }
-  .guide-tocbar {
-    mask-image: none;
-    -webkit-mask-image: none;
-  }
+  /* Keep wrap on mobile — never clip long rows with nowrap */
   .guide-tocbar-inner {
-    flex-wrap: nowrap;
-    width: max-content;
+    flex-wrap: wrap;
+    width: 100%;
     max-width: none;
-    gap: 4px;
+    gap: 2px;
+  }
+  .guide-tocbar a {
+    padding: 8px 9px;
   }
 }
 
@@ -1341,7 +1346,12 @@
   font: 600 13px/1.35 var(--font-body);
   color: var(--green-900);
 }
-.author-box-role time { font-weight: 600; color: var(--text); }
+.author-box-dates {
+  margin: 4px 0 0;
+  font: 400 12.5px/1.4 var(--font-body);
+  color: var(--muted, var(--body));
+}
+.author-box-dates time { font-weight: 600; color: var(--text); }
 .author-box-bio {
   margin: 8px 0 0;
   font: 400 14px/1.5 var(--font-body);

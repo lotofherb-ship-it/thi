@@ -2,19 +2,28 @@
 /**
  * YMYL / E-E-A-T author box — Wirecutter-style trust chrome.
  * Photo + short bio + credentials + link to /over-ons/.
+ * Max one at article end (byline covers the top).
  */
 import { urlFor } from '../lib/sanity';
 import type { Author } from '../types';
 
 interface Props {
   author: Author;
-  /** Compact mid-article vs full bottom box */
   variant?: 'full' | 'compact';
+  publishedLabel?: string | null;
+  publishedIso?: string;
   updatedLabel?: string | null;
   updatedIso?: string;
 }
 
-const { author, variant = 'full', updatedLabel = null, updatedIso } = Astro.props;
+const {
+  author,
+  variant = 'full',
+  publishedLabel = null,
+  publishedIso,
+  updatedLabel = null,
+  updatedIso,
+} = Astro.props;
 
 const photo = author.avatar
   ? urlFor(author.avatar).width(160).height(160).fit('crop').auto('format').url()
@@ -40,14 +49,18 @@ const bio =
   <div class="author-box-body">
     <p class="author-box-kicker">Geschreven door</p>
     <p class="author-box-name">{author.name}</p>
-    <p class="author-box-role">
-      {role}
-      {updatedLabel && (
-        <>
-          {' · '}Bijgewerkt <time datetime={updatedIso}>{updatedLabel}</time>
-        </>
-      )}
-    </p>
+    <p class="author-box-role">{role}</p>
+    {(publishedLabel || updatedLabel) && (
+      <p class="author-box-dates">
+        {publishedLabel && (
+          <>Gepubliceerd <time datetime={publishedIso}>{publishedLabel}</time></>
+        )}
+        {publishedLabel && updatedLabel ? ' · ' : ''}
+        {updatedLabel && (
+          <>Bijgewerkt <time datetime={updatedIso}>{updatedLabel}</time></>
+        )}
+      </p>
+    )}
     {variant === 'full' && <p class="author-box-bio">{bio}</p>}
     <p class="author-box-links">
       <a href="/over-ons/">Meer over The Health Issue</a>
