@@ -21,16 +21,22 @@ interface Props {
   reviewLabel?: string;
   /** Compact footnote only (default). Pass false to hide card disclosure. */
   showDisc?: boolean;
+  /**
+   * When true (default), first merchant button is primary.
+   * Money-page deep chapters / non-top callouts pass false to keep CTA hierarchy.
+   */
+  primary?: boolean;
 }
 
 const {
   offers,
   disclosure = PICK_DISC_SHORT,
   limit = 3,
-  emptyHint = 'Prijs/link volgt zodra affiliate-feed gekoppeld is.',
+  emptyHint = 'Prijs/link volgt zodra de koop-link gekoppeld is.',
   reviewUrl,
   reviewLabel = 'Lees de eerlijke review →',
   showDisc = true,
+  primary = true,
 } = Astro.props;
 
 /** One CTA per merchant — Awin+Daisycon same shop must not double the button. */
@@ -51,13 +57,14 @@ const shown = uniqueByMerchant.slice(0, Math.min(limit, 2));
   {shown.length > 0 ? (
     shown.map((o, oi) => {
       const { action, price } = offerCta(o, oi === 0 ? 'primary' : 'alt');
+      const usePrimary = primary && oi === 0;
       return (
         <a
           class:list={[
             'pick-offer',
             'thi-cta',
-            oi === 0 ? 'thi-cta--primary' : 'thi-cta--secondary',
-            { 'pick-offer--alt': oi > 0 },
+            usePrimary ? 'thi-cta--primary' : 'thi-cta--secondary',
+            { 'pick-offer--alt': oi > 0 || !usePrimary },
           ]}
           href={o.url}
           target="_blank"

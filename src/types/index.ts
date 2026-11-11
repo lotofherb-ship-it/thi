@@ -65,6 +65,11 @@ export interface ComparisonProduct {
   pros?: string[];
   cons?: string[];
   verdict?: string;
+  /**
+   * Deep pick-chapter prose (new info beyond ATF/callout).
+   * Plain text; blank lines become paragraphs.
+   */
+  chapterProse?: string;
   /** Category specs for the vergelijking table (vorm, dosering, …). */
   specs?: ProductSpec[];
   /** Extra merchant rows merged after feed resolve (outline alt offers). */

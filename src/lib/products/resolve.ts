@@ -276,7 +276,7 @@ export function offerCta(offer: ProductOffer, variant: 'primary' | 'alt' = 'prim
 
 /** Compact ACM-ok footnote under buy modules (sitewide strip already exists). */
 export const PICK_DISC_SHORT =
-  'Partnerlink — commissie mogelijk, zelfde prijs voor jou.';
+  'Partnerlink. Commissie mogelijk, zelfde prijs voor jou.';
 
 export function pickLabel(
   product: ComparisonProduct,
