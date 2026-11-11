@@ -131,14 +131,14 @@
 }
 
 /*
- * Finder band: grounded strip under white nav (not a floating island).
- * Soft paper shift + hairline into cream rails — WC border rhythm, LOH tokens.
+ * Finder band: grounded strip between white nav and cream rails.
+ * cream-2 shift + hairline (WC border rhythm), LOH tokens — not a card.
  */
 .wc-home-finder-band {
-  background: var(--white);
+  background: var(--cream-2);
   border-bottom: 1px solid var(--cream-3);
   margin-bottom: 0;
-  padding: 18px 0 14px;
+  padding: 14px 0 12px;
 }
 .wc-home-finder-band .wc-wrap {
   max-width: var(--site-wide);
@@ -146,15 +146,15 @@
 
 /* Finder: WC hierarchy (headline → dek → field → quiet suggestions), LOH tokens */
 .wc-home-finder {
-  margin: 0 auto 10px;
+  margin: 0 auto 8px;
   max-width: 38rem;
   text-align: center;
 }
 .wc-home-finder-intro {
-  margin: 0 0 12px;
+  margin: 0 0 10px;
 }
 .wc-home-finder-title {
-  margin: 0 0 5px;
+  margin: 0 0 4px;
   font: 700 1.45rem/1.2 var(--font-head);
   color: var(--green-900);
   letter-spacing: -0.02em;
@@ -183,12 +183,11 @@
   padding: 6px 6px 6px 16px;
   border: 1px solid var(--cream-3);
   border-radius: 999px;
-  background: var(--cream);
+  background: var(--white);
   box-shadow: none;
 }
 .wc-home-finder-field:focus-within {
   border-color: var(--green-900);
-  background: var(--white);
 }
 .wc-home-finder-icon {
   color: var(--muted);
@@ -222,8 +221,8 @@
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 6px 18px;
-  margin: 10px 0 0;
+  gap: 6px 16px;
+  margin: 8px 0 0;
   padding: 0;
   list-style: none;
 }
@@ -242,7 +241,7 @@
 .wc-home-trust {
   margin: 0;
   text-align: center;
-  font: 400 0.72rem/1.45 var(--font-body);
+  font: 400 0.72rem/1.4 var(--font-body);
   color: var(--muted);
 }
 
@@ -309,9 +308,9 @@
   grid-template-columns: minmax(220px, 0.95fr) minmax(0, 2.2fr) minmax(200px, 0.95fr);
   gap: 28px 44px;
   align-items: start;
-  margin-top: 22px;
+  margin-top: 18px;
   margin-bottom: 88px;
-  padding-top: 4px;
+  padding-top: 2px;
 }
 /* Side-rail section labels: WC HoF/Latest ~1rem body weight, not hero display */
 .wc-home-rail-h {
@@ -901,14 +900,14 @@
   .wc-home-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 800px) {
-  .wc-home-finder-band { padding: 16px 0 12px; }
-  .wc-home-finder { max-width: none; margin-bottom: 8px; }
+  .wc-home-finder-band { padding: 12px 0 10px; }
+  .wc-home-finder { max-width: none; margin-bottom: 6px; }
   .wc-home-finder-title { font-size: 1.3rem; }
   .wc-home-finder-dek { font-size: 0.92rem; }
   .wc-home-rails {
     grid-template-columns: 1fr;
     gap: 36px;
-    margin-top: 18px;
+    margin-top: 14px;
     margin-bottom: 56px;
   }
   .wc-home-rail-center { order: -1; } /* hero_spot first on small screens */
@@ -931,12 +930,12 @@
   .wc-library-title { font-size: 1.05rem; }
 }
 @media (max-width: 520px) {
-  .wc-home-finder-band { padding: 14px 0 12px; }
+  .wc-home-finder-band { padding: 12px 0 10px; }
   .wc-home-finder-field { min-height: 48px; padding-left: 12px; }
   .wc-home-finder-go { padding: 9px 12px; }
   .wc-home-finder-suggest { gap: 8px 14px; }
   .wc-guide-search { max-width: none; }
-  .wc-home-rails { margin-top: 16px; }
+  .wc-home-rails { margin-top: 12px; }
   .wc-home-hero-title { font-size: 1.28rem; }
   .wc-home-hero-dek { font-size: 0.92rem; }
   .wc-home-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 14px; }
