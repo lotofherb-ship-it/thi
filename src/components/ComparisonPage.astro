@@ -127,7 +127,7 @@ const notItems = (
   post.notFor?.length
     ? post.notFor
     : [
-        'Je medisch advies zoekt — raadpleeg dan een arts',
+        'Je medisch advies zoekt: raadpleeg dan een arts',
         'Je alleen op laagste prijs wilt selecteren',
         'Je claims zonder bronnen of nuance verwacht',
       ]
@@ -301,7 +301,7 @@ const listSchema = itemListSchema(
     {products.length > 0 && (
       <section class="rec-stack" id="aanraden" aria-label="Alles wat we aanraden">
         <h2 class="rec-stack-title">Alles wat we aanraden</h2>
-        <p class="rec-stack-dek">Korte shortlist — tik de knop voor actuele prijs bij de shop.</p>
+        <p class="rec-stack-dek">Korte shortlist. Tik de knop voor actuele prijs bij de shop.</p>
         <ol class:list={['rec-stack-list', { 'rec-stack-list--thumbs': showRecThumbs }]}>
           {products.map((p, i) => {
             const { key, label } = pickLabel(p, i);
@@ -352,7 +352,7 @@ const listSchema = itemListSchema(
           })}
         </ol>
         <p class="rec-stack-foot">
-          Partnerlink — commissie mogelijk, zelfde prijs voor jou.{' '}
+          Partnerlink: commissie mogelijk, zelfde prijs voor jou.{' '}
           <a href="/affiliate-disclosure/">Meer info</a>
         </p>
       </section>
@@ -362,7 +362,7 @@ const listSchema = itemListSchema(
       <p class="guide-bridge">
         Eerst behoefte checken?
         <a href={post.relatedCalculator.href}>{post.relatedCalculator.title}</a>
-        — daarna product kiezen.
+        , daarna product kiezen.
       </p>
     )}
 
@@ -443,7 +443,8 @@ const listSchema = itemListSchema(
               {products.map((p, i) => {
                 const offer = p.offers?.[0];
                 const href = offer?.url || p.affiliateUrl;
-                const { label } = pickLabel(p, i);
+                const { key: pickKey, label } = pickLabel(p, i);
+                const ctaTone = pickKey === 'top' ? 'thi-cta--primary' : 'thi-cta--secondary';
                 return (
                   <tr class:list={[{ 'is-top': i === 0 }]}>
                     <td>
@@ -455,14 +456,14 @@ const listSchema = itemListSchema(
                     ))}
                     <td>
                       {href && offer ? (
-                        <a class="gt-cta thi-cta thi-cta--primary" href={href} target="_blank" rel="noopener noreferrer nofollow sponsored">
+                        <a class:list={['gt-cta', 'thi-cta', ctaTone]} href={href} target="_blank" rel="noopener noreferrer nofollow sponsored">
                           <span class="gt-cta-action thi-cta-action">{offerCta(offer).action}</span>
                           {offer.price ? (
                             <span class="gt-cta-meta thi-cta-meta">{offer.price}</span>
                           ) : null}
                         </a>
                       ) : href ? (
-                        <a class="gt-cta thi-cta thi-cta--primary" href={href} target="_blank" rel="noopener noreferrer nofollow sponsored">
+                        <a class:list={['gt-cta', 'thi-cta', ctaTone]} href={href} target="_blank" rel="noopener noreferrer nofollow sponsored">
                           <span class="gt-cta-action thi-cta-action">Bekijk</span>
                         </a>
                       ) : '-'}
@@ -485,7 +486,7 @@ const listSchema = itemListSchema(
         <p>
           We schrijven keuzehulp voor gezondheidsproducten: oordeel eerst, trade-offs erbij,
           affiliate-geld zichtbaar bij elke koopoptie. {post.author?.name || 'Onze redactie'} selecteert
-          op samenstelling, dosering, prijs/kwaliteit en bruikbaarheid — niet op commissiehoogte.
+          op samenstelling, dosering, prijs/kwaliteit en bruikbaarheid, niet op commissiehoogte.
         </p>
       )}
       {post.expertReviewer && (
@@ -517,10 +518,10 @@ const listSchema = itemListSchema(
           <p>
             We begonnen met wat mensen in Nederland écht kopen via gangbare webshops. Daarna
             filterden we op etikethelderheid (dosering per portie), vorm (poeder, tablet, capsule)
-            en of de claim past bij het gebruik — niet op marketingtaal.
+            en of de claim past bij het gebruik, niet op marketingtaal.
           </p>
           <p>
-            Prijs beoordelen we per effectieve dosis — niet op de sticker. Affiliate-commissie speelt
+            Prijs beoordelen we per effectieve dosis, niet op de sticker. Affiliate-commissie speelt
             geen rol in de ranking: elke koopoptie toont de link en de bron. Producten die alleen via
             onduidelijke dropshippers lopen, vallen af.
           </p>
@@ -541,7 +542,7 @@ const listSchema = itemListSchema(
 
       return (
         <section class="pick pick--chapter" id={`pick-${i + 1}-detail`}>
-          <span class="pick-label" data-kind={key}>{label} — uitgebreid</span>
+          <span class="pick-label" data-kind={key}>{label}: uitgebreid</span>
           <h2 class="pick-h2">{p.name}</h2>
 
           <div class="pick-callout">
@@ -598,7 +599,7 @@ const listSchema = itemListSchema(
       <section class="guide-section" id="concurrentie">
         <h2>Wat we ook bekeken</h2>
         <p>
-          Niet alles haalde de shortlist. Kort waarom — zodat je ziet wat we wél hebben meegenomen
+          Niet alles haalde de shortlist. Kort waarom, zodat je ziet wat we wél hebben meegenomen
           in de afweging.
         </p>
         <ul class="guide-reject">
