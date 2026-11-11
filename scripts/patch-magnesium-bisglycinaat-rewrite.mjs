@@ -174,7 +174,8 @@ export const REWRITE = {
       priceNote: '~€0,27 per tablet (90 st, Superfoodstore-range)',
       shop: 'Vitaminstore',
       affiliateUrl: DAISY_VITAKRUID,
-      // Awin Superfoodstore tursoProductId: set on Mac after search-affiliate (EAN 8717438691350)
+      // Awin Superfoodstore (EAN 8717438691350) via search-affiliate
+      tursoProductId: 27600,
       pros: [
         '150 mg elementair magnesium per tablet',
         'L-taurine (200 mg) in dezelfde dosis',
