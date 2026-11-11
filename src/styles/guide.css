@@ -11,8 +11,8 @@
 }
 
 /*
- * Wirecutter chapter browse: sticky under SiteNav, same measure as .guide
- * (centered content column, not full-bleed / flush-left). Never primary CTA.
+ * Wirecutter chapter browse: sticky full-viewport cream overlay under SiteNav.
+ * Inner label / current / chevron stay on the article measure. Never primary CTA.
  */
 .guide-toc {
   --guide-measure: 40.5rem;
@@ -21,20 +21,19 @@
   z-index: 45;
   margin: 0;
   width: 100%;
-  background: transparent;
-  border: none;
-  box-shadow: none;
+  background: color-mix(in oklab, var(--cream) 70%, var(--cream-2));
+  border-top: none;
+  border-bottom: 1px solid var(--cream-3);
+  box-shadow: 0 1px 0 color-mix(in oklab, var(--green-900) 4%, transparent);
 }
 .guide-toc-details {
   position: relative;
-  max-width: var(--guide-measure);
+  max-width: none;
   width: 100%;
-  margin: 0 auto;
+  margin: 0;
   padding: 0;
   box-sizing: border-box;
-  background: color-mix(in oklab, var(--cream) 70%, var(--cream-2));
-  border-bottom: 1px solid var(--cream-3);
-  box-shadow: 0 1px 0 color-mix(in oklab, var(--green-900) 4%, transparent);
+  background: transparent;
 }
 .guide-toc-summary {
   display: flex;
@@ -45,8 +44,8 @@
   cursor: pointer;
   user-select: none;
   padding: 0 var(--guide-gutter);
-  max-width: none;
-  margin: 0;
+  max-width: var(--guide-measure);
+  margin: 0 auto;
   box-sizing: border-box;
   width: 100%;
 }
@@ -97,24 +96,26 @@
 .guide-toc-details[open] .guide-toc-chevron { transform: rotate(180deg); }
 .guide-toc-panel {
   position: absolute;
-  left: 0;
-  right: 0;
-  width: 100%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100vw;
   max-height: min(360px, 55vh);
   overflow-y: auto;
   overscroll-behavior: contain;
   background: color-mix(in oklab, var(--cream) 70%, var(--cream-2));
   border-bottom: 1px solid var(--cream-3);
-  box-shadow: none;
+  box-shadow: 0 8px 24px color-mix(in oklab, var(--green-900) 8%, transparent);
   z-index: 46;
   scrollbar-gutter: stable;
 }
 .guide-toc-panel-label { display: none; }
 .guide-toc-list {
   list-style: none;
-  margin: 0;
+  margin: 0 auto;
   padding: 8px var(--guide-gutter) 22px;
-  max-width: none;
+  max-width: var(--guide-measure);
+  width: 100%;
+  box-sizing: border-box;
   display: grid;
   gap: 0;
 }
