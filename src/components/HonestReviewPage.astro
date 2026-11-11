@@ -150,11 +150,13 @@ const crumbSchema = breadcrumbList(post);
   image={articleHero || undefined}
   ogType="article"
 >
+  <GuideToc slot="browse" items={tocItems} label="In deze review" />
+
   <script type="application/ld+json" set:html={JSON.stringify(reviewJsonLd)} />
   <script type="application/ld+json" set:html={JSON.stringify(crumbSchema)} />
   {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
 
-  <article class="guide hr-article" id="guide-start">
+  <article class="guide guide--has-browse hr-article" id="guide-start">
     <nav class="guide-crumb" aria-label="Kruimelpad">
       <a href="/">Home</a>
       <span class="guide-crumb-sep">/</span>
@@ -210,8 +212,6 @@ const crumbSchema = breadcrumbList(post);
         </a>
       </div>
     )}
-
-    <GuideToc items={tocItems} label="In deze review" />
 
     {articleHero && (
       <figure class="guide-hero">

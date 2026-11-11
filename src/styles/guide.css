@@ -9,15 +9,19 @@
   color: var(--text);
 }
 
-/* Wirecutter chapter browse: cream balk, text label (never primary CTA) */
+/*
+ * Wirecutter chapter browse: lives in sticky .thi-chrome under SiteNav
+ * (not mid-article after byline/pick cue). Text label, never primary CTA.
+ */
 .guide-toc {
-  position: sticky;
-  top: var(--nav-h, 56px);
+  position: relative;
   z-index: 45;
-  margin: 0 -20px 28px;
+  margin: 0;
+  width: 100%;
   background: color-mix(in oklab, var(--cream) 70%, var(--cream-2));
-  border-top: 1px solid var(--cream-3);
+  border-top: none;
   border-bottom: 1px solid var(--cream-3);
+  box-shadow: 0 1px 0 color-mix(in oklab, var(--green-900) 4%, transparent);
 }
 .guide-toc-details {
   position: relative;
@@ -29,12 +33,12 @@
   display: flex;
   align-items: center;
   gap: 12px;
-  min-height: 48px;
+  min-height: var(--toc-h, 44px);
   list-style: none;
   cursor: pointer;
   user-select: none;
-  padding: 0 20px;
-  max-width: var(--guide-measure, 40.5rem);
+  padding: 0 var(--site-gutter, 24px);
+  max-width: var(--site-wide, 68rem);
   margin: 0 auto;
   box-sizing: border-box;
   width: 100%;
@@ -102,10 +106,15 @@
 .guide-toc-list {
   list-style: none;
   margin: 0 auto;
-  padding: 8px 20px 22px;
-  max-width: var(--guide-measure, 40.5rem);
+  padding: 8px var(--site-gutter, 24px) 22px;
+  max-width: var(--site-wide, 68rem);
   display: grid;
   gap: 0;
+}
+
+/* Section jumps clear sticky nav + browse balk */
+.guide--has-browse :is(h2, h3, .guide-section, [id]) {
+  scroll-margin-top: calc(var(--nav-h, 60px) + var(--toc-h, 44px) + 12px);
 }
 .guide-toc-list a {
   display: block;
@@ -173,9 +182,9 @@
 }
 
 .guide-byline-meta {
-  font: 400 12.5px/1.4 var(--font-body);
+  font: 400 12px/1.4 var(--font-body);
   color: var(--muted, var(--body));
-  margin: 4px 0 0;
+  margin: 2px 0 0;
 }
 .guide-byline-meta time { font-weight: 400; color: var(--muted, var(--body)); }
 
@@ -207,14 +216,14 @@
 .guide-byline {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin: 2px 0 20px;
+  gap: 10px;
+  margin: 0 0 16px;
   padding: 0;
 }
 .guide-byline-body { min-width: 0; flex: 1 1 auto; }
 .guide-byline-photo {
-  width: 40px;
-  height: 40px;
+  width: 32px;
+  height: 32px;
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
@@ -236,7 +245,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font: 700 12px/1 var(--font-head);
+  font: 700 11px/1 var(--font-head);
 }
 .guide-avatar {
   width: 36px;
@@ -259,22 +268,22 @@
 .guide-avatar img { width: 100%; height: 100%; object-fit: cover; }
 .guide-byline-by {
   margin: 0;
-  font: 400 14px/1.35 var(--font-body);
-  color: var(--body);
+  font: 400 13px/1.35 var(--font-body);
+  color: var(--muted);
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
   gap: 0 .35em;
 }
 .guide-byline-name {
-  font: 700 14px/1.35 var(--font-body);
+  font: 600 13px/1.35 var(--font-body);
   color: var(--text);
   letter-spacing: 0;
   text-decoration: none;
 }
 .guide-byline-name:hover { color: var(--green-900); text-decoration: underline; text-underline-offset: 2px; }
 .guide-byline-role {
-  font: 400 13px/1.35 var(--font-body);
+  font: 400 12.5px/1.35 var(--font-body);
   color: var(--muted);
   margin: 0;
 }
@@ -1403,9 +1412,7 @@
   .pick-pc,
   .guide-split { grid-template-columns: 1fr; }
   .hr-score-strip { grid-template-columns: 1fr; }
-  .guide-toc { margin-left: -16px; margin-right: -16px; }
   .guide-toc-summary,
-  .guide-toc-panel-label,
   .guide-toc-list { padding-left: 16px; padding-right: 16px; }
   .guide { padding-left: 16px; padding-right: 16px; }
   .rec-stack-item {
@@ -1458,22 +1465,13 @@
   }
   .guide-toc-current,
   .guide-toc-title { font-size: 14px; }
-  .guide-toc-summary { gap: 10px; min-height: 44px; }
-  .guide-byline { gap: 10px; }
+  .guide-toc-summary { gap: 10px; min-height: var(--toc-h, 44px); }
+  .guide-byline { gap: 8px; }
   .guide-byline-photo {
-    width: 36px;
-    height: 36px;
+    width: 28px;
+    height: 28px;
   }
   .guide-avatar--lg { width: 44px; height: 44px; font-size: 12px; }
-}
-
-/* Pick strip sits flush into TOC sticky band */
-.guide-atf-cue:has(+ .guide-toc) {
-  margin-bottom: 0;
-  padding-bottom: 12px;
-}
-.guide-hero + .guide-toc {
-  margin-top: 0;
 }
 
 /* AuthorBox: end trust (byline owns dates; no boxed/ring energy) */

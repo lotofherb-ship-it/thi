@@ -205,12 +205,14 @@ const listSchema = itemListSchema(
   image={coverSrc || undefined}
   ogType="article"
 >
+  <GuideToc slot="browse" items={tocItems} label="In deze gids" />
+
   <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
   <script type="application/ld+json" set:html={JSON.stringify(crumbSchema)} />
   {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
   {listSchema && <script type="application/ld+json" set:html={JSON.stringify(listSchema)} />}
 
-  <article class="guide" id="guide-start">
+  <article class="guide guide--has-browse" id="guide-start">
     <nav class="guide-crumb" aria-label="Kruimelpad">
       <a href="/">Home</a>
       <span class="guide-crumb-sep">/</span>
@@ -258,8 +260,6 @@ const listSchema = itemListSchema(
         </a>
       </div>
     )}
-
-    <GuideToc items={tocItems} label="In deze gids" />
 
     {coverSrc && (
       <figure class="guide-hero">
