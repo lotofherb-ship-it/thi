@@ -308,9 +308,9 @@
   grid-template-columns: minmax(220px, 0.95fr) minmax(0, 2.2fr) minmax(200px, 0.95fr);
   gap: 28px 44px;
   align-items: start;
-  margin-top: 18px;
+  margin-top: 14px;
   margin-bottom: 88px;
-  padding-top: 2px;
+  padding-top: 0;
 }
 /* Side-rail section labels: WC HoF/Latest ~1rem body weight, not hero display */
 .wc-home-rail-h {
@@ -907,7 +907,7 @@
   .wc-home-rails {
     grid-template-columns: 1fr;
     gap: 36px;
-    margin-top: 14px;
+    margin-top: 12px;
     margin-bottom: 56px;
   }
   .wc-home-rail-center { order: -1; } /* hero_spot first on small screens */
@@ -935,7 +935,7 @@
   .wc-home-finder-go { padding: 9px 12px; }
   .wc-home-finder-suggest { gap: 8px 14px; }
   .wc-guide-search { max-width: none; }
-  .wc-home-rails { margin-top: 12px; }
+  .wc-home-rails { margin-top: 10px; }
   .wc-home-hero-title { font-size: 1.28rem; }
   .wc-home-hero-dek { font-size: 0.92rem; }
   .wc-home-cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 14px; }
