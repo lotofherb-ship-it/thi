@@ -60,8 +60,11 @@ export const postBySlugQuery = `
     expertReviewer,
     comparisonProducts[] {
       name, badge, tagline, rating, price, priceNote,
-      shop, affiliateUrl, image, pros, cons, verdict, tursoProductId
+      shop, affiliateUrl, image, pros, cons, verdict, tursoProductId,
+      specs[] { key, label, value },
+      extraOffers[] { merchant, price, url }
     },
+    comparisonSpecColumns[] { key, label },
     comparisonDisclosure,
     whoForProse,
     whoFor,

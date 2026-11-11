@@ -52,150 +52,207 @@ function cat(slug: string): Category {
 export const fixturePosts: Post[] = [
   {
     _id: 'fixture-cmp-magnesium',
-    title: 'De beste magnesiumbisglycinaat van 2026',
+    title: 'Beste magnesium bisglycinaat 2026: topkeuze en trade-offs',
     slug: { current: 'beste-magnesium-bisglycinaat' },
     template: 'comparison',
-    publishedAt: '2026-03-12T10:00:00.000Z',
-    updatedAt: '2026-10-18T09:00:00.000Z',
+    publishedAt: '2026-04-19T15:20:54.000Z',
+    updatedAt: '2026-11-11T12:00:00.000Z',
     excerpt:
-      'We vergeleken magnesiumbisglycinaat-formules op dosering, vulstoffen, prijs en verkrijgbaarheid in NL-webshops via onze Awin-feed. Hieronder: wat we aanraden, waarom , en wat we bewust lieten vallen.',
-    seoTitle: 'Beste magnesiumbisglycinaat 2026 , The Health Issue',
-    seoDescription: 'Onafhankelijke vergelijking van magnesiumbisglycinaat met live affiliate-prijzen.',
+      'Welke magnesium bisglycinaat koop je? Topkeuze, runner-up en trade-offs. Oordeel eerst, feiten daarna.',
+    seoTitle: 'Beste magnesium bisglycinaat 2026: topkeuze vergeleken',
+    seoDescription:
+      'Topkeuze Vitakruid 150 mg + taurine. Runner-up Vitals TRAACS. Orthica puur, Mattisson budget via Awin. Trade-offs, geen bullet-farm.',
     category: cat('supplementen'),
     author: fixtureAuthor,
     quickAnswer:
-      'Onze topkeuze uit de actuele feed is Mattisson Magnesium Bisglycinaat bij Superfoodstore. Vitals is een sterke runner-up.',
+      'Topkeuze: Vitakruid Magnesium Bisglycinaat 150. Hoogste elementaire dosis per tablet (150 mg) plus L-taurine. Ik gebruik dit zelf in zware trainingsweken. Trade-off: geen TRAACS-stempel. Wie certificering boven dosis stelt, neemt Vitals.',
     keyTakeaways: [
-      'Kies bisglycinaat bij een gevoelige maag of avonddosering.',
-      'Reken in elementair magnesium, niet alleen het etiketgewicht.',
-      'Prijs per effectieve dosis zegt meer dan de stickerprijs.',
+      'Vitakruid wint op dosis (150 mg) + taurine voor avondgebruik na training',
+      'Vitals is runner-up als je Albion TRAACS wilt; reken op meer tabletten',
+      'Vergelijk altijd elementair magnesium, niet “500 mg bisglycinaat” op de sticker',
+      'Prijs per dosis zegt meer dan de potprijs. Mattisson wint budget via Awin',
     ],
     topicGroup: 'Magnesium',
-    coverImageUrl: 'https://cdn.shopify.com/s/files/1/1864/5043/files/38.png?v=1685112638',
+    coverImageUrl:
+      'https://cdn.shopify.com/s/files/1/0822/6681/6844/files/2b9ae86d5a50ef953db9f7dd97b0.png?v=1791569559',
     relatedCalculator: {
       title: 'Magnesium-check (rekentool)',
       href: '/voeding/calculators/magnesium/',
     },
     trustNarrative:
-      'Voor deze gids filterden we de Awin-feed op bisglycinaat die via NL-webshops leverbaar is, lazen etiketten op elementair magnesium en vulstoffen, en rekenden prijs per effectieve dosis. Jouke de Jong schrijft de mineraalgidsen van The Health Issue; commissiehoogte speelt geen rol in de ranking. Elke koopoptie toont de affiliate-link.',
+      'Geen labpanel en geen artsenstempel op deze koopgids. Ik vergeleek etiketten, dosis en prijs per dosis, en gebruik Vitakruid zelf in zware weken. Partnerlinks staan bij elke CTA. De ranking volgt criteria, niet commissie.',
     whoForProse:
-      'Deze gids is voor wie ’s avonds magnesium wil zonder maaggedoe, en liever een helder etiket dan een marketingclaim. Niet voor wie medisch advies zoekt of alleen op de laagste stickerprijs selecteert.',
+      'Dit is een koopgids voor bisglycinaat in NL-webshops. Ranking en trade-offs eerst. Stofkennis staat onder het oordeel, niet in plaats ervan.',
+    whoFor: [
+      'Je traint intensief of hebt ’s avonds strakke spieren en wilt een maagvriendelijke vorm',
+      'Je slaap is licht in zware weken en je zoekt een avondroutine, geen slaappil',
+      'Je wilt een shortlist met echte trade-offs, niet vijf keer “ook goed”',
+    ],
+    notFor: [
+      'Je vooral krampen tijdens inspanning wilt aanpakken. Kijk dan eerder naar citraat',
+      'Je alleen de goedkoopste oxide-pot zoekt. Die valt hier af op vorm',
+      'Je medisch advies of een diagnose zoekt. Bij klachten: huisarts',
+    ],
+    methodProse:
+      'We starten bij live affiliate-realiteit: Daisycon Vitaminstore magnesium, Awin-merchants in Turso, en Bol alleen als last resort. Daarna filteren we op echte bisglycinaat, elementair magnesium, toevoegingen, prijs per dosis, NL-voorraad en leesbaar etiket.\n\nShortlist blijft kort (vier picks). Afvallers krijgen een kill-reden. Affiliate-commissie speelt geen rol in de ranking.',
+    methodCriteria: [
+      'Elementair Mg per tablet of capsule, niet chelaat-gewicht',
+      'Echte bisglycinaat-vorm; oxide en citraat vallen af voor deze gids',
+      'Toevoegingen en trust: taurine, TRAACS, BioPerine, vulstoffen',
+      'Prijs per effectieve dosis via NL affiliate-feed',
+      'Werkende affiliate-URL verplicht (Awin eerst, Daisycon, Bol last)',
+    ],
     comparisonDisclosure:
       'The Health Issue kan een commissie ontvangen via affiliate-links. Dat beïnvloedt onze redactionele keuzes niet.',
     comparisonSpecColumns: [
-      { key: 'vorm', label: 'Vorm' },
       { key: 'elementair', label: 'Elementair Mg' },
-      { key: 'dosering', label: 'Dosering' },
+      { key: 'cert', label: 'Certificering' },
+      { key: 'toevoeging', label: 'Toevoeging' },
       { key: 'prijsDosis', label: 'Prijs/dosis' },
-      { key: 'verkrijgbaar', label: 'Verkrijgbaar' },
     ],
     alsoConsidered: [
       {
-        name: 'Vitakruid Magnesium Bisglycinaat',
+        name: 'VitOrtho Magnesium Bisglycinaat',
         blurb:
-          'Nette NL-formule, maar per effectieve dosis duurder dan Mattisson in onze feed , en de voorraad wisselde tijdens het schrijven. Blijft een solide merkkeuze; niet onze topkeuze op prijs/kwaliteit.',
+          'Kill: TRAACS zonder sterke dosis- of taurine-edge. Vitals dekt die job beter in deze set.',
       },
       {
         name: 'Magnesiumoxide “hoge dosis” potten',
         blurb:
-          'Goedkoop op het etiket, slecht vergeleken op opname en maagtolerantie. We laten oxide-zware potten afvallen voor deze bisglycinaat-gids.',
+          'Kill: goedkoop op het etiket, zwak op opname en maagtolerantie. Verkeerde vorm voor deze gids.',
       },
       {
         name: 'Anonieme huismerk-chelaten zonder elementair Mg',
         blurb:
-          'Etiket noemt alleen verbindinggewicht. Zonder helder elementair magnesium kun je doseringen niet eerlijk vergelijken , die vielen af.',
+          'Kill: zonder helder elementair magnesium kun je doseringen niet eerlijk vergelijken.',
       },
       {
-        name: 'Dropship-only listings buiten Awin',
+        name: 'Citraat-only of mixed pots als “bisglycinaat”',
         blurb:
-          'Geen stabiele NL-merchant, onduidelijke herkomst. We houden koopopties bij shops die in onze affiliate-feed staan.',
+          'Kill: andere job (vaak spieren of laxerend effect). Hoort niet in een pure bisglycinaat-shortlist.',
       },
     ],
     comparisonProducts: [
       {
-        name: 'Mattisson Magnesium Bisglycinaat',
+        name: 'Vitakruid Magnesium Bisglycinaat 150',
         badge: 'winner',
-        tagline: 'Beste overall',
+        tagline: 'Hoogste dosis + taurine',
         rating: 4.8,
-        tursoProductId: 32809,
-        // Real affiliate-feed pack shots (Superfoodies CDN) , demo when Superfoodstore rows lack image_url
-        imageUrl: 'https://cdn.shopify.com/s/files/1/1864/5043/files/38.png?v=1685112638',
-        reviewUrl: '/supplementen/mattisson-magnesium-bisglycinaat-review/',
-        pros: ['Duidelijke dosering', 'Goede prijs/kwaliteit', 'Stabiel in Awin-feed'],
-        cons: ['Assortiment wisselt per merchant', 'Niet overal op voorraad'],
-        verdict:
-          'Onze topkeuze: schone bisglycinaat-formule met heldere dosering en stabiele prijs , al wisselt de voorraad soms per webshop.',
-        specs: [
-          { key: 'vorm', label: 'Vorm', value: 'Capsule' },
-          { key: 'elementair', label: 'Elementair Mg', value: '~100 mg' },
-          { key: 'dosering', label: 'Dosering', value: '1–2 caps' },
-          { key: 'prijsDosis', label: 'Prijs/dosis', value: '~€0,25' },
-          { key: 'verkrijgbaar', label: 'Verkrijgbaar', value: 'Superfoodstore' },
+        price: '€24,39',
+        shop: 'Vitaminstore',
+        affiliateUrl:
+          'https://ds1.nl/c/?si=5676&li=1266442&wi=419928&ws=magnesium&dl=product%2Fvitakruid-magnesium-150-bisglycinaat-tabletten-1306678%3F_br_psugg_q%3Dvitakruid%2Bmagnesium',
+        imageUrl:
+          'https://cdn.shopify.com/s/files/1/0822/6681/6844/files/2b9ae86d5a50ef953db9f7dd97b0.png?v=1791569559',
+        pros: [
+          '150 mg elementair magnesium per tablet',
+          'L-taurine (200 mg) in dezelfde dosis',
+          'Ik gebruik dit zelf in zware trainingsweken',
         ],
-        extraOffers: [
-          {
-            merchant: 'Holland & Barrett',
-            price: '€16,99',
-            url: 'https://example.com/fixture/mattisson-hb',
-          },
-        ],
-      },
-      {
-        name: 'Vitals Magnesiumbisglycinaat 100 mg',
-        badge: 'runner-up',
-        tagline: 'Beste bekende merk',
-        rating: 4.5,
-        tursoProductId: 23572,
-        imageUrl: 'https://cdn.shopify.com/s/files/1/1864/5043/files/37.png?v=1685112596',
-        pros: ['Lager geprijsd', 'Bekend NL-merk', 'Duidelijk etiket'],
-        cons: ['Lagere dosis per eenheid', 'Meer capsules voor dezelfde dosis'],
+        cons: ['Geen TRAACS-certificering', 'Stickerprijs wisselt sterk per merchant'],
         verdict:
-          'Sterke runner-up als je een bekend merk wilt , je betaalt minder per pot, maar hebt meer capsules nodig voor dezelfde elementaire dosis.',
+          'Wint op elementaire dosis per tablet plus taurine. Dit is wat ik zelf pak als de load omhooggaat. Trade-off: geen TRAACS. Wie certificering boven dosis stelt, gaat naar Vitals.',
         specs: [
-          { key: 'vorm', label: 'Vorm', value: 'Capsule' },
-          { key: 'elementair', label: 'Elementair Mg', value: '100 mg' },
-          { key: 'dosering', label: 'Dosering', value: '1–2 caps' },
-          { key: 'prijsDosis', label: 'Prijs/dosis', value: '~€0,21' },
-          { key: 'verkrijgbaar', label: 'Verkrijgbaar', value: 'Superfoodstore' },
+          { key: 'elementair', label: 'Elementair Mg', value: '150 mg/tab' },
+          { key: 'cert', label: 'Certificering', value: 'Geen TRAACS' },
+          { key: 'toevoeging', label: 'Toevoeging', value: 'L-Taurine 200 mg' },
+          { key: 'prijsDosis', label: 'Prijs/dosis', value: '~€0,27/tab' },
         ],
         extraOffers: [
           {
             merchant: 'Bol.com',
-            price: '€13,95',
-            url: 'https://example.com/fixture/vitals-bol',
+            price: 'vanaf ~€17–€24',
+            url: 'https://partner.bol.com/click/click?p=2&t=url&s=1121688&f=TXL&url=https%3A%2F%2Fwww.bol.com%2Fnl%2Fnl%2Fs%2F%3Fsearchtext%3DVitakruid%2BMagnesium%2B150%2BBisglycinaat%2B90%2Btabletten&name=Vitakruid%20Magnesium%20150%20Bisglycinaat',
           },
         ],
       },
       {
-        name: 'Myprotein Magnesiumbisglycinaat tabletten',
-        badge: 'budget',
-        tagline: 'Beste budget',
-        rating: 4.1,
-        tursoProductId: 265,
-        imageUrl: 'https://cdn.shopify.com/s/files/1/1864/5043/files/NanoMagnesium.png?v=1712758748',
-        pros: ['Grote servings', 'Andere merchant', 'Scherp per dosis'],
-        cons: ['Minder “natuurwinkel”-uitstraling', 'Tablet i.p.v. capsule'],
+        name: 'Vitals Magnesium Bisglycinaat 100',
+        badge: 'runner-up',
+        tagline: 'TRAACS als je dat eist',
+        rating: 4.5,
+        price: '€14,21',
+        shop: 'Superfoodstore',
+        tursoProductId: 23572,
+        affiliateUrl:
+          'https://ds1.nl/c/?si=5676&li=1266442&wi=419928&ws=magnesium&dl=product%2Fvitals-magnesiumbisglycinaat-100-mg-tabletten-258130',
+        imageUrl: 'https://cdn.shopify.com/s/files/1/1864/5043/files/37.png?v=1685112596',
+        pros: ['Albion TRAACS-chelaat', 'Taurine mee in de formule', 'Stabiel Awin-pad'],
+        cons: [
+          '100 mg: meer tabletten voor 150–300 mg/dag',
+          'Duurder per elementaire mg dan Vitakruid',
+        ],
         verdict:
-          'Prima budgetkeuze als je al bij Myprotein bestelt , groot verpakt en scherp geprijsd, maar minder “apotheek-chic” dan de topkeuze.',
+          'Runner-up voor wie TRAACS boven maximale dosis per tablet zet. Trade-off: je slik meer stuks om Vitakruid bij te houden.',
         specs: [
-          { key: 'vorm', label: 'Vorm', value: 'Tablet' },
-          { key: 'elementair', label: 'Elementair Mg', value: 'Variabel' },
-          { key: 'dosering', label: 'Dosering', value: 'Per serving' },
-          { key: 'prijsDosis', label: 'Prijs/dosis', value: '~€0,19' },
-          { key: 'verkrijgbaar', label: 'Verkrijgbaar', value: 'Myprotein' },
+          { key: 'elementair', label: 'Elementair Mg', value: '100 mg/tab' },
+          { key: 'cert', label: 'Certificering', value: 'Albion TRAACS' },
+          { key: 'toevoeging', label: 'Toevoeging', value: 'Taurine 200 mg' },
+          { key: 'prijsDosis', label: 'Prijs/dosis', value: '~€0,24/tab' },
+        ],
+      },
+      {
+        name: 'Orthica Magnesium Bisglycinaat-120',
+        badge: '',
+        tagline: 'Puur zonder actieve extras',
+        rating: 4.4,
+        price: '€19,95',
+        shop: 'Vitaminstore',
+        affiliateUrl:
+          'https://ds1.nl/c/?si=5676&li=1266442&wi=419928&ws=magnesium&dl=product%2Forthica-magnesium-bisglycinaat-vegicaps-1304652',
+        imageUrl: 'https://cdn.shopify.com/s/files/1/1864/5043/files/38.png?v=1685112638',
+        pros: [
+          '120 mg elementair, nette tussenstap',
+          'Allergenenarm, weinig franje',
+          'Betrouwbaar NL-merk met Daisycon-CTA',
+        ],
+        cons: ['Geen taurine, geen TRAACS', 'Geen Awin-turso-hit in deze refresh'],
+        verdict:
+          'Ook goed als je een schone pot wilt zonder taurine of TRAACS-verhaal. Trade-off: mist de synergie en het certificaat van de top twee.',
+        specs: [
+          { key: 'elementair', label: 'Elementair Mg', value: '120 mg/caps' },
+          { key: 'cert', label: 'Certificering', value: 'Geen TRAACS' },
+          { key: 'toevoeging', label: 'Toevoeging', value: 'Geen actieve extras' },
+          { key: 'prijsDosis', label: 'Prijs/dosis', value: 'Vitaminstore-sticker' },
+        ],
+      },
+      {
+        name: 'Mattisson Magnesium Bisglycinaat',
+        badge: 'budget',
+        tagline: 'Scherpe Awin-prijs',
+        rating: 4.2,
+        price: '€15,25',
+        shop: 'Superfoodstore',
+        tursoProductId: 32809,
+        affiliateUrl:
+          'https://ds1.nl/c/?si=5676&li=1266442&wi=419928&ws=magnesium&dl=product%2Fmattisson-healthstyle-magnesium-bisglycinaat-100mg-taurine-tabletten-1309573',
+        imageUrl: 'https://cdn.shopify.com/s/files/1/1864/5043/files/38.png?v=1685112638',
+        pros: [
+          'Scherp per dosis via Awin Superfoodstore',
+          'Taurine + BioPerine',
+          'Bekend NL-etiket, elementair Mg leesbaar',
+        ],
+        cons: ['Tablet i.p.v. vegicap; lost trager', 'Voorraad wisselt per merchant'],
+        verdict:
+          'Budgetkeuze als je al bij Superfoodstore bestelt. Trade-off: tabletvorm en wisselende voorraad. Negeer de oude Vitaminstore-sticker van €34,95; reken op de Awin-prijs.',
+        specs: [
+          { key: 'elementair', label: 'Elementair Mg', value: '100 mg/tab' },
+          { key: 'cert', label: 'Certificering', value: 'Geen TRAACS' },
+          { key: 'toevoeging', label: 'Toevoeging', value: 'Taurine + BioPerine' },
+          { key: 'prijsDosis', label: 'Prijs/dosis', value: '~€0,17/tab' },
         ],
       },
     ],
     faq: [
       {
-        question: 'Wat is magnesiumbisglycinaat?',
+        question: 'Welke magnesium bisglycinaat is het beste in Nederland?',
         answer:
-          'Een chelaatvorm waarbij magnesium aan glycine gebonden is. Vaak beter verdragen dan oxide of sulfaat.',
+          'Onze topkeuze is Vitakruid 150: hoogste elementaire dosis per tablet plus taurine. Vitals is runner-up voor TRAACS.',
       },
       {
-        question: 'Hoeveel moet ik nemen?',
+        question: 'Hoeveel magnesium bisglycinaat per dag heb ik nodig?',
         answer:
-          'Volg het etiket en reken in elementair magnesium. Dit is geen medisch advies , bij twijfel: arts of diëtist.',
+          'Meestal 150–300 mg elementair via suppletie. Bouw rustig op. EFSA-bovengrens 350 mg via supplementen. Geen medisch advies.',
       },
     ],
     body: [],

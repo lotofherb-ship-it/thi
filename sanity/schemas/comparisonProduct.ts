@@ -85,6 +85,46 @@ export const comparisonProduct = defineType({
       type: 'text',
       rows: 2,
     }),
+    defineField({
+      name: 'specs',
+      title: 'Vergelijkingsspecs',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          name: 'productSpec',
+          fields: [
+            { name: 'key', type: 'string', title: 'Key' },
+            { name: 'label', type: 'string', title: 'Label' },
+            { name: 'value', type: 'string', title: 'Waarde' },
+          ],
+          preview: {
+            select: { title: 'label', subtitle: 'value' },
+          },
+        },
+      ],
+      description: 'Kolommen voor de vergelijkingstabel (elementair Mg, cert, prijs/dosis, …).',
+    }),
+    defineField({
+      name: 'extraOffers',
+      title: 'Extra koopopties (Bol last, alt merchants)',
+      type: 'array',
+      of: [
+        {
+          type: 'object',
+          name: 'productExtraOffer',
+          fields: [
+            { name: 'merchant', type: 'string', title: 'Merchant' },
+            { name: 'price', type: 'string', title: 'Prijs' },
+            { name: 'url', type: 'url', title: 'URL' },
+          ],
+          preview: {
+            select: { title: 'merchant', subtitle: 'price' },
+          },
+        },
+      ],
+      description: 'Handmatige alt-CTAs na feed-resolve. Bol = last resort (prefs).',
+    }),
     // Affiliate DB koppeling (products.id in thi/affiliate/db/products.db — same as old WP)
     defineField({
       name: 'tursoProductId',

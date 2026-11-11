@@ -13,15 +13,15 @@ export const magnesiumChatScript: ChatScript = {
   topic: 'magnesiumbisglycinaat',
   brand: 'The Health Issue',
   headline: 'Kies sneller de juiste magnesium',
-  support: 'Weinig tijd? Vraag het direct — of scroll naar Alles wat we aanraden.',
+  support: 'Weinig tijd? Vraag het direct, of scroll naar Alles wat we aanraden.',
   seed:
-    'Meest gestelde vraag hier: wat is de topkeuze? Tik hieronder — of scroll naar Alles wat we aanraden.',
+    'Meest gestelde vraag hier: wat is de topkeuze? Tik hieronder, of scroll naar Alles wat we aanraden.',
   seedSignedBy: 'jouke',
   disclosure: 'Voorgeprogrammeerde antwoorden · geen live AI · Jouke eindverantwoordelijk.',
   skipLabel: 'Artikel',
   hero: {
     photo: '/images/chat-hero-magnesium.jpg',
-    photoAlt: 'Magnesiumcapsules naast een glas water op een nachtkastje — avondritueel',
+    photoAlt: 'Magnesiumcapsules naast een glas water op een nachtkastje, avondritueel',
     mood: 'ritual',
   },
   openingChips: [
@@ -57,7 +57,7 @@ export const magnesiumChatScript: ChatScript = {
       claimMode: 'opinion',
       signedBy: 'jouke',
       reply:
-        'Onze topkeuze: Mattisson Magnesium Bisglycinaat — helder etiket, nette prijs per dosis, stabiel in NL-shops. Trade-off: voorraad wisselt per merchant.',
+        'Topkeuze: Vitakruid Magnesium Bisglycinaat 150. Hoogste elementaire dosis per tablet plus taurine. Trade-off: geen TRAACS. Wie certificering eist, neemt Vitals.',
       followUps: [
         { id: 'runner-up', label: 'En de runner-up?', intentClass: 'compare' },
         { id: 'hoe-gekozen', label: 'Hoe hebben jullie gekozen?', intentClass: 'trust' },
@@ -66,12 +66,12 @@ export const magnesiumChatScript: ChatScript = {
       handoffs: [{ label: 'Alles wat we aanraden', href: '#aanraden', analyticsKey: 'handoff_aanraden' }],
       artifact: {
         kind: 'pick',
-        product: 'Mattisson Magnesium Bisglycinaat',
-        claim: 'Beste overall — heldere dosering, eerlijke prijs per effectieve dosis',
-        priceLine: '€16,99 bij Holland & Barrett',
-        tradeOff: 'Voorraad wisselt per webshop',
+        product: 'Vitakruid Magnesium Bisglycinaat 150',
+        claim: 'Topkeuze: 150 mg elementair + L-taurine, avondroutine na training',
+        priceLine: 'Vanaf ~€24 bij Vitaminstore / Superfoodstore',
+        tradeOff: 'Geen TRAACS-stempel',
         href: '#aanraden',
-        imageUrl: 'https://cdn.shopify.com/s/files/1/1864/5043/files/38.png?v=1685112638',
+        imageUrl: 'https://cdn.shopify.com/s/files/1/0822/6681/6844/files/2b9ae86d5a50ef953db9f7dd97b0.png?v=1791569559',
       },
     },
     'voor-wie': {
@@ -80,7 +80,7 @@ export const magnesiumChatScript: ChatScript = {
       claimMode: 'opinion',
       signedBy: 'jouke',
       reply:
-        'Wél: avondgebruik zonder maaggedoe, helder etiket. Niet: medisch advies zoeken, of alleen de laagste stickerprijs. Geen vervanging voor een arts.',
+        'Wél: avondgebruik na training, maagvriendelijke bisglycinaat. Niet: medisch advies zoeken, of alleen de goedkoopste oxide. Geen vervanging voor een arts.',
       followUps: [
         { id: 'topkeuze', label: 'Wat is dan jullie tip?', intentClass: 'decide' },
         { id: 'verwachten', label: 'Wat mag je verwachten?', intentClass: 'orient' },
@@ -93,9 +93,9 @@ export const magnesiumChatScript: ChatScript = {
       claimMode: 'authorized',
       authorizedClaimIds: ['EU_reg_432_2012_magnesium_energy', 'EU_reg_432_2012_magnesium_muscles'],
       reply:
-        'Magnesium draagt bij tot de normale energiehuishouding en tot de normale werking van de spieren. Geen slaappil, geen geneesmiddel — minerale steun met EU-claims.',
+        'Magnesium draagt bij tot de normale energiehuishouding en tot de normale werking van de spieren. Geen slaappil, geen geneesmiddel: minerale steun met EU-claims.',
       followUps: [
-        { id: 'topkeuze', label: 'Oké — topkeuze tonen', intentClass: 'decide' },
+        { id: 'topkeuze', label: 'Oké: topkeuze tonen', intentClass: 'decide' },
         { id: 'type-vergelijk', label: 'Welke vorm dan?', intentClass: 'compare' },
         { id: 'medical-guard', label: 'Helpt het bij ziekte X?', intentClass: 'guard' },
       ],
@@ -106,7 +106,7 @@ export const magnesiumChatScript: ChatScript = {
       depth: 1,
       claimMode: 'opinion',
       reply:
-        'Oxide is goedkoop, irriteert vaak. Citraat zit ertussen. Bisglycinaat verdragen de meeste mensen beter — daarom is deze gids smal: alleen die vorm.',
+        'Oxide is goedkoop, irriteert vaak. Citraat zit ertussen. Bisglycinaat verdragen de meeste mensen beter. Daarom is deze gids smal: alleen die vorm.',
       followUps: [
         { id: 'topkeuze', label: 'Toon de topkeuze', intentClass: 'decide' },
         { id: 'hoe-gekozen', label: 'Hoe filteren jullie?', intentClass: 'trust' },
@@ -119,7 +119,7 @@ export const magnesiumChatScript: ChatScript = {
       claimMode: 'opinion',
       signedBy: 'jouke',
       reply:
-        'Runner-up: Vitals Magnesiumbisglycinaat — bekend merk, duidelijk etiket, vaak iets lager geprijsd. Trade-off: iets minder overall op prijs/kwaliteit dan Mattisson.',
+        'Runner-up: Vitals Magnesium Bisglycinaat 100. Albion TRAACS plus taurine. Trade-off: 100 mg per tablet, dus meer stuks voor dezelfde dosis als Vitakruid.',
       followUps: [
         { id: 'hoe-gekozen', label: 'Hoe hebben jullie gekozen?', intentClass: 'trust' },
       ],
@@ -133,7 +133,7 @@ export const magnesiumChatScript: ChatScript = {
       depth: 2,
       claimMode: 'none',
       reply:
-        'We starten bij wat NL écht koopt in onze affiliate-feed, filteren op elementair Mg en vulstoffen, ranken op prijs per dosis. Commissie speelt geen rol.',
+        'Eerst affiliate-realiteit (Awin/Daisycon/Bol last), dan elementair Mg, vulstoffen, prijs per dosis en NL-voorraad. Shortlist van vier. Commissie speelt geen rol.',
       followUps: [{ id: 'topkeuze', label: 'Terug naar topkeuze', intentClass: 'decide' }],
       handoffs: [{ label: 'Naar methode', href: '#methode', analyticsKey: 'handoff_methode' }],
     },

@@ -4,6 +4,8 @@
  * Fixtures are opt-in for local prototype only (`ALLOW_FIXTURES=1`).
  * Production / Pages builds must fail when Sanity is unreachable or empty.
  */
+import { existsSync, readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import type { Category, Post } from '../types';
 import {
   client,
@@ -20,6 +22,38 @@ import { isCutPost, withoutCutPosts } from './audit-content';
 const allowFixtures =
   process.env.ALLOW_FIXTURES === '1' ||
   process.env.ALLOW_FIXTURES === 'true';
+
+/** Local draft overlay (gitignored .content-override.json from patch-*-rewrite.mjs). */
+const contentOverride =
+  process.env.THI_CONTENT_OVERRIDE === '1' ||
+  process.env.THI_CONTENT_OVERRIDE === 'true';
+
+type ContentOverrideFile = {
+  slug?: string;
+  patch?: Record<string, unknown>;
+};
+
+function loadContentOverride(slug: string): Record<string, unknown> | null {
+  if (!contentOverride) return null;
+  const path = resolve(process.cwd(), '.content-override.json');
+  if (!existsSync(path)) return null;
+  try {
+    const raw = JSON.parse(readFileSync(path, 'utf-8')) as ContentOverrideFile;
+    if (!raw?.patch) return null;
+    if (raw.slug && raw.slug !== slug) return null;
+    return raw.patch;
+  } catch {
+    return null;
+  }
+}
+
+function applyContentOverride<T extends Post>(post: T): T {
+  const slug = post.slug?.current;
+  if (!slug) return post;
+  const patch = loadContentOverride(slug);
+  if (!patch) return post;
+  return { ...post, ...patch, slug: post.slug } as T;
+}
 
 function isProdBuild(): boolean {
   // Astro sets PROD during `astro build`; also treat CI/Pages as prod-safe.
@@ -107,20 +141,20 @@ export async function getPostBySlug(slug: string): Promise<Post | null> {
     if (!remote?.slug?.current) return null;
     // CUT posts are not built — edge _redirects handle the URL with a hard 301.
     if (isCutPost(remote)) return null;
-    return remote;
+    return applyContentOverride(remote);
   }
   try {
     const remote = await fetchOrThrow<Post | null>(postBySlugQuery, { slug });
     if (remote?.slug?.current) {
       if (isCutPost(remote)) return null;
-      return remote;
+      return applyContentOverride(remote);
     }
   } catch {
     /* fall through to fixtures */
   }
   const fixture = fixturePosts.find(p => p.slug.current === slug) || null;
   if (fixture && isCutPost(fixture)) return null;
-  return fixture;
+  return fixture ? applyContentOverride(fixture) : null;
 }
 
 export async function getAllCategories(): Promise<Category[]> {

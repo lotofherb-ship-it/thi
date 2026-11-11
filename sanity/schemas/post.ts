@@ -175,7 +175,29 @@ export const post = defineType({
       type: 'string',
       group: 'content',
       hidden: ({ document }) => document?.template !== 'comparison',
-      initialValue: 'Dit artikel bevat affiliate links. Als je via onze links koopt, ontvangen wij een kleine commissie — zonder extra kosten voor jou.',
+      initialValue:
+        'Dit artikel bevat affiliate links. Als je via onze links koopt, ontvangen wij een kleine commissie, zonder extra kosten voor jou.',
+    }),
+    defineField({
+      name: 'comparisonSpecColumns',
+      title: 'Vergelijkingstabel — kolommen',
+      type: 'array',
+      group: 'content',
+      hidden: ({ document }) => document?.template !== 'comparison',
+      of: [
+        {
+          type: 'object',
+          name: 'comparisonSpecColumn',
+          fields: [
+            { name: 'key', type: 'string', title: 'Key' },
+            { name: 'label', type: 'string', title: 'Label' },
+          ],
+          preview: {
+            select: { title: 'label', subtitle: 'key' },
+          },
+        },
+      ],
+      description: 'Keys moeten matchen met comparisonProducts[].specs[].key',
     }),
 
     // ── Comparison editorial (Wirecutter section jobs — content-driven)
