@@ -86,6 +86,14 @@ export const comparisonProduct = defineType({
       rows: 2,
     }),
     defineField({
+      name: 'chapterProse',
+      title: 'Deep chapter prose',
+      type: 'text',
+      rows: 8,
+      description:
+        'Uitgebreide pick-essay (nieuwe info t.o.v. ATF/callout). Lege regels = alinea’s. Geen affiliate-ops jargon.',
+    }),
+    defineField({
       name: 'specs',
       title: 'Vergelijkingsspecs',
       type: 'array',

@@ -80,10 +80,6 @@ const authorSrc = post.author?.avatar
 const bodyIntro = post.body?.slice(0, 2) || [];
 const bodyRest = post.body && post.body.length > 2 ? post.body.slice(2) : [];
 
-const disclosure =
-  post.comparisonDisclosure ||
-  'The Health Issue kan een commissie ontvangen via affiliate-links. Dat beïnvloedt onze redactionele keuzes niet.';
-
 const specColumns = post.comparisonSpecColumns?.length
   ? post.comparisonSpecColumns
   : [
@@ -92,10 +88,18 @@ const specColumns = post.comparisonSpecColumns?.length
     ];
 
 function specValue(p: ResolvedProduct, key: string): string {
-  if (key === 'score') return typeof p.rating === 'number' ? `${p.rating}/5` : '—';
-  if (key === 'prijs') return p.offers?.[0]?.price || p.price || '—';
+  if (key === 'score') return typeof p.rating === 'number' ? `${p.rating}/5` : '-';
+  if (key === 'prijs') return p.offers?.[0]?.price || p.price || '-';
   const hit = p.specs?.find(s => s.key === key);
-  return hit?.value || '—';
+  return hit?.value || '-';
+}
+
+/** Deep chapter essays: blank-line paragraphs from chapterProse. */
+function chapterParagraphs(p: ResolvedProduct): string[] {
+  return (p.chapterProse || '')
+    .split(/\n\s*\n/)
+    .map(s => s.trim())
+    .filter(Boolean);
 }
 
 /** Pain-Point Router — fixture registry until Sanity chatScript ships. */
@@ -146,14 +150,14 @@ const methodCriteria = (
     : [
         'Samenstelling, dosering en vorm (capsule, poeder, vloeistof)',
         'Prijs per effectieve dosis, niet alleen stickerprijs',
-        'Verkrijgbaarheid in NL-webshops via onze affiliate-feed',
+        'Verkrijgbaarheid in NL-webshops die we linken',
         'Trade-offs zichtbaar: geen product is perfect voor iedereen',
       ]
 )
   .map(t => String(t).trim())
   .filter(Boolean);
 
-/** One TOC link per pick role — skip duplicate “Ook goed” entries. */
+/** Product-named TOC jumps (framework §1 sticky Bladeren). */
 const tocPickLinks: { href: string; label: string }[] = [];
 {
   const seen = new Set<string>();
@@ -161,23 +165,28 @@ const tocPickLinks: { href: string; label: string }[] = [];
     const { label } = pickLabel(p, i);
     if (seen.has(label)) return;
     seen.add(label);
-    tocPickLinks.push({ href: `#pick-${i + 1}`, label });
+    const shortName = p.name.replace(/^Magnesium\s+/i, '').trim();
+    const productBit = shortName.length > 42 ? `${shortName.slice(0, 40)}…` : shortName;
+    tocPickLinks.push({
+      href: `#pick-${i + 1}`,
+      label: `${label}: ${productBit}`,
+    });
   });
 }
 
 const tocItems: { href: string; label: string }[] = [];
 if (products.length > 0) {
   if (chatScript) tocItems.push({ href: '#chat-guide-opener', label: 'Snel antwoord' });
-  tocItems.push({ href: '#aanraden', label: 'Alles wat we aanraden' });
+  tocItems.push({ href: '#aanraden', label: 'Aanraden' });
   tocPickLinks.forEach(link => tocItems.push(link));
   if (products.length > 1) tocItems.push({ href: '#vergelijking', label: 'Vergelijking' });
   tocItems.push({ href: '#vertrouwen', label: 'Waarom je ons kunt vertrouwen' });
-  tocItems.push({ href: '#voor-wie', label: 'Voor wie dit is' });
-  tocItems.push({ href: '#methode', label: 'Hoe we kozen' });
+  tocItems.push({ href: '#voor-wie', label: 'Voor wie' });
+  tocItems.push({ href: '#methode', label: 'Methode' });
   if (post.alsoConsidered?.length) {
-    tocItems.push({ href: '#concurrentie', label: 'Wat we ook bekeken' });
+    tocItems.push({ href: '#concurrentie', label: 'Concurrentie' });
   }
-  if (post.faq?.length) tocItems.push({ href: '#veelgestelde-vragen', label: 'Veelgestelde vragen' });
+  if (post.faq?.length) tocItems.push({ href: '#veelgestelde-vragen', label: 'FAQ' });
 }
 
 const pageUrl = postHref(post);
@@ -398,6 +407,7 @@ const listSchema = itemListSchema(
               <PickBuy
                 offers={offers}
                 reviewUrl={p.reviewUrl}
+                primary={false}
               />
             </div>
           </div>
@@ -426,7 +436,7 @@ const listSchema = itemListSchema(
       </aside>
     )}
 
-    {/* Mid-guide research cluster */}
+    {/* Mid-guide research cluster — one specs table, no CTA column (framework §2.5) */}
     {products.length > 1 && (
       <section id="vergelijking" class="guide-section">
         <h2>Hoe onze keuzes vergelijken</h2>
@@ -436,15 +446,11 @@ const listSchema = itemListSchema(
               <tr>
                 <th>Product</th>
                 {specColumns.map(col => <th>{col.label}</th>)}
-                <th></th>
               </tr>
             </thead>
             <tbody>
               {products.map((p, i) => {
-                const offer = p.offers?.[0];
-                const href = offer?.url || p.affiliateUrl;
-                const { key: pickKey, label } = pickLabel(p, i);
-                const ctaTone = pickKey === 'top' ? 'thi-cta--primary' : 'thi-cta--secondary';
+                const { label } = pickLabel(p, i);
                 return (
                   <tr class:list={[{ 'is-top': i === 0 }]}>
                     <td>
@@ -454,27 +460,16 @@ const listSchema = itemListSchema(
                     {specColumns.map(col => (
                       <td>{specValue(p, col.key)}</td>
                     ))}
-                    <td>
-                      {href && offer ? (
-                        <a class:list={['gt-cta', 'thi-cta', ctaTone]} href={href} target="_blank" rel="noopener noreferrer nofollow sponsored">
-                          <span class="gt-cta-action thi-cta-action">{offerCta(offer).action}</span>
-                          {offer.price ? (
-                            <span class="gt-cta-meta thi-cta-meta">{offer.price}</span>
-                          ) : null}
-                        </a>
-                      ) : href ? (
-                        <a class:list={['gt-cta', 'thi-cta', ctaTone]} href={href} target="_blank" rel="noopener noreferrer nofollow sponsored">
-                          <span class="gt-cta-action thi-cta-action">Bekijk</span>
-                        </a>
-                      ) : '-'}
-                    </td>
                   </tr>
                 );
               })}
             </tbody>
           </table>
         </div>
-        <p class="pick-disc">{disclosure}</p>
+        <p class="pick-disc">
+          €/dag en overige specs volgen de dosis in de tabel. Koopknoppen staan bij de shortlist
+          hierboven; prijscheck-datum staat in de producttekst waar relevant.
+        </p>
       </section>
     )}
 
@@ -534,16 +529,17 @@ const listSchema = itemListSchema(
       )}
     </section>
 
-    {/* Full pick chapters — prose + pros/flaws (second pass) */}
+    {/* Full pick chapters — essay prose (new info), not ATF bullet reprint */}
     {products.map((p, i) => {
       const { key, label } = pickLabel(p, i);
       const img = productImage(p);
       const offers = productOffers(p);
+      const essay = chapterParagraphs(p);
 
       return (
         <section class="pick pick--chapter" id={`pick-${i + 1}-detail`}>
           <span class="pick-label" data-kind={key}>{label}: uitgebreid</span>
-          <h2 class="pick-h2">{p.name}</h2>
+          <h2 class="pick-h2">{label}: {p.name}</h2>
 
           <div class="pick-callout">
             <div class="pick-media">
@@ -555,32 +551,17 @@ const listSchema = itemListSchema(
               {(p.verdict || p.tagline) && (
                 <p class="pick-summary">{p.verdict || p.tagline}</p>
               )}
-              {p.pros?.length ? (
-                <ul class="pick-scan-pros">
-                  {p.pros.slice(0, 3).map(pro => <li>{pro}</li>)}
-                </ul>
-              ) : null}
               <PickBuy
                 offers={offers}
                 reviewUrl={p.reviewUrl}
+                primary={false}
               />
             </div>
           </div>
 
-          {(p.pros?.length || p.cons?.length) && (
-            <div class="pick-pc">
-              {p.pros?.length ? (
-                <div class="pick-pros">
-                  <h4>Waarom we het aanraden</h4>
-                  <ul>{p.pros.map(pro => <li>{pro}</li>)}</ul>
-                </div>
-              ) : <div />}
-              {p.cons?.length ? (
-                <div class="pick-cons">
-                  <h4>Waar we op letten</h4>
-                  <ul>{p.cons.map(con => <li>{con}</li>)}</ul>
-                </div>
-              ) : <div />}
+          {essay.length > 0 && (
+            <div class="guide-prose pick-chapter-prose">
+              {essay.map(para => <p>{para}</p>)}
             </div>
           )}
 
@@ -597,10 +578,10 @@ const listSchema = itemListSchema(
     {/* Concurrentie / ook bekeken */}
     {post.alsoConsidered && post.alsoConsidered.length > 0 && (
       <section class="guide-section" id="concurrentie">
-        <h2>Wat we ook bekeken</h2>
+        <h2>Concurrentie</h2>
         <p>
-          Niet alles haalde de shortlist. Kort waarom, zodat je ziet wat we wél hebben meegenomen
-          in de afweging.
+          Niet alles haalde de shortlist. Kort waarom, inclusief rivals die je op de SERP
+          tegenkomt, zodat je ziet wat we wél meenamen in de afweging.
         </p>
         <ul class="guide-reject">
           {post.alsoConsidered.map(item => (
