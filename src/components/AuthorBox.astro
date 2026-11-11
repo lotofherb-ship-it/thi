@@ -1,8 +1,7 @@
 ---
 /**
- * YMYL / E-E-A-T author box — Wirecutter-style trust chrome.
- * Photo + short bio + credentials + link to /over-ons/.
- * Max one at article end (byline covers the top).
+ * End-of-article trust block (max 2 with GuideByline).
+ * Stronger photo + credentials + bio. Dates stay in the byline only.
  */
 import { urlFor } from '../lib/sanity';
 import type { Author } from '../types';
@@ -10,23 +9,12 @@ import type { Author } from '../types';
 interface Props {
   author: Author;
   variant?: 'full' | 'compact';
-  publishedLabel?: string | null;
-  publishedIso?: string;
-  updatedLabel?: string | null;
-  updatedIso?: string;
 }
 
-const {
-  author,
-  variant = 'full',
-  publishedLabel = null,
-  publishedIso,
-  updatedLabel = null,
-  updatedIso,
-} = Astro.props;
+const { author, variant = 'full' } = Astro.props;
 
 const photo = author.avatar
-  ? urlFor(author.avatar).width(160).height(160).fit('crop').auto('format').url()
+  ? urlFor(author.avatar).width(200).height(200).fit('crop').auto('format').url()
   : null;
 
 function initials(name?: string): string {
@@ -34,33 +22,31 @@ function initials(name?: string): string {
   return name.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase();
 }
 
-const role = author.credentials || 'Oprichter';
-const bio =
+function calmCopy(text: string): string {
+  return text.replace(/\u2014/g, ',').replace(/\s+,/g, ',').replace(/,\s*,/g, ',').trim();
+}
+
+const roleRaw = calmCopy(author.credentials || 'Oprichter The Health Issue');
+const role =
+  /^oprichter$/i.test(roleRaw.trim())
+    ? 'Oprichter The Health Issue'
+    : roleRaw;
+const bio = calmCopy(
   author.bio ||
-  'Schrijft de gidsen van The Health Issue — oordeel eerst, trade-offs erbij, affiliate zichtbaar.';
+    'Beoordeelt producten op etikethelderheid, dosering en prijs per effectieve dosis. Affiliate-links staan zichtbaar bij de koopoptie.',
+);
 ---
 
 <aside class:list={['author-box', { 'author-box--compact': variant === 'compact' }]} aria-label="Over de auteur">
   <div class="author-box-photo">
     {photo
-      ? <img src={photo} alt="" width="80" height="80" loading="lazy" decoding="async" />
+      ? <img src={photo} alt="" width="96" height="96" loading="lazy" decoding="async" />
       : <span aria-hidden="true">{initials(author.name)}</span>}
   </div>
   <div class="author-box-body">
-    <p class="author-box-kicker">Geschreven door</p>
+    <p class="author-box-kicker">Over de auteur</p>
     <p class="author-box-name">{author.name}</p>
     <p class="author-box-role">{role}</p>
-    {(publishedLabel || updatedLabel) && (
-      <p class="author-box-dates">
-        {publishedLabel && (
-          <>Gepubliceerd <time datetime={publishedIso}>{publishedLabel}</time></>
-        )}
-        {publishedLabel && updatedLabel ? ' · ' : ''}
-        {updatedLabel && (
-          <>Bijgewerkt <time datetime={updatedIso}>{updatedLabel}</time></>
-        )}
-      </p>
-    )}
     {variant === 'full' && <p class="author-box-bio">{bio}</p>}
     <p class="author-box-links">
       <a href="/over-ons/">Meer over The Health Issue</a>

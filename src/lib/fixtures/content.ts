@@ -1,5 +1,5 @@
 /**
- * Operational prototype content — used when Sanity is empty/unreachable.
+ * Operational prototype content , used when Sanity is empty/unreachable.
  * Real Sanity docs win on slug collision once migrated.
  */
 import type { Category, Post, Author } from '../../types';
@@ -11,7 +11,7 @@ export const fixtureAuthor: Author = {
   credentials:
     'Oprichter The Health Issue · schrijft magnesium- en mineraalgidsen',
   bio:
-    'Ik beoordeel supplementen op etikethelderheid, elementair magnesium, dosering en prijs per effectieve dosis — niet op commissiehoogte. Affiliate-links staan altijd zichtbaar bij de koopoptie.',
+    'Ik beoordeel supplementen op etikethelderheid, elementair magnesium, dosering en prijs per effectieve dosis , niet op commissiehoogte. Affiliate-links staan altijd zichtbaar bij de koopoptie.',
 };
 
 export const fixtureCategories: Category[] = [
@@ -33,7 +33,7 @@ export const fixtureCategories: Category[] = [
     _id: 'cat-voeding',
     title: 'Voeding',
     slug: { current: 'voeding' },
-    description: 'Eiwitten, calorieën en praktische voedingsgidsen — inclusief rekentools.',
+    description: 'Eiwitten, calorieën en praktische voedingsgidsen , inclusief rekentools.',
     order: 3,
   },
   {
@@ -58,8 +58,8 @@ export const fixturePosts: Post[] = [
     publishedAt: '2026-03-12T10:00:00.000Z',
     updatedAt: '2026-10-18T09:00:00.000Z',
     excerpt:
-      'We vergeleken magnesiumbisglycinaat-formules op dosering, vulstoffen, prijs en verkrijgbaarheid in NL-webshops via onze Awin-feed. Hieronder: wat we aanraden, waarom — en wat we bewust lieten vallen.',
-    seoTitle: 'Beste magnesiumbisglycinaat 2026 — The Health Issue',
+      'We vergeleken magnesiumbisglycinaat-formules op dosering, vulstoffen, prijs en verkrijgbaarheid in NL-webshops via onze Awin-feed. Hieronder: wat we aanraden, waarom , en wat we bewust lieten vallen.',
+    seoTitle: 'Beste magnesiumbisglycinaat 2026 , The Health Issue',
     seoDescription: 'Onafhankelijke vergelijking van magnesiumbisglycinaat met live affiliate-prijzen.',
     category: cat('supplementen'),
     author: fixtureAuthor,
@@ -93,7 +93,7 @@ export const fixturePosts: Post[] = [
       {
         name: 'Vitakruid Magnesium Bisglycinaat',
         blurb:
-          'Nette NL-formule, maar per effectieve dosis duurder dan Mattisson in onze feed — en de voorraad wisselde tijdens het schrijven. Blijft een solide merkkeuze; niet onze topkeuze op prijs/kwaliteit.',
+          'Nette NL-formule, maar per effectieve dosis duurder dan Mattisson in onze feed , en de voorraad wisselde tijdens het schrijven. Blijft een solide merkkeuze; niet onze topkeuze op prijs/kwaliteit.',
       },
       {
         name: 'Magnesiumoxide “hoge dosis” potten',
@@ -103,7 +103,7 @@ export const fixturePosts: Post[] = [
       {
         name: 'Anonieme huismerk-chelaten zonder elementair Mg',
         blurb:
-          'Etiket noemt alleen verbindinggewicht. Zonder helder elementair magnesium kun je doseringen niet eerlijk vergelijken — die vielen af.',
+          'Etiket noemt alleen verbindinggewicht. Zonder helder elementair magnesium kun je doseringen niet eerlijk vergelijken , die vielen af.',
       },
       {
         name: 'Dropship-only listings buiten Awin',
@@ -118,13 +118,13 @@ export const fixturePosts: Post[] = [
         tagline: 'Beste overall',
         rating: 4.8,
         tursoProductId: 32809,
-        // Real affiliate-feed pack shots (Superfoodies CDN) — demo when Superfoodstore rows lack image_url
+        // Real affiliate-feed pack shots (Superfoodies CDN) , demo when Superfoodstore rows lack image_url
         imageUrl: 'https://cdn.shopify.com/s/files/1/1864/5043/files/38.png?v=1685112638',
         reviewUrl: '/supplementen/mattisson-magnesium-bisglycinaat-review/',
         pros: ['Duidelijke dosering', 'Goede prijs/kwaliteit', 'Stabiel in Awin-feed'],
         cons: ['Assortiment wisselt per merchant', 'Niet overal op voorraad'],
         verdict:
-          'Onze topkeuze: schone bisglycinaat-formule met heldere dosering en stabiele prijs — al wisselt de voorraad soms per webshop.',
+          'Onze topkeuze: schone bisglycinaat-formule met heldere dosering en stabiele prijs , al wisselt de voorraad soms per webshop.',
         specs: [
           { key: 'vorm', label: 'Vorm', value: 'Capsule' },
           { key: 'elementair', label: 'Elementair Mg', value: '~100 mg' },
@@ -150,7 +150,7 @@ export const fixturePosts: Post[] = [
         pros: ['Lager geprijsd', 'Bekend NL-merk', 'Duidelijk etiket'],
         cons: ['Lagere dosis per eenheid', 'Meer capsules voor dezelfde dosis'],
         verdict:
-          'Sterke runner-up als je een bekend merk wilt — je betaalt minder per pot, maar hebt meer capsules nodig voor dezelfde elementaire dosis.',
+          'Sterke runner-up als je een bekend merk wilt , je betaalt minder per pot, maar hebt meer capsules nodig voor dezelfde elementaire dosis.',
         specs: [
           { key: 'vorm', label: 'Vorm', value: 'Capsule' },
           { key: 'elementair', label: 'Elementair Mg', value: '100 mg' },
@@ -176,7 +176,7 @@ export const fixturePosts: Post[] = [
         pros: ['Grote servings', 'Andere merchant', 'Scherp per dosis'],
         cons: ['Minder “natuurwinkel”-uitstraling', 'Tablet i.p.v. capsule'],
         verdict:
-          'Prima budgetkeuze als je al bij Myprotein bestelt — groot verpakt en scherp geprijsd, maar minder “apotheek-chic” dan de topkeuze.',
+          'Prima budgetkeuze als je al bij Myprotein bestelt , groot verpakt en scherp geprijsd, maar minder “apotheek-chic” dan de topkeuze.',
         specs: [
           { key: 'vorm', label: 'Vorm', value: 'Tablet' },
           { key: 'elementair', label: 'Elementair Mg', value: 'Variabel' },
@@ -195,21 +195,21 @@ export const fixturePosts: Post[] = [
       {
         question: 'Hoeveel moet ik nemen?',
         answer:
-          'Volg het etiket en reken in elementair magnesium. Dit is geen medisch advies — bij twijfel: arts of diëtist.',
+          'Volg het etiket en reken in elementair magnesium. Dit is geen medisch advies , bij twijfel: arts of diëtist.',
       },
     ],
     body: [],
   },
   {
     _id: 'fixture-hr-mattisson',
-    title: 'Mattisson Magnesium Bisglycinaat — eerlijke review',
+    title: 'Mattisson Magnesium Bisglycinaat , eerlijke review',
     slug: { current: 'mattisson-magnesium-bisglycinaat-review' },
     template: 'honest-review',
     publishedAt: '2026-04-08T10:00:00.000Z',
     updatedAt: '2026-10-12T10:00:00.000Z',
     excerpt:
       'Acht weken één product: etiket, dosering, maag, slaap en of de topkeuze uit onze vergelijking ook in de praktijk standhoudt.',
-    seoTitle: 'Mattisson Magnesium Bisglycinaat review (2026) — The Health Issue',
+    seoTitle: 'Mattisson Magnesium Bisglycinaat review (2026) , The Health Issue',
     seoDescription:
       'Eerlijke single-product review van Mattisson Magnesium Bisglycinaat: scores, weekjournal en koopopties.',
     category: cat('supplementen'),
@@ -221,11 +221,11 @@ export const fixturePosts: Post[] = [
       href: '/voeding/calculators/magnesium/',
     },
     quickAnswer:
-      'Onze topkeuze uit de magnesium-vergelijking houdt stand: helder etiket, rustige maag, eerlijke prijs per effectieve dosis — geen multi-merk mini-gids, alleen dit product.',
+      'Onze topkeuze uit de magnesium-vergelijking houdt stand: helder etiket, rustige maag, eerlijke prijs per effectieve dosis , geen multi-merk mini-gids, alleen dit product.',
     keyTakeaways: [
       'Elementair magnesium staat duidelijk genoeg om doseringen te rekenen',
       'Avondroutine zonder maaggedoe in de testperiode',
-      'Voorraad wisselt per webshop — check de actuele feed-prijs',
+      'Voorraad wisselt per webshop , check de actuele feed-prijs',
       'Dit is géén vergelijking van vijf merken; die staat apart',
     ],
     honestReview: {
@@ -236,15 +236,15 @@ export const fixturePosts: Post[] = [
       notFor: [
         'Je alleen op de laagste stickerprijs selecteert (oxide wint dan, maar niet op opname)',
         'Je medische claims of klinische bewijzen van ons verwacht',
-        'Je een multi-merk ranking zoekt — daarvoor is de vergelijkingsgids',
+        'Je een multi-merk ranking zoekt , daarvoor is de vergelijkingsgids',
       ],
-      tagline: 'Topkeuze uit onze bisglycinaat-gids — hier uitgewerkt als single-product review',
+      tagline: 'Topkeuze uit onze bisglycinaat-gids , hier uitgewerkt als single-product review',
       verdict:
         'Mattisson blijft onze favoriet voor dagelijks bisglycinaat: schone formule, redelijke prijs per dosis, en een etiket waar je mee kunt rekenen. In acht weken geen maagproblemen, wel een routine die ik volhield. De enige structurele kanttekening is voorraad: niet elke merchant heeft het altijd liggen, dus de affiliate-prijs kan wisselen.',
       imageUrl: 'https://cdn.shopify.com/s/files/1/1864/5043/files/38.png?v=1685112638',
       tursoProductId: 32809,
       pros: [
-        'Helder etiket — dosering is te vergelijken',
+        'Helder etiket , dosering is te vergelijken',
         'Goede prijs/kwaliteit in de Awin-feed',
         'Maag bleef rustig bij avonddosering',
         'Stabiel NL-merk met gangbare webshops',
@@ -274,12 +274,12 @@ export const fixturePosts: Post[] = [
         {
           week: 6,
           title: 'Voorraadcheck',
-          body: 'Eén merchant tijdelijk uitverkocht — andere shop in de feed nog leverbaar. Typisch voor deze pick.',
+          body: 'Eén merchant tijdelijk uitverkocht , andere shop in de feed nog leverbaar. Typisch voor deze pick.',
         },
         {
           week: 8,
           title: 'Afronding',
-          body: 'Blijf ik slikken? Ja. Zou ik opnieuw topkeuze noemen in de gids? Ja — met de voorraad-disclaimer erbij.',
+          body: 'Blijf ik slikken? Ja. Zou ik opnieuw topkeuze noemen in de gids? Ja , met de voorraad-disclaimer erbij.',
         },
       ],
       relatedComparison: {
@@ -291,11 +291,11 @@ export const fixturePosts: Post[] = [
       {
         question: 'Is dit hetzelfde als de magnesium-vergelijking?',
         answer:
-          'Nee. De vergelijking rankt meerdere merken. Deze pagina is alleen Mattisson — dieper, met weekjournal en scores.',
+          'Nee. De vergelijking rankt meerdere merken. Deze pagina is alleen Mattisson , dieper, met weekjournal en scores.',
       },
       {
         question: 'Is dit medisch getest door ons?',
-        answer: 'Nee — dit is een redactionele, praktijkgerichte review, geen klinische studie.',
+        answer: 'Nee , dit is een redactionele, praktijkgerichte review, geen klinische studie.',
       },
       {
         question: 'Waarom Mattisson en niet Vitakruid?',
@@ -341,7 +341,7 @@ export const fixturePosts: Post[] = [
             _type: 'span',
             _key: 's4',
             marks: [],
-            text: 'Acht weken is kort voor “bewijs”, lang genoeg om te voelen of een routine blijft hangen. Geen maaggedoe, geen afhakers door smaak of formaat. Het product voelt als een werkpaard — precies wat je wilt van een topkeuze die je vaker koopt.',
+            text: 'Acht weken is kort voor “bewijs”, lang genoeg om te voelen of een routine blijft hangen. Geen maaggedoe, geen afhakers door smaak of formaat. Het product voelt als een werkpaard , precies wat je wilt van een topkeuze die je vaker koopt.',
           },
         ],
         markDefs: [],
@@ -362,7 +362,7 @@ export const fixturePosts: Post[] = [
             _type: 'span',
             _key: 's6',
             marks: [],
-            text: 'We kijken naar prijs per effectieve dosis via de affiliate-feed, niet naar de mooiste sticker. Mattisson scoort daar stevig — mits de shop op voorraad is. Wisselende stock is de trade-off die je meeneemt als je dit product kiest.',
+            text: 'We kijken naar prijs per effectieve dosis via de affiliate-feed, niet naar de mooiste sticker. Mattisson scoort daar stevig , mits de shop op voorraad is. Wisselende stock is de trade-off die je meeneemt als je dit product kiest.',
           },
         ],
         markDefs: [],
@@ -392,7 +392,7 @@ export const fixturePosts: Post[] = [
     faq: [
       {
         question: 'Kan ik te veel magnesium slikken?',
-        answer: 'Ja — vooral losse hoge doses oxide kunnen laxerend werken. Blijf bij aanbevolen doseringen.',
+        answer: 'Ja , vooral losse hoge doses oxide kunnen laxerend werken. Blijf bij aanbevolen doseringen.',
       },
     ],
     body: [
@@ -442,25 +442,25 @@ export const fixturePosts: Post[] = [
   },
   {
     _id: 'fixture-art-elektrolyten',
-    title: 'Beste elektrolyten poeder — waar let je op?',
+    title: 'Beste elektrolyten poeder , waar let je op?',
     slug: { current: 'beste-elektrolyten-poeder' },
     template: 'comparison',
     publishedAt: '2026-05-01T10:00:00.000Z',
     updatedAt: '2026-08-12T10:00:00.000Z',
     excerpt:
-      'Natrium, kalium, magnesium — en wanneer een poeder zinvol is na training of hitte. Hieronder: wat we aanraden en wat we lieten vallen.',
+      'Natrium, kalium, magnesium , en wanneer een poeder zinvol is na training of hitte. Hieronder: wat we aanraden en wat we lieten vallen.',
     category: cat('gezondheid'),
     author: fixtureAuthor,
     topicGroup: 'Elektrolyten',
     coverImageUrl: 'https://cdn.shopify.com/s/files/1/1864/5043/files/NanoMagnesium.png?v=1712758748',
-    quickAnswer: 'Kies op natrium/kalium-verhouding en suiker — niet op marketing.',
+    quickAnswer: 'Kies op natrium/kalium-verhouding en suiker , niet op marketing.',
     keyTakeaways: [
       'Voor de meeste rustige dagen is water + voeding genoeg.',
       'Bij lange training of hitte telt natrium het hardst.',
-      'Suiker is optioneel — niet verplicht voor opname.',
+      'Suiker is optioneel , niet verplicht voor opname.',
     ],
     trustNarrative:
-      'We filterden gangbare NL-poeders op etikethelderheid (natrium/kalium per scoop), zoetstoffen en prijs per training. Geen labpanel — wel inspecteerbare keuzes.',
+      'We filterden gangbare NL-poeders op etikethelderheid (natrium/kalium per scoop), zoetstoffen en prijs per training. Geen labpanel , wel inspecteerbare keuzes.',
     whoForProse:
       'Voor wie langer traint of in de hitte zweet. Niet voor wie alleen op smaak of neon-marketing afgaat.',
     comparisonDisclosure:
@@ -479,7 +479,7 @@ export const fixturePosts: Post[] = [
       },
       {
         name: 'Tabletten zonder dosering per scoop',
-        blurb: 'Onduidelijk etiket — moeilijk eerlijk vergelijken.',
+        blurb: 'Onduidelijk etiket , moeilijk eerlijk vergelijken.',
       },
     ],
     comparisonProducts: [
@@ -495,7 +495,7 @@ export const fixturePosts: Post[] = [
         pros: ['Heldere dosering', 'Weinig zoetstof', 'Goede Na/K-balans'],
         cons: ['Duurder per portie'],
         verdict:
-          'Onze topkeuze voor lange sessies: helder etiket en weinig zoetstof — al betaal je iets meer per scoop.',
+          'Onze topkeuze voor lange sessies: helder etiket en weinig zoetstof , al betaal je iets meer per scoop.',
         specs: [
           { key: 'natrium', label: 'Natrium', value: '~500 mg' },
           { key: 'kalium', label: 'Kalium', value: '~200 mg' },
@@ -516,7 +516,7 @@ export const fixturePosts: Post[] = [
         pros: ['Lagere prijs', 'Grote pot'],
         cons: ['Meer smaakstoffen'],
         verdict:
-          'Prima instapper als je budget telt — meer smaakstoffen is de trade-off.',
+          'Prima instapper als je budget telt , meer smaakstoffen is de trade-off.',
         specs: [
           { key: 'natrium', label: 'Natrium', value: '~400 mg' },
           { key: 'kalium', label: 'Kalium', value: '~150 mg' },
@@ -541,7 +541,7 @@ export const fixturePosts: Post[] = [
     template: 'standard',
     publishedAt: '2026-02-10T10:00:00.000Z',
     updatedAt: '2026-06-01T10:00:00.000Z',
-    excerpt: 'Van sedentair tot forceer-fase — praktische ranges en een rekentool.',
+    excerpt: 'Van sedentair tot forceer-fase , praktische ranges en een rekentool.',
     category: cat('voeding'),
     author: fixtureAuthor,
     topicGroup: 'Eiwit',
@@ -586,7 +586,7 @@ export const fixturePosts: Post[] = [
     template: 'standard',
     publishedAt: '2026-01-20T10:00:00.000Z',
     updatedAt: '2026-09-02T10:00:00.000Z',
-    excerpt: 'Slaap, eiwit, volume — en wat je kunt laten liggen.',
+    excerpt: 'Slaap, eiwit, volume , en wat je kunt laten liggen.',
     category: cat('training'),
     author: fixtureAuthor,
     topicGroup: 'Herstel',
@@ -600,18 +600,18 @@ export const fixturePosts: Post[] = [
   },
   {
     _id: 'fixture-art-ashwagandha',
-    title: 'Beste ashwagandha — waar let je op?',
+    title: 'Beste ashwagandha , waar let je op?',
     slug: { current: 'beste-ashwagandha' },
     template: 'comparison',
     publishedAt: '2026-06-15T10:00:00.000Z',
     updatedAt: '2026-09-20T10:00:00.000Z',
     excerpt:
-      'KSM-66, Sensoril, dosering en wanneer ashwagandha überhaupt zinvol is — zonder hype.',
+      'KSM-66, Sensoril, dosering en wanneer ashwagandha überhaupt zinvol is , zonder hype.',
     category: cat('supplementen'),
     author: fixtureAuthor,
     topicGroup: 'Ashwagandha',
     coverImageUrl: 'https://cdn.shopify.com/s/files/1/1864/5043/files/38.png?v=1685112638',
-    quickAnswer: 'Kies op gestandaardiseerd extract en dosering — niet op “stress weg”-claims.',
+    quickAnswer: 'Kies op gestandaardiseerd extract en dosering , niet op “stress weg”-claims.',
     keyTakeaways: [
       'Gestandaardiseerd extract > anonieme poederblend.',
       'Niet voor iedereen: bij twijfel arts.',
@@ -627,7 +627,7 @@ export const fixturePosts: Post[] = [
     alsoConsidered: [
       {
         name: 'Anonieme “root powder” blends',
-        blurb: 'Geen gestandaardiseerd extract — moeilijk te doseren of vergelijken.',
+        blurb: 'Geen gestandaardiseerd extract , moeilijk te doseren of vergelijken.',
       },
     ],
     comparisonProducts: [
@@ -661,7 +661,7 @@ export const fixturePosts: Post[] = [
         imageUrl: 'https://cdn.shopify.com/s/files/1/1864/5043/files/37.png?v=1685112596',
         pros: ['Scherp geprijsd'],
         cons: ['Minder bekende standaard'],
-        verdict: 'Budgetoptie als je toch wilt starten — check het etiket op extractpercentage.',
+        verdict: 'Budgetoptie als je toch wilt starten , check het etiket op extractpercentage.',
         specs: [
           { key: 'extract', label: 'Extract', value: 'Gestandaardiseerd' },
           { key: 'dosering', label: 'Dosering', value: '250–500 mg' },

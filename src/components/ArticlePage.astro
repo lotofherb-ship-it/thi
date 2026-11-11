@@ -1,10 +1,15 @@
 ---
 /**
- * Standard article — Wirecutter editorial single-column.
+ * Standard editorial article: one LOH + Wirecutter craft template.
+ * Shared chrome with money pages: byline, TOC browse, end AuthorBox.
+ * Money-only modules (picks, ATF cue, compare table) stay on comparison/honest-review.
  * Canonical: /{category}/{slug}/
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PortableText from './PortableText.astro';
+import AuthorBox from './AuthorBox.astro';
+import GuideByline from './GuideByline.astro';
+import GuideToc from './GuideToc.astro';
 import { urlFor } from '../lib/sanity';
 import type { Post } from '../types';
 import {
@@ -28,14 +33,14 @@ const heroSrc = post.heroImage
   : null;
 
 const authorSrc = post.author?.avatar
-  ? urlFor(post.author.avatar).width(96).height(96).fit('crop').auto('format').url()
+  ? urlFor(post.author.avatar).width(160).height(160).fit('crop').auto('format').url()
   : null;
 
 function shortTocLabel(text: string): string {
   const t = text.trim();
-  if (t.length <= 22) return t;
-  const cut = t.slice(0, 20).replace(/\s+\S*$/, '');
-  return `${cut || t.slice(0, 20)}…`;
+  if (t.length <= 42) return t;
+  const cut = t.slice(0, 40).replace(/\s+\S*$/, '');
+  return `${cut || t.slice(0, 40)}…`;
 }
 
 const tocItems = (post.body || [])
@@ -43,7 +48,7 @@ const tocItems = (post.body || [])
   .map((b: any) => {
     const text = b.children?.map((c: any) => c.text).join('') || '';
     const id = text.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
-    return { text: shortTocLabel(text), id };
+    return { href: `#${id}`, label: shortTocLabel(text) };
   });
 
 const publishedLabel = post.publishedAt
@@ -53,11 +58,6 @@ const updatedLabel = post.updatedAt
   ? new Date(post.updatedAt).toLocaleDateString('nl-NL', { day: 'numeric', month: 'long', year: 'numeric' })
   : publishedLabel;
 const stampIso = post.updatedAt || post.publishedAt || undefined;
-
-function initials(name?: string): string {
-  if (!name) return '?';
-  return name.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase();
-}
 
 const moneyHint = relatedMoneyHint(post);
 
@@ -93,48 +93,22 @@ const crumbSchema = breadcrumbList(post);
       <span aria-current="page">{post.title}</span>
     </nav>
 
-    {updatedLabel && (
-      <p class="guide-updated">
-        Bijgewerkt <time datetime={stampIso}>{updatedLabel}</time>
-      </p>
-    )}
-
     <h1 class="guide-h1">{post.title}</h1>
 
+    {post.excerpt && <p class="guide-lede guide-lede--standfirst">{post.excerpt}</p>}
+
     {post.author && (
-      <div class="guide-byline">
-        <div class="guide-avatar guide-avatar--lg">
-          {authorSrc
-            ? <img src={authorSrc} alt={post.author.name} width="48" height="48" />
-            : initials(post.author.name)}
-        </div>
-        <div>
-          <div class="guide-byline-name">Door {post.author.name}</div>
-          <p class="guide-byline-role">{post.author.credentials || 'Oprichter'}</p>
-          <p class="guide-byline-meta">
-            {publishedLabel && (
-              <>Gepubliceerd <time datetime={post.publishedAt}>{publishedLabel}</time></>
-            )}
-            {publishedLabel && updatedLabel ? ' · ' : ''}
-            {updatedLabel && (
-              <>Bijgewerkt <time datetime={stampIso}>{updatedLabel}</time></>
-            )}
-          </p>
-        </div>
-      </div>
+      <GuideByline
+        author={post.author}
+        authorSrc={authorSrc}
+        publishedLabel={publishedLabel}
+        publishedIso={post.publishedAt}
+        updatedLabel={updatedLabel}
+        updatedIso={stampIso}
+      />
     )}
 
-    {tocItems.length > 1 && (
-      <nav class="guide-tocbar" aria-label="In dit artikel">
-        <div class="guide-tocbar-inner">
-          {tocItems.map(({ text, id }) => (
-            <a href={`#${id}`}>{text}</a>
-          ))}
-        </div>
-      </nav>
-    )}
-
-    {post.excerpt && <p class="guide-lede">{post.excerpt}</p>}
+    <GuideToc items={tocItems} label="In dit artikel" />
 
     {post.relatedCalculator && (
       <p class="guide-bridge">
@@ -199,22 +173,7 @@ const crumbSchema = breadcrumbList(post);
       </div>
     )}
 
-    {post.author && (
-      <footer class="guide-author">
-        <div class="guide-avatar" style="width:56px;height:56px;font-size:16px">
-          {authorSrc
-            ? <img src={authorSrc} alt="" width="56" height="56" />
-            : initials(post.author.name)}
-        </div>
-        <div>
-          <div class="guide-author-name">{post.author.name}</div>
-          {post.author.credentials && (
-            <div class="guide-author-role">{post.author.credentials}</div>
-          )}
-          {post.author.bio && <p class="guide-author-bio">{post.author.bio}</p>}
-        </div>
-      </footer>
-    )}
+    {post.author && <AuthorBox author={post.author} variant="full" />}
 
     {recentPosts.length > 0 && (
       <section class="wc-sec" style="margin-top:40px">
