@@ -53,14 +53,19 @@ const shown = uniqueByMerchant.slice(0, Math.min(limit, 2));
       const { action, price } = offerCta(o, oi === 0 ? 'primary' : 'alt');
       return (
         <a
-          class:list={['pick-offer', { 'pick-offer--alt': oi > 0 }]}
+          class:list={[
+            'pick-offer',
+            'thi-cta',
+            oi === 0 ? 'thi-cta--primary' : 'thi-cta--secondary',
+            { 'pick-offer--alt': oi > 0 },
+          ]}
           href={o.url}
           target="_blank"
           rel="noopener noreferrer nofollow sponsored"
         >
-          <span class="pick-offer-cta">{action}</span>
+          <span class="pick-offer-cta thi-cta-action">{action}</span>
           {price ? (
-            <span class="pick-offer-meta">
+            <span class="pick-offer-meta thi-cta-meta">
               <span class="pick-offer-price">{price}</span>
             </span>
           ) : null}
@@ -71,7 +76,7 @@ const shown = uniqueByMerchant.slice(0, Math.min(limit, 2));
     <p class="pick-disc">{emptyHint}</p>
   )}
   {reviewUrl && (
-    <a class="pick-review-link" href={reviewUrl}>{reviewLabel}</a>
+    <a class="pick-review-link thi-cta thi-cta--tertiary" href={reviewUrl}>{reviewLabel}</a>
   )}
   {showDisc && shown.length > 0 && (
     <p class="pick-disc">

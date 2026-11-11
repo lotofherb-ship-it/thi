@@ -1,8 +1,8 @@
 ---
 /**
- * First-class Wirecutter chapter navigation in LOH tokens.
- * Sticky browse bar + elevated cream panel (not a skinny dropdown).
- * Scrollspy updates the current section label in the bar.
+ * Wirecutter-style chapter browse under the header.
+ * Cream sticky balk: text label + current section + circle chevron.
+ * Open: flat cream list (no numbered heavy panel, never a primary CTA).
  */
 interface TocItem {
   href: string;
@@ -32,17 +32,15 @@ const usable = items.filter(i => i.href && i.label);
         </span>
       </summary>
       <div class="guide-toc-panel">
-        <p class="guide-toc-panel-label">Secties in dit artikel</p>
-        <ol class="guide-toc-list">
+        <ul class="guide-toc-list">
           {usable.map(({ href, label: itemLabel }, i) => (
             <li>
               <a href={href} data-toc-link data-toc-index={i}>
-                <span class="guide-toc-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
-                <span class="guide-toc-link-text">{itemLabel}</span>
+                {itemLabel}
               </a>
             </li>
           ))}
-        </ol>
+        </ul>
       </div>
     </details>
   </nav>
@@ -64,7 +62,7 @@ const usable = items.filter(i => i.href && i.label);
         if (!(link instanceof HTMLAnchorElement)) return null;
         const id = decodeURIComponent(link.hash.replace(/^#/, ''));
         const el = id ? document.getElementById(id) : null;
-        return el ? { link, el, label: link.querySelector('.guide-toc-link-text')?.textContent?.trim() || link.textContent?.trim() || '' } : null;
+        return el ? { link, el, label: link.textContent?.trim() || '' } : null;
       })
       .filter(Boolean);
 
@@ -75,7 +73,7 @@ const usable = items.filter(i => i.href && i.label);
         if (on) link.setAttribute('aria-current', 'true');
         else link.removeAttribute('aria-current');
       });
-      const label = activeLink?.querySelector('.guide-toc-link-text')?.textContent?.trim();
+      const label = activeLink?.textContent?.trim();
       current.textContent = label || defaultLabel;
     };
 
@@ -86,7 +84,6 @@ const usable = items.filter(i => i.href && i.label);
       });
     });
 
-    // Close panel when clicking outside.
     document.addEventListener('click', (event) => {
       if (!details.open) return;
       if (event.target instanceof Node && !root.contains(event.target)) details.open = false;

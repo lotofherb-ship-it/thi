@@ -195,17 +195,17 @@ const crumbSchema = breadcrumbList(post);
       <div class="guide-atf-cue" aria-label="Snel naar shop">
         <div class="guide-atf-cue-copy">
           <strong class="guide-atf-cue-name">{productName}</strong>
-          <a class="guide-atf-cue-review" href="#beoordeling">Naar beoordeling</a>
+          <a class="guide-atf-cue-review thi-cta thi-cta--tertiary" href="#beoordeling">Naar beoordeling</a>
         </div>
         <a
-          class="guide-atf-cue-buy"
+          class="guide-atf-cue-buy thi-cta thi-cta--primary"
           href={primaryOffer.url}
           target="_blank"
           rel="noopener noreferrer nofollow sponsored"
         >
-          <span class="guide-atf-cue-action">{primaryCta.action}</span>
+          <span class="guide-atf-cue-action thi-cta-action">{primaryCta.action}</span>
           {primaryCta.price ? (
-            <span class="guide-atf-cue-meta">{primaryCta.price}</span>
+            <span class="guide-atf-cue-meta thi-cta-meta">{primaryCta.price}</span>
           ) : null}
         </a>
       </div>
@@ -313,14 +313,14 @@ const crumbSchema = breadcrumbList(post);
           {hr?.bestFor && <span class="guide-mid-cta-claim">Beste voor: {hr.bestFor}</span>}
         </div>
         <a
-          class="guide-mid-cta-btn"
+          class="guide-mid-cta-btn thi-cta thi-cta--primary"
           href={primaryOffer.url}
           target="_blank"
           rel="noopener noreferrer nofollow sponsored"
         >
-          <span class="guide-mid-cta-action">{primaryCta.action}</span>
+          <span class="guide-mid-cta-action thi-cta-action">{primaryCta.action}</span>
           {primaryCta.price ? (
-            <span class="guide-mid-cta-meta">{primaryCta.price}</span>
+            <span class="guide-mid-cta-meta thi-cta-meta">{primaryCta.price}</span>
           ) : null}
         </a>
       </aside>

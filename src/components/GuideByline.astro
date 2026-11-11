@@ -1,8 +1,8 @@
 ---
 /**
- * Enhanced Wirecutter-grade byline in LOH tokens.
- * Large photo + name + credentials + bio sentence + one published/updated line.
- * End AuthorBox is the only other author surface (max 2).
+ * Quiet Wirecutter-scale byline in LOH tokens.
+ * Small photo + Door Name + short role; one published/updated line.
+ * Bio lives primarily in end AuthorBox (max 2 author surfaces).
  */
 import type { Author } from '../types';
 
@@ -42,10 +42,6 @@ const role =
   /^oprichter$/i.test(roleRaw.trim())
     ? 'Oprichter The Health Issue'
     : roleRaw;
-const bioRaw =
-  author.bio ||
-  'Beoordeelt producten op etikethelderheid, dosering en prijs per effectieve dosis. Affiliate-links staan zichtbaar bij de koopoptie.';
-const bio = calmCopy(bioRaw);
 const showUpdated =
   Boolean(updatedLabel) &&
   Boolean(updatedIso) &&
@@ -56,16 +52,15 @@ const authorHref = '/over-ons/';
 <div class="guide-byline">
   <a class="guide-byline-photo" href={authorHref} aria-label={`Over ${author.name}`}>
     {authorSrc
-      ? <img src={authorSrc} alt="" width="80" height="80" />
+      ? <img src={authorSrc} alt="" width="40" height="40" />
       : <span class="guide-byline-initials" aria-hidden="true">{initials(author.name)}</span>}
   </a>
   <div class="guide-byline-body">
     <p class="guide-byline-by">
       Door
       <a class="guide-byline-name" href={authorHref}>{author.name}</a>
+      <span class="guide-byline-role">{role}</span>
     </p>
-    <p class="guide-byline-role">{role}</p>
-    <p class="guide-byline-bio">{bio}</p>
     {(publishedLabel || showUpdated || extraMeta) && (
       <p class="guide-byline-meta">
         {publishedLabel && (

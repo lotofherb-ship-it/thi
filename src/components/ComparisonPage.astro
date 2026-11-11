@@ -243,17 +243,17 @@ const listSchema = itemListSchema(
       <div class="guide-atf-cue" aria-label="Snel naar topkeuze">
         <div class="guide-atf-cue-copy">
           <strong class="guide-atf-cue-name">{topProduct.name}</strong>
-          <a class="guide-atf-cue-review" href="#aanraden">Alles wat we aanraden</a>
+          <a class="guide-atf-cue-review thi-cta thi-cta--tertiary" href="#aanraden">Alles wat we aanraden</a>
         </div>
         <a
-          class="guide-atf-cue-buy"
+          class="guide-atf-cue-buy thi-cta thi-cta--primary"
           href={topPrimary.url}
           target="_blank"
           rel="noopener noreferrer nofollow sponsored"
         >
-          <span class="guide-atf-cue-action">{topCta.action}</span>
+          <span class="guide-atf-cue-action thi-cta-action">{topCta.action}</span>
           {topCta.price ? (
-            <span class="guide-atf-cue-meta">{topCta.price}</span>
+            <span class="guide-atf-cue-meta thi-cta-meta">{topCta.price}</span>
           ) : null}
         </a>
       </div>
@@ -327,7 +327,12 @@ const listSchema = itemListSchema(
                 </div>
                 {primary && cta ? (
                   <a
-                    class:list={['rec-stack-cta', { 'rec-stack-cta--top': key === 'top' }]}
+                    class:list={[
+                      'rec-stack-cta',
+                      'thi-cta',
+                      key === 'top' ? 'thi-cta--primary' : 'thi-cta--secondary',
+                      { 'rec-stack-cta--top': key === 'top' },
+                    ]}
                     href={primary.url}
                     target="_blank"
                     rel="noopener noreferrer nofollow sponsored"
@@ -408,14 +413,14 @@ const listSchema = itemListSchema(
           {topProduct.tagline && <span class="guide-mid-cta-claim">{topProduct.tagline}</span>}
         </div>
         <a
-          class="guide-mid-cta-btn"
+          class="guide-mid-cta-btn thi-cta thi-cta--primary"
           href={topPrimary.url}
           target="_blank"
           rel="noopener noreferrer nofollow sponsored"
         >
-          <span class="guide-mid-cta-action">{topCta.action}</span>
+          <span class="guide-mid-cta-action thi-cta-action">{topCta.action}</span>
           {topCta.price ? (
-            <span class="guide-mid-cta-meta">{topCta.price}</span>
+            <span class="guide-mid-cta-meta thi-cta-meta">{topCta.price}</span>
           ) : null}
         </a>
       </aside>
@@ -450,17 +455,17 @@ const listSchema = itemListSchema(
                     ))}
                     <td>
                       {href && offer ? (
-                        <a class="gt-cta" href={href} target="_blank" rel="noopener noreferrer nofollow sponsored">
-                          <span class="gt-cta-action">{offerCta(offer).action}</span>
+                        <a class="gt-cta thi-cta thi-cta--primary" href={href} target="_blank" rel="noopener noreferrer nofollow sponsored">
+                          <span class="gt-cta-action thi-cta-action">{offerCta(offer).action}</span>
                           {offer.price ? (
-                            <span class="gt-cta-meta">{offer.price}</span>
+                            <span class="gt-cta-meta thi-cta-meta">{offer.price}</span>
                           ) : null}
                         </a>
                       ) : href ? (
-                        <a class="gt-cta" href={href} target="_blank" rel="noopener noreferrer nofollow sponsored">
-                          <span class="gt-cta-action">Bekijk</span>
+                        <a class="gt-cta thi-cta thi-cta--primary" href={href} target="_blank" rel="noopener noreferrer nofollow sponsored">
+                          <span class="gt-cta-action thi-cta-action">Bekijk</span>
                         </a>
-                      ) : '—'}
+                      ) : '-'}
                     </td>
                   </tr>
                 );
