@@ -74,7 +74,7 @@ function productOffers(p: ResolvedProduct) {
 }
 
 const authorSrc = post.author?.avatar
-  ? urlFor(post.author.avatar).width(112).height(112).fit('crop').auto('format').url()
+  ? urlFor(post.author.avatar).width(160).height(160).fit('crop').auto('format').url()
   : null;
 
 const bodyIntro = post.body?.slice(0, 2) || [];

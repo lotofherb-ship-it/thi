@@ -33,7 +33,7 @@ const heroSrc = post.heroImage
   : null;
 
 const authorSrc = post.author?.avatar
-  ? urlFor(post.author.avatar).width(112).height(112).fit('crop').auto('format').url()
+  ? urlFor(post.author.avatar).width(160).height(160).fit('crop').auto('format').url()
   : null;
 
 function shortTocLabel(text: string): string {

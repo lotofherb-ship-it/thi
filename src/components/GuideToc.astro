@@ -1,8 +1,8 @@
 ---
 /**
- * Wirecutter-style sticky chapter browse (not a multi-row chip TOC).
- * Collapsed: “Inhoudsopgave · Secties in dit artikel”.
- * Expanded: vertical section list under a single calm rule.
+ * First-class Wirecutter chapter navigation in LOH tokens.
+ * Sticky browse bar + elevated cream panel (not a skinny dropdown).
+ * Scrollspy updates the current section label in the bar.
  */
 interface TocItem {
   href: string;
@@ -15,38 +15,104 @@ interface Props {
 }
 
 const { items, label = 'Inhoudsopgave' } = Astro.props;
+const usable = items.filter(i => i.href && i.label);
 ---
 
-{items.length > 1 && (
-  <nav class="guide-toc" aria-label={label}>
+{usable.length > 1 && (
+  <nav class="guide-toc" aria-label={label} data-guide-toc>
     <details class="guide-toc-details">
       <summary class="guide-toc-summary">
         <span class="guide-toc-browse">Bladeren</span>
         <span class="guide-toc-divider" aria-hidden="true"></span>
-        <span class="guide-toc-title">Secties in dit artikel</span>
+        <span class="guide-toc-current" data-toc-current>Secties in dit artikel</span>
         <span class="guide-toc-chevron" aria-hidden="true">
-          <svg viewBox="0 0 20 13" width="12" height="8" focusable="false">
+          <svg viewBox="0 0 20 13" width="11" height="7" focusable="false">
             <path d="M18.07 2l-8.535 8.14L1 2" stroke="currentColor" stroke-width="2" fill="none"></path>
           </svg>
         </span>
       </summary>
-      <ol class="guide-toc-list">
-        {items.map(({ href, label: itemLabel }) => (
-          <li>
-            <a href={href}>{itemLabel}</a>
-          </li>
-        ))}
-      </ol>
+      <div class="guide-toc-panel">
+        <p class="guide-toc-panel-label">Secties in dit artikel</p>
+        <ol class="guide-toc-list">
+          {usable.map(({ href, label: itemLabel }, i) => (
+            <li>
+              <a href={href} data-toc-link data-toc-index={i}>
+                <span class="guide-toc-num" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+                <span class="guide-toc-link-text">{itemLabel}</span>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </div>
     </details>
   </nav>
 )}
 
 <script>
-  // Close TOC after jump; keep sticky summary available.
-  document.querySelectorAll('.guide-toc-list a').forEach((link) => {
-    link.addEventListener('click', () => {
-      const details = link.closest('details');
-      if (details) details.open = false;
+  (() => {
+    const root = document.querySelector('[data-guide-toc]');
+    if (!(root instanceof HTMLElement)) return;
+
+    const details = root.querySelector('details');
+    const current = root.querySelector('[data-toc-current]');
+    const links = Array.from(root.querySelectorAll('[data-toc-link]'));
+    if (!(details instanceof HTMLDetailsElement) || !(current instanceof HTMLElement) || !links.length) return;
+
+    const defaultLabel = current.textContent || 'Secties in dit artikel';
+    const sections = links
+      .map((link) => {
+        if (!(link instanceof HTMLAnchorElement)) return null;
+        const id = decodeURIComponent(link.hash.replace(/^#/, ''));
+        const el = id ? document.getElementById(id) : null;
+        return el ? { link, el, label: link.querySelector('.guide-toc-link-text')?.textContent?.trim() || link.textContent?.trim() || '' } : null;
+      })
+      .filter(Boolean);
+
+    const setActive = (activeLink) => {
+      links.forEach((link) => {
+        const on = link === activeLink;
+        link.classList.toggle('is-active', on);
+        if (on) link.setAttribute('aria-current', 'true');
+        else link.removeAttribute('aria-current');
+      });
+      const label = activeLink?.querySelector('.guide-toc-link-text')?.textContent?.trim();
+      current.textContent = label || defaultLabel;
+    };
+
+    links.forEach((link) => {
+      link.addEventListener('click', () => {
+        details.open = false;
+        setActive(link);
+      });
     });
-  });
+
+    // Close panel when clicking outside.
+    document.addEventListener('click', (event) => {
+      if (!details.open) return;
+      if (event.target instanceof Node && !root.contains(event.target)) details.open = false;
+    });
+
+    if (!('IntersectionObserver' in window) || !sections.length) return;
+
+    let activeId = '';
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        const top = visible[0] || entries.find((e) => e.boundingClientRect.top >= 0);
+        if (!top) return;
+        const match = sections.find((s) => s.el === top.target);
+        if (!match || match.el.id === activeId) return;
+        activeId = match.el.id;
+        setActive(match.link);
+      },
+      {
+        rootMargin: '-20% 0px -65% 0px',
+        threshold: [0.1, 0.25, 0.5],
+      },
+    );
+
+    sections.forEach((s) => observer.observe(s.el));
+  })();
 </script>

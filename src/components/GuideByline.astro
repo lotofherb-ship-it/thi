@@ -1,7 +1,8 @@
 ---
 /**
- * Shared article byline: LOH + Wirecutter trust chrome.
- * Dates live here once (Gepubliceerd + Bijgewerkt). End AuthorBox has no dates.
+ * Enhanced Wirecutter-grade byline in LOH tokens.
+ * Large photo + name + credentials + bio sentence + one published/updated line.
+ * End AuthorBox is the only other author surface (max 2).
  */
 import type { Author } from '../types';
 
@@ -31,23 +32,40 @@ function initials(name?: string): string {
   return name.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase();
 }
 
-const role = author.credentials || 'Oprichter';
+/** Prefs: never ship em dashes on the site. */
+function calmCopy(text: string): string {
+  return text.replace(/\u2014/g, ',').replace(/\s+,/g, ',').replace(/,\s*,/g, ',').trim();
+}
+
+const roleRaw = calmCopy(author.credentials || 'Oprichter The Health Issue');
+const role =
+  /^oprichter$/i.test(roleRaw.trim())
+    ? 'Oprichter The Health Issue'
+    : roleRaw;
+const bioRaw =
+  author.bio ||
+  'Beoordeelt producten op etikethelderheid, dosering en prijs per effectieve dosis. Affiliate-links staan zichtbaar bij de koopoptie.';
+const bio = calmCopy(bioRaw);
 const showUpdated =
   Boolean(updatedLabel) &&
   Boolean(updatedIso) &&
   (!publishedLabel || updatedLabel !== publishedLabel || updatedIso !== publishedIso);
+const authorHref = '/over-ons/';
 ---
 
 <div class="guide-byline">
-  <div class="guide-avatar guide-avatar--lg" aria-hidden={authorSrc ? undefined : 'true'}>
+  <a class="guide-byline-photo" href={authorHref} aria-label={`Over ${author.name}`}>
     {authorSrc
-      ? <img src={authorSrc} alt="" width="56" height="56" />
-      : initials(author.name)}
-  </div>
+      ? <img src={authorSrc} alt="" width="80" height="80" />
+      : <span class="guide-byline-initials" aria-hidden="true">{initials(author.name)}</span>}
+  </a>
   <div class="guide-byline-body">
-    <p class="guide-byline-kicker">Geschreven door</p>
-    <div class="guide-byline-name">{author.name}</div>
+    <p class="guide-byline-by">
+      Door
+      <a class="guide-byline-name" href={authorHref}>{author.name}</a>
+    </p>
     <p class="guide-byline-role">{role}</p>
+    <p class="guide-byline-bio">{bio}</p>
     {(publishedLabel || showUpdated || extraMeta) && (
       <p class="guide-byline-meta">
         {publishedLabel && (
