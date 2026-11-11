@@ -73,6 +73,8 @@ const siteGraph = sitewideGraph();
 <body>
   <header class="thi-chrome">
     <SiteNav />
+    {/* Wirecutter browse balk: sticky under SiteNav on article/money pages */}
+    <slot name="browse" />
   </header>
   <main>
     <slot />

@@ -76,11 +76,13 @@ const crumbSchema = breadcrumbList(post);
   image={heroSrc || undefined}
   ogType="article"
 >
+  <GuideToc slot="browse" items={tocItems} label="In dit artikel" />
+
   <script type="application/ld+json" set:html={JSON.stringify(articleSchema)} />
   <script type="application/ld+json" set:html={JSON.stringify(crumbSchema)} />
   {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
 
-  <article class="guide">
+  <article class="guide guide--has-browse">
     <nav class="guide-crumb" aria-label="Kruimelpad">
       <a href="/">Home</a>
       <span class="guide-crumb-sep">/</span>
@@ -107,8 +109,6 @@ const crumbSchema = breadcrumbList(post);
         updatedIso={stampIso}
       />
     )}
-
-    <GuideToc items={tocItems} label="In dit artikel" />
 
     {post.relatedCalculator && (
       <p class="guide-bridge">

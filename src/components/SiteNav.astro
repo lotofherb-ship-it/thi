@@ -91,11 +91,14 @@ const drawerExtras = [
 </div>
 
 <style is:global>
-  /* ── Site chrome: nav + disclosure as one editorial stack ── */
+  /* ── Site chrome: nav + optional WC browse balk as one sticky stack ── */
   .thi-chrome {
     position: sticky;
     top: 0;
     z-index: 100;
+    background: var(--white);
+  }
+  .thi-chrome:has(.guide-toc) {
     background: var(--white);
   }
 

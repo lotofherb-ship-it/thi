@@ -150,11 +150,13 @@ const crumbSchema = breadcrumbList(post);
   image={articleHero || undefined}
   ogType="article"
 >
+  <GuideToc slot="browse" items={tocItems} label="In deze review" />
+
   <script type="application/ld+json" set:html={JSON.stringify(reviewJsonLd)} />
   <script type="application/ld+json" set:html={JSON.stringify(crumbSchema)} />
   {faqSchema && <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />}
 
-  <article class="guide hr-article" id="guide-start">
+  <article class="guide guide--has-browse hr-article" id="guide-start">
     <nav class="guide-crumb" aria-label="Kruimelpad">
       <a href="/">Home</a>
       <span class="guide-crumb-sep">/</span>
@@ -195,23 +197,21 @@ const crumbSchema = breadcrumbList(post);
       <div class="guide-atf-cue" aria-label="Snel naar shop">
         <div class="guide-atf-cue-copy">
           <strong class="guide-atf-cue-name">{productName}</strong>
-          <a class="guide-atf-cue-review" href="#beoordeling">Naar beoordeling</a>
+          <a class="guide-atf-cue-review thi-cta thi-cta--tertiary" href="#beoordeling">Naar beoordeling</a>
         </div>
         <a
-          class="guide-atf-cue-buy"
+          class="guide-atf-cue-buy thi-cta thi-cta--primary"
           href={primaryOffer.url}
           target="_blank"
           rel="noopener noreferrer nofollow sponsored"
         >
-          <span class="guide-atf-cue-action">{primaryCta.action}</span>
+          <span class="guide-atf-cue-action thi-cta-action">{primaryCta.action}</span>
           {primaryCta.price ? (
-            <span class="guide-atf-cue-meta">{primaryCta.price}</span>
+            <span class="guide-atf-cue-meta thi-cta-meta">{primaryCta.price}</span>
           ) : null}
         </a>
       </div>
     )}
-
-    <GuideToc items={tocItems} label="In deze review" />
 
     {articleHero && (
       <figure class="guide-hero">
@@ -313,14 +313,14 @@ const crumbSchema = breadcrumbList(post);
           {hr?.bestFor && <span class="guide-mid-cta-claim">Beste voor: {hr.bestFor}</span>}
         </div>
         <a
-          class="guide-mid-cta-btn"
+          class="guide-mid-cta-btn thi-cta thi-cta--primary"
           href={primaryOffer.url}
           target="_blank"
           rel="noopener noreferrer nofollow sponsored"
         >
-          <span class="guide-mid-cta-action">{primaryCta.action}</span>
+          <span class="guide-mid-cta-action thi-cta-action">{primaryCta.action}</span>
           {primaryCta.price ? (
-            <span class="guide-mid-cta-meta">{primaryCta.price}</span>
+            <span class="guide-mid-cta-meta thi-cta-meta">{primaryCta.price}</span>
           ) : null}
         </a>
       </aside>
