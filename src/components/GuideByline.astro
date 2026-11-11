@@ -1,0 +1,67 @@
+---
+/**
+ * Shared article byline: LOH + Wirecutter trust chrome.
+ * Dates live here once (Gepubliceerd + Bijgewerkt). End AuthorBox has no dates.
+ */
+import type { Author } from '../types';
+
+interface Props {
+  author: Author;
+  authorSrc?: string | null;
+  publishedLabel?: string | null;
+  publishedIso?: string;
+  updatedLabel?: string | null;
+  updatedIso?: string;
+  /** Extra quiet meta (e.g. test period on honest reviews). */
+  extraMeta?: string | null;
+}
+
+const {
+  author,
+  authorSrc = null,
+  publishedLabel = null,
+  publishedIso,
+  updatedLabel = null,
+  updatedIso,
+  extraMeta = null,
+} = Astro.props;
+
+function initials(name?: string): string {
+  if (!name) return '?';
+  return name.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase();
+}
+
+const role = author.credentials || 'Oprichter';
+const showUpdated =
+  Boolean(updatedLabel) &&
+  Boolean(updatedIso) &&
+  (!publishedLabel || updatedLabel !== publishedLabel || updatedIso !== publishedIso);
+---
+
+<div class="guide-byline">
+  <div class="guide-avatar guide-avatar--lg" aria-hidden={authorSrc ? undefined : 'true'}>
+    {authorSrc
+      ? <img src={authorSrc} alt="" width="56" height="56" />
+      : initials(author.name)}
+  </div>
+  <div class="guide-byline-body">
+    <p class="guide-byline-kicker">Geschreven door</p>
+    <div class="guide-byline-name">{author.name}</div>
+    <p class="guide-byline-role">{role}</p>
+    {(publishedLabel || showUpdated || extraMeta) && (
+      <p class="guide-byline-meta">
+        {publishedLabel && (
+          <>Gepubliceerd <time datetime={publishedIso}>{publishedLabel}</time></>
+        )}
+        {publishedLabel && showUpdated ? ' · ' : ''}
+        {showUpdated && (
+          <>Bijgewerkt <time datetime={updatedIso}>{updatedLabel}</time></>
+        )}
+        {!publishedLabel && !showUpdated && updatedLabel && (
+          <>Bijgewerkt <time datetime={updatedIso}>{updatedLabel}</time></>
+        )}
+        {extraMeta ? ` · ${extraMeta}` : ''}
+      </p>
+    )}
+  </div>
+</div>

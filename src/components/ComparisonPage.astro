@@ -9,6 +9,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PortableText from './PortableText.astro';
 import ChatGuideOpener from './ChatGuideOpener.astro';
 import AuthorBox from './AuthorBox.astro';
+import GuideByline from './GuideByline.astro';
+import GuideToc from './GuideToc.astro';
 import { urlFor } from '../lib/sanity';
 import { categoryHref } from '../lib/urls';
 import {
@@ -50,11 +52,6 @@ const updatedLabel = post.updatedAt
   : publishedLabel;
 const stampIso = post.updatedAt || post.publishedAt || undefined;
 
-function initials(name?: string): string {
-  if (!name) return '?';
-  return name.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase();
-}
-
 function productImage(p: ResolvedProduct): string | null {
   // No forced landscape crop — square/tall bottles stay contain-friendly
   const sanity = p.image
@@ -77,7 +74,7 @@ function productOffers(p: ResolvedProduct) {
 }
 
 const authorSrc = post.author?.avatar
-  ? urlFor(post.author.avatar).width(96).height(96).fit('crop').auto('format').url()
+  ? urlFor(post.author.avatar).width(112).height(112).fit('crop').auto('format').url()
   : null;
 
 const bodyIntro = post.body?.slice(0, 2) || [];
@@ -168,6 +165,21 @@ const tocPickLinks: { href: string; label: string }[] = [];
   });
 }
 
+const tocItems: { href: string; label: string }[] = [];
+if (products.length > 0) {
+  if (chatScript) tocItems.push({ href: '#chat-guide-opener', label: 'Snel antwoord' });
+  tocItems.push({ href: '#aanraden', label: 'Alles wat we aanraden' });
+  tocPickLinks.forEach(link => tocItems.push(link));
+  if (products.length > 1) tocItems.push({ href: '#vergelijking', label: 'Vergelijking' });
+  tocItems.push({ href: '#vertrouwen', label: 'Waarom je ons kunt vertrouwen' });
+  tocItems.push({ href: '#voor-wie', label: 'Voor wie dit is' });
+  tocItems.push({ href: '#methode', label: 'Hoe we kozen' });
+  if (post.alsoConsidered?.length) {
+    tocItems.push({ href: '#concurrentie', label: 'Wat we ook bekeken' });
+  }
+  if (post.faq?.length) tocItems.push({ href: '#veelgestelde-vragen', label: 'Veelgestelde vragen' });
+}
+
 const pageUrl = postHref(post);
 const articleSchema = buildArticleSchema({
   post,
@@ -216,28 +228,14 @@ const listSchema = itemListSchema(
     {post.excerpt && <p class="guide-lede guide-lede--standfirst">{post.excerpt}</p>}
 
     {post.author && (
-      <div class="guide-byline">
-        <div class="guide-avatar guide-avatar--lg">
-          {authorSrc
-            ? <img src={authorSrc} alt={post.author.name} width="48" height="48" />
-            : initials(post.author.name)}
-        </div>
-        <div>
-          <div class="guide-byline-name">Door {post.author.name}</div>
-          <p class="guide-byline-role">
-            {post.author.credentials || 'Oprichter'}
-          </p>
-          <p class="guide-byline-meta">
-            {publishedLabel && (
-              <>Gepubliceerd <time datetime={post.publishedAt}>{publishedLabel}</time></>
-            )}
-            {publishedLabel && updatedLabel ? ' · ' : ''}
-            {updatedLabel && (
-              <>Bijgewerkt <time datetime={stampIso}>{updatedLabel}</time></>
-            )}
-          </p>
-        </div>
-      </div>
+      <GuideByline
+        author={post.author}
+        authorSrc={authorSrc}
+        publishedLabel={publishedLabel}
+        publishedIso={post.publishedAt}
+        updatedLabel={updatedLabel}
+        updatedIso={stampIso}
+      />
     )}
 
     {/* Dense ATF shop strip — short label free, price on CTA */}
@@ -261,6 +259,8 @@ const listSchema = itemListSchema(
       </div>
     )}
 
+    <GuideToc items={tocItems} label="In deze gids" />
+
     {coverSrc && (
       <figure class="guide-hero">
         <img
@@ -273,27 +273,6 @@ const listSchema = itemListSchema(
           fetchpriority="high"
         />
       </figure>
-    )}
-
-    {/* Sticky jump bar — short unique labels only (no product names, no 3× Ook goed) */}
-    {products.length > 0 && (
-      <nav class="guide-tocbar" aria-label="In deze gids">
-        <div class="guide-tocbar-inner">
-          {chatScript && <a href="#chat-guide-opener">Snel antwoord</a>}
-          <a href="#aanraden">Aanraden</a>
-          {tocPickLinks.map(({ href, label }) => (
-            <a href={href}>{label}</a>
-          ))}
-          {products.length > 1 && <a href="#vergelijking">Vergelijking</a>}
-          <a href="#vertrouwen">Vertrouwen</a>
-          <a href="#voor-wie">Voor wie</a>
-          <a href="#methode">Hoe we kozen</a>
-          {post.alsoConsidered?.length ? (
-            <a href="#concurrentie">Ook bekeken</a>
-          ) : null}
-          {post.faq?.length ? <a href="#veelgestelde-vragen">FAQ</a> : null}
-        </div>
-      </nav>
     )}
 
     {post.quickAnswer && (
@@ -655,15 +634,6 @@ const listSchema = itemListSchema(
       </div>
     )}
 
-    {post.author && (
-      <AuthorBox
-        author={post.author}
-        variant="full"
-        publishedLabel={publishedLabel}
-        publishedIso={post.publishedAt}
-        updatedLabel={updatedLabel}
-        updatedIso={stampIso}
-      />
-    )}
+    {post.author && <AuthorBox author={post.author} variant="full" />}
   </article>
 </BaseLayout>

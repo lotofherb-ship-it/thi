@@ -9,6 +9,8 @@ import BaseLayout from '../layouts/BaseLayout.astro';
 import PortableText from './PortableText.astro';
 import ChatGuideOpener from './ChatGuideOpener.astro';
 import AuthorBox from './AuthorBox.astro';
+import GuideByline from './GuideByline.astro';
+import GuideToc from './GuideToc.astro';
 import { urlFor } from '../lib/sanity';
 import { categoryHref } from '../lib/urls';
 import { resolveProductCommerce, offerCta } from '../lib/products/resolve';
@@ -39,7 +41,7 @@ const heroSrc = post.heroImage
   : null;
 
 const authorSrc = post.author?.avatar
-  ? urlFor(post.author.avatar).width(96).height(96).fit('crop').auto('format').url()
+  ? urlFor(post.author.avatar).width(112).height(112).fit('crop').auto('format').url()
   : null;
 
 const scoreDimensions = [
@@ -56,11 +58,6 @@ const activeScores = scores
 
 function scoreToWidth(val: number | undefined): string {
   return val ? `${(val / 10) * 100}%` : '0%';
-}
-
-function initials(name?: string): string {
-  if (!name) return '?';
-  return name.split(' ').map(p => p[0]).slice(0, 2).join('').toUpperCase();
 }
 
 const publishedLabel = post.publishedAt
@@ -89,20 +86,20 @@ const primaryCta = primaryOffer ? offerCta(primaryOffer) : null;
 /** Pack shot: editorial URL → merchant feed → never landscape article hero as bottle. */
 const productSrc = hr?.imageUrl || feedImageUrl || null;
 
-/** Short TOC labels — long H2 titles must wrap cleanly, never clip. */
+/** Vertical TOC labels — slightly longer than old chip TOC is fine. */
 function shortTocLabel(text: string): string {
   const t = text.trim();
-  if (t.length <= 22) return t;
-  const cut = t.slice(0, 20).replace(/\s+\S*$/, '');
-  return `${cut || t.slice(0, 20)}…`;
+  if (t.length <= 42) return t;
+  const cut = t.slice(0, 40).replace(/\s+\S*$/, '');
+  return `${cut || t.slice(0, 40)}…`;
 }
 
-const tocItems = (post.body || [])
+const bodyTocItems = (post.body || [])
   .filter((b: any) => b._type === 'block' && b.style === 'h2')
   .map((b: any) => {
     const text = b.children?.map((c: any) => c.text).join('') || '';
     const id = text.toLowerCase().replace(/[^a-z0-9\s-]/g, '').trim().replace(/\s+/g, '-');
-    return { text: shortTocLabel(text), id };
+    return { href: `#${id}`, label: shortTocLabel(text) };
   });
 
 const forItems = [
@@ -122,6 +119,16 @@ const notFor =
 
 const chatScript = getChatScriptForSlug(post.slug?.current);
 const articleHero = heroSrc || (chatScript ? chatScript.hero.photo : null);
+
+const tocItems: { href: string; label: string }[] = [];
+if (chatScript) tocItems.push({ href: '#chat-guide-opener', label: 'Snel antwoord' });
+tocItems.push({ href: '#beoordeling', label: 'Beoordeling' });
+tocItems.push({ href: '#voor-wie', label: 'Voor wie dit is' });
+if (activeScores.length > 0) tocItems.push({ href: '#scores', label: 'Scores' });
+bodyTocItems.forEach(item => tocItems.push(item));
+if (hr?.weeklyEntries?.length) tocItems.push({ href: '#ervaringen', label: 'Ervaringen' });
+if (hr?.pros?.length || hr?.cons?.length) tocItems.push({ href: '#plus-min', label: 'Plus en min' });
+if (post.faq?.length) tocItems.push({ href: '#veelgestelde-vragen', label: 'Veelgestelde vragen' });
 
 const reviewJsonLd = reviewSchema({
   post,
@@ -172,29 +179,15 @@ const crumbSchema = breadcrumbList(post);
     {post.excerpt && <p class="guide-lede guide-lede--standfirst">{post.excerpt}</p>}
 
     {post.author && (
-      <div class="guide-byline">
-        <div class="guide-avatar guide-avatar--lg">
-          {authorSrc
-            ? <img src={authorSrc} alt={post.author.name} width="48" height="48" />
-            : initials(post.author.name)}
-        </div>
-        <div>
-          <div class="guide-byline-name">Door {post.author.name}</div>
-          <p class="guide-byline-role">
-            {post.author.credentials || 'Oprichter'}
-          </p>
-          <p class="guide-byline-meta">
-            {publishedLabel && (
-              <>Gepubliceerd <time datetime={post.publishedAt}>{publishedLabel}</time></>
-            )}
-            {publishedLabel && updatedLabel ? ' · ' : ''}
-            {updatedLabel && (
-              <>Bijgewerkt <time datetime={stampIso}>{updatedLabel}</time></>
-            )}
-            {hr?.testPeriod ? ` · ${hr.testPeriod} getest` : ''}
-          </p>
-        </div>
-      </div>
+      <GuideByline
+        author={post.author}
+        authorSrc={authorSrc}
+        publishedLabel={publishedLabel}
+        publishedIso={post.publishedAt}
+        updatedLabel={updatedLabel}
+        updatedIso={stampIso}
+        extraMeta={hr?.testPeriod ? `${hr.testPeriod} getest` : null}
+      />
     )}
 
     {/* Dense ATF shop strip — no KOOPOPTIE eyebrow, price on CTA, one primary button */}
@@ -218,6 +211,8 @@ const crumbSchema = breadcrumbList(post);
       </div>
     )}
 
+    <GuideToc items={tocItems} label="In deze review" />
+
     {articleHero && (
       <figure class="guide-hero">
         <img
@@ -238,19 +233,6 @@ const crumbSchema = breadcrumbList(post);
         <a href={hr.relatedComparison.href}>{hr.relatedComparison.title}</a>
       </p>
     )}
-
-    <nav class="guide-tocbar" aria-label="In deze review">
-      <div class="guide-tocbar-inner">
-        {chatScript && <a href="#chat-guide-opener">Snel antwoord</a>}
-        <a href="#beoordeling">Beoordeling</a>
-        <a href="#voor-wie">Voor wie</a>
-        {activeScores.length > 0 && <a href="#scores">Scores</a>}
-        {tocItems.map(({ text, id }) => <a href={`#${id}`}>{text}</a>)}
-        {hr?.weeklyEntries?.length ? <a href="#ervaringen">Ervaringen</a> : null}
-        {(hr?.pros?.length || hr?.cons?.length) ? <a href="#plus-min">Plus &amp; min</a> : null}
-        {post.faq?.length ? <a href="#veelgestelde-vragen">FAQ</a> : null}
-      </div>
-    </nav>
 
     {post.quickAnswer && (
       <aside class="guide-fyi" aria-label="Kort oordeel">
@@ -470,15 +452,6 @@ const crumbSchema = breadcrumbList(post);
       </div>
     )}
 
-    {post.author && (
-      <AuthorBox
-        author={post.author}
-        variant="full"
-        publishedLabel={publishedLabel}
-        publishedIso={post.publishedAt}
-        updatedLabel={updatedLabel}
-        updatedIso={stampIso}
-      />
-    )}
+    {post.author && <AuthorBox author={post.author} variant="full" />}
   </article>
 </BaseLayout>

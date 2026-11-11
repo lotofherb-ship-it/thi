@@ -1,0 +1,52 @@
+---
+/**
+ * Wirecutter-style sticky chapter browse (not a multi-row chip TOC).
+ * Collapsed: “Inhoudsopgave · Secties in dit artikel”.
+ * Expanded: vertical section list under a single calm rule.
+ */
+interface TocItem {
+  href: string;
+  label: string;
+}
+
+interface Props {
+  items: TocItem[];
+  label?: string;
+}
+
+const { items, label = 'Inhoudsopgave' } = Astro.props;
+---
+
+{items.length > 1 && (
+  <nav class="guide-toc" aria-label={label}>
+    <details class="guide-toc-details">
+      <summary class="guide-toc-summary">
+        <span class="guide-toc-browse">Bladeren</span>
+        <span class="guide-toc-divider" aria-hidden="true"></span>
+        <span class="guide-toc-title">Secties in dit artikel</span>
+        <span class="guide-toc-chevron" aria-hidden="true">
+          <svg viewBox="0 0 20 13" width="12" height="8" focusable="false">
+            <path d="M18.07 2l-8.535 8.14L1 2" stroke="currentColor" stroke-width="2" fill="none"></path>
+          </svg>
+        </span>
+      </summary>
+      <ol class="guide-toc-list">
+        {items.map(({ href, label: itemLabel }) => (
+          <li>
+            <a href={href}>{itemLabel}</a>
+          </li>
+        ))}
+      </ol>
+    </details>
+  </nav>
+)}
+
+<script>
+  // Close TOC after jump; keep sticky summary available.
+  document.querySelectorAll('.guide-toc-list a').forEach((link) => {
+    link.addEventListener('click', () => {
+      const details = link.closest('details');
+      if (details) details.open = false;
+    });
+  });
+</script>
