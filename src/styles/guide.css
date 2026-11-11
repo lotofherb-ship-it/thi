@@ -21,7 +21,8 @@
   z-index: 45;
   margin: 0;
   width: 100%;
-  background: color-mix(in oklab, var(--cream) 70%, var(--cream-2));
+  /* Distinct cream-2 band so the full-viewport overlay reads on cream pages */
+  background: var(--cream-2);
   border-top: none;
   border-bottom: 1px solid var(--cream-3);
   box-shadow: 0 1px 0 color-mix(in oklab, var(--green-900) 4%, transparent);
@@ -102,7 +103,7 @@
   max-height: min(360px, 55vh);
   overflow-y: auto;
   overscroll-behavior: contain;
-  background: color-mix(in oklab, var(--cream) 70%, var(--cream-2));
+  background: var(--cream-2);
   border-bottom: 1px solid var(--cream-3);
   box-shadow: 0 8px 24px color-mix(in oklab, var(--green-900) 8%, transparent);
   z-index: 46;
