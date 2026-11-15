@@ -94,7 +94,19 @@ export type ChatScript = {
 
 export const MAX_ASSISTANT_WORDS = 60;
 export const MAX_DEPTH = 3;
-export const MAX_OPENING_CHIPS = 4;
+/** Editorial Jump Board: Decide + Fit + one Orient/Compare/Trust */
+export const MAX_OPENING_CHIPS = 3;
+
+/** Forbidden in reader-facing script copy (money-page framework §2.1). */
+export const FORBIDDEN_OPS_TOKENS = [
+  'Awin',
+  'Daisycon',
+  'TradeTracker',
+  'Turso',
+  'affiliate-feed',
+  'Daisycon-CTA',
+  'Awin-pad',
+] as const;
 
 export function wordCount(text: string): number {
   return text.trim().split(/\s+/).filter(Boolean).length;
@@ -120,6 +132,21 @@ export function lintChatScript(script: ChatScript): string[] {
 
   for (const chip of script.openingChips) {
     if (!script.nodes[chip.id]) errors.push(`missing node for opening chip ${chip.id}`);
+  }
+
+  const readerText = [
+    script.seed,
+    script.support,
+    script.headline,
+    ...Object.values(script.nodes).map(n => n.reply),
+  ].join('\n');
+  for (const token of FORBIDDEN_OPS_TOKENS) {
+    if (readerText.includes(token)) {
+      errors.push(`ops jargon in reader copy: ${token}`);
+    }
+  }
+  if (/—/.test(readerText)) {
+    errors.push('em dash (—) in reader copy; use comma or period');
   }
 
   let hasRefuse = false;

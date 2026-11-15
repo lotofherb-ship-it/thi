@@ -1,27 +1,26 @@
 /**
  * Mattisson honest-review — Pain-Point Router script.
- * Skews Fit / Worth it / Vs topkeuze / How we tested — no multi-pick Decide.
+ * Editorial Jump Board: Fit / Worth it / Vs gids. Max 3 opening questions.
  */
 import type { ChatScript } from './types';
 import { lintChatScript } from './types';
 
 export const mattissonChatScript: ChatScript = {
-  id: 'mattisson-hr-v1',
+  id: 'mattisson-hr-v2',
   format: 'honest-review',
-  version: '1.0.0',
+  version: '2.0.0',
   locale: 'nl-NL',
   topic: 'Mattisson Magnesium Bisglycinaat',
   brand: 'The Health Issue',
-  headline: 'Is Mattisson de moeite waard?',
-  support: 'Kort oordeel over één product — geen multi-merk ranking.',
-  seed:
-    'Kort: Mattisson houdt stand als avondbisglycinaat — vraag hieronder wat je wilt weten.',
+  headline: 'Snel naar je oordeel',
+  support: 'Kort oordeel over één product, geen multi-merk ranking.',
+  seed: 'Kort: Mattisson houdt stand als avondbisglycinaat. Kies hieronder wat je wilt weten.',
   seedSignedBy: 'jouke',
   disclosure: 'Voorgeprogrammeerde antwoorden · geen live AI · Jouke eindverantwoordelijk.',
   skipLabel: 'Artikel',
   hero: {
     photo: '/images/chat-hero-magnesium.jpg',
-    photoAlt: 'Magnesiumcapsules bij avondlicht — product in routine',
+    photoAlt: 'Magnesiumcapsules bij avondlicht, product in routine',
     mood: 'pack',
   },
   openingChips: [
@@ -43,12 +42,6 @@ export const mattissonChatScript: ChatScript = {
       intentClass: 'compare',
       analyticsKey: 'hr_open_vs',
     },
-    {
-      id: 'getest',
-      label: 'Hoe hebben jullie getest?',
-      intentClass: 'trust',
-      analyticsKey: 'hr_open_test',
-    },
   ],
   nodes: {
     waard: {
@@ -57,17 +50,16 @@ export const mattissonChatScript: ChatScript = {
       claimMode: 'opinion',
       signedBy: 'jouke',
       reply:
-        'Ja — voor avondgebruik met helder etiket houdt Mattisson stand. Score 8,6/10 in acht weken. Trade-off: voorraad wisselt; check de actuele prijs.',
+        'Ja: voor avondgebruik met helder etiket houdt Mattisson stand. Score 8,6/10 in acht weken. Trade-off: voorraad wisselt; check de actuele prijs.',
       followUps: [
         { id: 'scores', label: 'Wat scoorde het?', intentClass: 'orient' },
         { id: 'vs-gids', label: 'Waarom niet alleen de gids?', intentClass: 'compare' },
-        { id: 'medical-guard-hr', label: 'Helpt het bij een aandoening?', intentClass: 'guard' },
       ],
       handoffs: [{ label: 'Naar eindoordeel', href: '#eindoordeel', analyticsKey: 'hr_handoff_oordeel' }],
       artifact: {
         kind: 'pick',
         product: 'Mattisson Magnesium Bisglycinaat',
-        claim: 'Eindoordeel 8,6/10 — topkeuze die in de praktijk standhoudt',
+        claim: 'Eindoordeel 8,6/10, topkeuze die in de praktijk standhoudt',
         priceLine: '€16,99 bij Holland & Barrett',
         tradeOff: 'Niet altijd op voorraad bij elke merchant',
         href: '#eindoordeel',
@@ -107,7 +99,7 @@ export const mattissonChatScript: ChatScript = {
     },
     getest: {
       id: 'getest',
-      depth: 1,
+      depth: 2,
       claimMode: 'none',
       reply:
         'Acht weken één pot: etiket narekenen, avonddosering, maagnotities, of de routine vol te houden was. Geen lab, wel redactie op herhaalbaarheid.',

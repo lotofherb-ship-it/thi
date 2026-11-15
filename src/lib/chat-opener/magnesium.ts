@@ -1,21 +1,22 @@
 /**
  * Magnesium bisglycinaat — Pain-Point Router script (vergelijking).
- * Depth ≤ 3 · assistant ≤ 60 words · claim-coded · artifact on Decide.
+ * Editorial Jump Board: max 3 opening questions · ≤60 words · no ops jargon.
  */
 import type { ChatScript } from './types';
 import { lintChatScript } from './types';
 
 export const magnesiumChatScript: ChatScript = {
-  id: 'magnesium-bisglycinaat-v2',
+  id: 'magnesium-bisglycinaat-v3',
   format: 'vergelijking',
-  version: '2.0.0',
+  version: '3.0.0',
   locale: 'nl-NL',
   topic: 'magnesiumbisglycinaat',
   brand: 'The Health Issue',
-  headline: 'Kies sneller de juiste magnesium',
-  support: 'Weinig tijd? Vraag het direct, of scroll naar Alles wat we aanraden.',
+  headline: 'Snel naar je oordeel',
+  support:
+    'Kies een vraag. Je krijgt een kort oordeel en een sprong naar de shortlist of de juiste sectie.',
   seed:
-    'Meest gestelde vraag hier: wat is de topkeuze? Tik hieronder, of scroll naar Alles wat we aanraden.',
+    'Meest gestelde vraag hier: wat is de topkeuze? Kies hieronder, of scroll naar Alles wat we aanraden.',
   seedSignedBy: 'jouke',
   disclosure: 'Voorgeprogrammeerde antwoorden · geen live AI · Jouke eindverantwoordelijk.',
   skipLabel: 'Artikel',
@@ -38,12 +39,6 @@ export const magnesiumChatScript: ChatScript = {
       analyticsKey: 'open_fit',
     },
     {
-      id: 'verwachten',
-      label: 'Wat mag je er wél van verwachten?',
-      intentClass: 'orient',
-      analyticsKey: 'open_orient',
-    },
-    {
       id: 'type-vergelijk',
       label: 'Bisglycinaat vs citraat?',
       intentClass: 'compare',
@@ -61,7 +56,6 @@ export const magnesiumChatScript: ChatScript = {
       followUps: [
         { id: 'runner-up', label: 'En de runner-up?', intentClass: 'compare' },
         { id: 'hoe-gekozen', label: 'Hoe hebben jullie gekozen?', intentClass: 'trust' },
-        { id: 'medical-guard', label: 'Helpt het bij een aandoening?', intentClass: 'guard' },
       ],
       handoffs: [{ label: 'Alles wat we aanraden', href: '#aanraden', analyticsKey: 'handoff_aanraden' }],
       artifact: {
@@ -71,7 +65,8 @@ export const magnesiumChatScript: ChatScript = {
         priceLine: 'Vanaf ~€24 bij Vitaminstore / Superfoodstore',
         tradeOff: 'Geen TRAACS-stempel',
         href: '#aanraden',
-        imageUrl: 'https://cdn.shopify.com/s/files/1/0822/6681/6844/files/2b9ae86d5a50ef953db9f7dd97b0.png?v=1791569559',
+        imageUrl:
+          'https://cdn.shopify.com/s/files/1/0822/6681/6844/files/2b9ae86d5a50ef953db9f7dd97b0.png?v=1791569559',
       },
     },
     'voor-wie': {
@@ -89,14 +84,13 @@ export const magnesiumChatScript: ChatScript = {
     },
     verwachten: {
       id: 'verwachten',
-      depth: 1,
+      depth: 2,
       claimMode: 'authorized',
       authorizedClaimIds: ['EU_reg_432_2012_magnesium_energy', 'EU_reg_432_2012_magnesium_muscles'],
       reply:
         'Magnesium draagt bij tot de normale energiehuishouding en tot de normale werking van de spieren. Geen slaappil, geen geneesmiddel: minerale steun met EU-claims.',
       followUps: [
         { id: 'topkeuze', label: 'Oké: topkeuze tonen', intentClass: 'decide' },
-        { id: 'type-vergelijk', label: 'Welke vorm dan?', intentClass: 'compare' },
         { id: 'medical-guard', label: 'Helpt het bij ziekte X?', intentClass: 'guard' },
       ],
       handoffs: [{ label: 'Naar FAQ', href: '#veelgestelde-vragen', analyticsKey: 'handoff_faq' }],
@@ -120,20 +114,15 @@ export const magnesiumChatScript: ChatScript = {
       signedBy: 'jouke',
       reply:
         'Runner-up: Vitals Magnesium Bisglycinaat 100. Albion TRAACS plus taurine. Trade-off: 100 mg per tablet, dus meer stuks voor dezelfde dosis als Vitakruid.',
-      followUps: [
-        { id: 'hoe-gekozen', label: 'Hoe hebben jullie gekozen?', intentClass: 'trust' },
-      ],
-      handoffs: [
-        { label: 'Naar runner-up', href: '#pick-2', analyticsKey: 'handoff_pick2' },
-        { label: 'Alles wat we aanraden', href: '#aanraden', analyticsKey: 'handoff_aanraden' },
-      ],
+      followUps: [{ id: 'hoe-gekozen', label: 'Hoe hebben jullie gekozen?', intentClass: 'trust' }],
+      handoffs: [{ label: 'Alles wat we aanraden', href: '#aanraden', analyticsKey: 'handoff_aanraden' }],
     },
     'hoe-gekozen': {
       id: 'hoe-gekozen',
       depth: 2,
       claimMode: 'none',
       reply:
-        'Eerst affiliate-realiteit (Awin/Daisycon/Bol last), dan elementair Mg, vulstoffen, prijs per dosis en NL-voorraad. Shortlist van vier. Commissie speelt geen rol.',
+        'Eerst of het écht bisglycinaat is en NL-verkrijgbaar, dan elementair Mg, vulstoffen en prijs per dosis. Shortlist van vier. Commissie speelt geen rol.',
       followUps: [{ id: 'topkeuze', label: 'Terug naar topkeuze', intentClass: 'decide' }],
       handoffs: [{ label: 'Naar methode', href: '#methode', analyticsKey: 'handoff_methode' }],
     },
@@ -164,6 +153,5 @@ if (import.meta.env?.DEV && magnesiumLintErrors.length) {
   console.warn('[chat-opener] magnesium lint:', magnesiumLintErrors);
 }
 
-// Re-export helpers used by older imports
 export type { ChatScript, ChatNode, ChatHandoff } from './types';
 export { chipLabel, serializeChatScript, lintChatScript } from './types';

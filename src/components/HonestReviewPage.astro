@@ -14,7 +14,8 @@ import GuideToc from './GuideToc.astro';
 import { urlFor } from '../lib/sanity';
 import { categoryHref } from '../lib/urls';
 import { resolveProductCommerce, offerCta } from '../lib/products/resolve';
-import { getChatScriptForSlug } from '../lib/chat-opener';
+import { getChatScriptForSlug, getPickStripForSlug } from '../lib/chat-opener';
+import type { StripPick } from '../lib/chat-opener/pick-strip';
 import PickBuy from './PickBuy.astro';
 import AudienceSplit from './AudienceSplit.astro';
 import type { Post, ComparisonProduct } from '../types';
@@ -118,10 +119,13 @@ const notFor =
       ];
 
 const chatScript = getChatScriptForSlug(post.slug?.current);
+const pickStrip = getPickStripForSlug(post.slug?.current);
 const articleHero = heroSrc || (chatScript ? chatScript.hero.photo : null);
+const stripPicks: StripPick[] = [
+  { key: 'top', name: productName, offers },
+];
 
 const tocItems: { href: string; label: string }[] = [];
-if (chatScript) tocItems.push({ href: '#chat-guide-opener', label: 'Snel antwoord' });
 tocItems.push({ href: '#beoordeling', label: 'Beoordeling' });
 tocItems.push({ href: '#voor-wie', label: 'Voor wie dit is' });
 if (activeScores.length > 0) tocItems.push({ href: '#scores', label: 'Scores' });
@@ -192,25 +196,32 @@ const crumbSchema = breadcrumbList(post);
       />
     )}
 
-    {/* Dense ATF shop strip — no KOOPOPTIE eyebrow, price on CTA, one primary button */}
-    {primaryOffer && primaryCta && (
-      <div class="guide-atf-cue" aria-label="Snel naar shop">
-        <div class="guide-atf-cue-copy">
-          <strong class="guide-atf-cue-name">{productName}</strong>
-          <a class="guide-atf-cue-review thi-cta thi-cta--tertiary" href="#beoordeling">Naar beoordeling</a>
+    {pickStrip ? (
+      <ChatGuideOpener
+        strip={pickStrip}
+        picks={stripPicks}
+        authorName={post.author?.name?.split(' ')[0] || 'Jouke'}
+      />
+    ) : (
+      primaryOffer && primaryCta && (
+        <div class="guide-atf-cue" aria-label="Snel naar shop">
+          <div class="guide-atf-cue-copy">
+            <strong class="guide-atf-cue-name">{productName}</strong>
+            <a class="guide-atf-cue-review thi-cta thi-cta--tertiary" href="#beoordeling">Naar beoordeling</a>
+          </div>
+          <a
+            class="guide-atf-cue-buy thi-cta thi-cta--primary"
+            href={primaryOffer.url}
+            target="_blank"
+            rel="noopener noreferrer nofollow sponsored"
+          >
+            <span class="guide-atf-cue-action thi-cta-action">{primaryCta.action}</span>
+            {primaryCta.price ? (
+              <span class="guide-atf-cue-meta thi-cta-meta">{primaryCta.price}</span>
+            ) : null}
+          </a>
         </div>
-        <a
-          class="guide-atf-cue-buy thi-cta thi-cta--primary"
-          href={primaryOffer.url}
-          target="_blank"
-          rel="noopener noreferrer nofollow sponsored"
-        >
-          <span class="guide-atf-cue-action thi-cta-action">{primaryCta.action}</span>
-          {primaryCta.price ? (
-            <span class="guide-atf-cue-meta thi-cta-meta">{primaryCta.price}</span>
-          ) : null}
-        </a>
-      </div>
+      )
     )}
 
     {articleHero && (
@@ -239,15 +250,6 @@ const crumbSchema = breadcrumbList(post);
         <div class="guide-fyi-label">Kort oordeel</div>
         <p>{post.quickAnswer}</p>
       </aside>
-    )}
-
-    {chatScript && (
-      <ChatGuideOpener
-        script={chatScript}
-        leadIn="Weinig tijd? Vraag het direct"
-        authorName={post.author?.name?.split(' ')[0] || 'Jouke'}
-        authorAvatar={authorSrc}
-      />
     )}
 
     {/* Single-product hero — not a multi-pick stack */}
