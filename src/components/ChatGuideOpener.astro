@@ -1,80 +1,131 @@
 ---
 /**
- * Pain-Point Router face: Editorial Jump Board.
- * Predesigned chips only. Calm in-article Q&A, not messenger UI.
- * Routes to guide sections; never owns primary affiliate CTA.
+ * Answer-first pick strip (Pain-Point Router face v3).
+ * Named pick + trade-off + primary buy on first paint.
+ * Optional filter chips reframe the verdict in place (not TOC / not chat).
  */
-import type { ChatScript } from '../lib/chat-opener/types';
-import { serializeChatScript } from '../lib/chat-opener/types';
+import type { PickStripScript, StripPick } from '../lib/chat-opener/pick-strip';
+import { offerCta } from '../lib/products/resolve';
 
 interface Props {
-  script: ChatScript;
-  leadIn?: string;
+  strip: PickStripScript;
+  picks: StripPick[];
   authorName?: string;
-  authorAvatar?: string | null;
 }
 
-const {
-  script,
-  leadIn = 'Weinig tijd',
-  authorName = 'Jouke',
-  authorAvatar = null,
-} = Astro.props;
+const { strip, picks, authorName = 'Jouke' } = Astro.props;
 
-const scriptJson = JSON.stringify(serializeChatScript(script));
-const openingChips = script.openingChips.slice(0, 3);
-const title = script.headline || 'Snel naar je oordeel';
-const support =
-  script.support ||
-  'Kies een vraag. Je krijgt een kort oordeel en een sprong naar de juiste sectie.';
+const pickMap = Object.fromEntries(picks.map(p => [p.key, p])) as Record<string, StripPick>;
+const initial = strip.default;
+const initialPick = pickMap[initial.pickKey] || picks[0];
+const initialOffer = initialPick?.offers?.[0] || null;
+const initialCta = initialOffer ? offerCta(initialOffer) : null;
+
+const runtime = {
+  id: strip.id,
+  disclosure: strip.disclosure,
+  shortlistLabel: strip.shortlistLabel,
+  shortlistHref: strip.shortlistHref,
+  authorName,
+  default: strip.default,
+  filters: strip.filters.slice(0, 2),
+  picks: picks.map(p => ({
+    key: p.key,
+    name: p.name,
+    offer: p.offers[0]
+      ? {
+          url: p.offers[0].url,
+          action: offerCta(p.offers[0]).action,
+          price: offerCta(p.offers[0]).price || '',
+        }
+      : null,
+  })),
+};
+const runtimeJson = JSON.stringify(runtime);
 ---
 
 <aside
-  class="ejb"
+  class="aps"
   id="chat-guide-opener"
-  data-script={scriptJson}
-  data-author-name={authorName}
-  data-author-avatar={authorAvatar || ''}
-  data-ejb-root
+  data-aps-root
+  data-aps={runtimeJson}
   role="region"
-  aria-label={title}
+  aria-label={initial.kicker}
 >
-  <p class="ejb-kicker">{leadIn}</p>
-  <h2 class="ejb-title">{title}</h2>
-  <p class="ejb-support">{support}</p>
-  <p class="ejb-disc">{script.disclosure}</p>
+  <p class="aps-kicker" data-aps-kicker>{initial.kicker}</p>
+  <h2 class="aps-name" data-aps-name>{initialPick?.name || ''}</h2>
+  <p class="aps-verdict" data-aps-verdict>{initial.verdict}</p>
+  <p class="aps-trade" data-aps-trade>
+    <span class="aps-trade-label">Trade-off</span>
+    <span data-aps-trade-text>{initial.tradeOff}</span>
+  </p>
+  <p class="aps-sign">{authorName}</p>
 
-  <div class="ejb-questions" data-ejb-questions role="group" aria-label="Voorgestelde vragen">
-    {openingChips.map((c, i) => (
+  <div class="aps-cta" data-aps-cta>
+    {initialOffer && initialCta ? (
+      <a
+        class="aps-buy thi-cta thi-cta--primary"
+        data-aps-buy
+        href={initialOffer.url}
+        target="_blank"
+        rel="noopener noreferrer nofollow sponsored"
+      >
+        <span class="thi-cta-action" data-aps-buy-action>{initialCta.action}</span>
+        {initialCta.price ? (
+          <span class="thi-cta-meta" data-aps-buy-price>{initialCta.price}</span>
+        ) : null}
+      </a>
+    ) : (
+      <p class="aps-missing">Koop-link volgt zodra de shop gekoppeld is.</p>
+    )}
+    <a
+      class="aps-shortlist thi-cta thi-cta--secondary"
+      href={strip.shortlistHref}
+      data-aps-shortlist
+    >
+      {strip.shortlistLabel}
+    </a>
+  </div>
+
+  {strip.filters.length > 0 && (
+    <div class="aps-filters" data-aps-filters role="group" aria-label="Andere invalshoek">
       <button
         type="button"
-        class:list={['ejb-q', { 'ejb-q--decide': c.intentClass === 'decide' || i === 0 }]}
-        data-chip-id={c.id}
-        data-analytics-key={c.analyticsKey || c.id}
-        data-intent={c.intentClass || ''}
+        class="aps-filter is-active"
+        data-filter-id="default"
+        data-analytics-key="filter_default"
+        aria-pressed="true"
       >
-        <span class="ejb-q-label">{c.label}</span>
-        <span class="ejb-q-mark" aria-hidden="true">↓</span>
+        Onze topkeuze
       </button>
-    ))}
-  </div>
+      {strip.filters.map(f => (
+        <button
+          type="button"
+          class="aps-filter"
+          data-filter-id={f.id}
+          data-analytics-key={f.analyticsKey || f.id}
+          aria-pressed="false"
+        >
+          {f.label}
+        </button>
+      ))}
+    </div>
+  )}
 
-  <div class="ejb-panel" data-ejb-panel hidden>
-    <div class="ejb-answer" data-ejb-answer></div>
-    <div class="ejb-actions" data-ejb-actions></div>
-    <div class="ejb-followups" data-ejb-followups role="group" aria-label="Vervolgvragen" hidden></div>
-  </div>
+  {strip.filters.length > 0 && (
+    <p class="aps-disc">{strip.disclosure}</p>
+  )}
 </aside>
 
 <style>
-  .ejb {
-    margin: 8px 0 32px;
-    padding: 20px 0 4px;
+  .aps {
+    margin: 0 0 28px;
+    padding: 18px 0 4px;
     border-top: 1px solid var(--cream-3);
     width: 100%;
   }
 
-  .ejb-kicker {
+  .aps-kicker {
     margin: 0 0 6px;
     font: 700 12px/1.3 var(--font-body);
     letter-spacing: 0.05em;
@@ -82,246 +133,146 @@ const support =
     color: var(--sage, var(--body));
   }
 
-  .ejb-title {
-    margin: 0 0 8px;
-    font: 700 22px/1.2 var(--font-head);
-    letter-spacing: -0.015em;
+  .aps-name {
+    margin: 0 0 10px;
+    font: 700 24px/1.15 var(--font-head);
+    letter-spacing: -0.02em;
     color: var(--text);
   }
 
-  .ejb-support {
+  .aps-verdict {
+    margin: 0 0 10px;
+    font: 400 16px/1.55 var(--font-body);
+    color: var(--text);
+    max-width: 38em;
+  }
+
+  .aps-trade {
     margin: 0 0 8px;
-    font: 400 15px/1.5 var(--font-body);
+    font: 400 14.5px/1.45 var(--font-body);
     color: var(--body);
     max-width: 38em;
   }
 
-  .ejb-disc {
+  .aps-trade-label {
+    font-weight: 700;
+    color: var(--green-900);
+    margin-right: 6px;
+  }
+
+  .aps-sign {
     margin: 0 0 16px;
-    font: 400 12px/1.4 var(--font-body);
-    color: var(--sage, var(--muted));
-  }
-
-  .ejb-questions {
-    display: flex;
-    flex-direction: column;
-    border-top: 1px solid var(--cream-3);
-  }
-
-  .ejb-q {
-    appearance: none;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    gap: 12px;
-    width: 100%;
-    margin: 0;
-    padding: 14px 4px;
-    min-height: 48px;
-    border: none;
-    border-bottom: 1px solid var(--cream-3);
-    background: transparent;
-    color: var(--text);
-    font: 600 15px/1.35 var(--font-body);
-    text-align: left;
-    cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease;
-  }
-
-  .ejb-q--decide {
-    box-shadow: inset 3px 0 0 var(--celery);
-    padding-left: 12px;
-  }
-
-  .ejb-q:hover {
-    background: color-mix(in oklab, var(--celery) 18%, var(--cream));
-    color: var(--green-900);
-  }
-
-  .ejb-q.is-active {
-    background: color-mix(in oklab, var(--celery) 28%, var(--cream));
-    color: var(--green-900);
-  }
-
-  .ejb-q:disabled {
-    opacity: 0.55;
-    cursor: wait;
-  }
-
-  .ejb-q:focus-visible {
-    outline: 2px solid var(--green-900);
-    outline-offset: 2px;
-  }
-
-  .ejb-q-mark {
-    flex-shrink: 0;
-    font: 600 13px/1 var(--font-body);
-    color: var(--sage, var(--muted));
-  }
-
-  .ejb-q.is-active .ejb-q-mark {
-    color: var(--green-900);
-  }
-
-  .ejb-panel {
-    margin-top: 16px;
-    padding: 16px 16px 14px;
-    border-left: 3px solid var(--celery);
-    background: color-mix(in oklab, var(--celery) 12%, var(--cream));
-    border-radius: 0 8px 8px 0;
-  }
-
-  .ejb-panel[hidden] {
-    display: none;
-  }
-
-  .ejb-panel.is-enter {
-    animation: ejb-in 0.2s ease-out;
-  }
-
-  :global(.ejb-verdict) {
-    margin: 0;
-    font: 400 15.5px/1.55 var(--font-body);
-    color: var(--text);
-  }
-
-  :global(.ejb-sign) {
-    display: block;
-    margin-top: 10px;
     font: 600 12.5px/1.3 var(--font-body);
     color: var(--green-700, var(--green-900));
   }
 
-  :global(.ejb-claim) {
-    display: inline-block;
-    margin-top: 8px;
-    font: 600 11px/1.2 var(--font-body);
-    letter-spacing: 0.04em;
-    text-transform: uppercase;
-    color: var(--sage, var(--muted));
+  .aps-cta {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 10px;
+    margin-bottom: 14px;
   }
 
-  .ejb-actions {
-    margin-top: 14px;
+  .aps-buy {
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    min-height: 48px;
+    padding: 10px 16px;
+    text-decoration: none;
   }
 
-  .ejb-actions:empty {
-    display: none;
-  }
-
-  :global(.ejb-jump) {
-    appearance: none;
+  .aps-shortlist {
     display: inline-flex;
     align-items: center;
-    gap: 4px;
-    border: none;
-    background: none;
-    padding: 0;
-    min-height: 44px;
-    font: 700 14px/1.3 var(--font-body);
-    color: var(--cta-tertiary-ink, var(--green-900));
-    text-decoration: underline;
-    text-underline-offset: 3px;
-    cursor: pointer;
+    min-height: 48px;
+    padding: 10px 14px;
+    text-decoration: none;
   }
 
-  :global(.ejb-jump:hover) {
-    color: var(--green-700, #2d5c20);
+  .aps-missing {
+    margin: 0;
+    font: 400 14px/1.4 var(--font-body);
+    color: var(--muted);
   }
 
-  .ejb-followups {
+  .aps-filters {
     display: flex;
     flex-wrap: wrap;
     gap: 8px;
-    margin-top: 14px;
-    padding-top: 12px;
-    border-top: 1px solid color-mix(in oklab, var(--cream-3) 70%, transparent);
+    margin: 4px 0 10px;
   }
 
-  .ejb-followups[hidden] {
-    display: none;
-  }
-
-  :global(.ejb-fu) {
+  .aps-filter {
     appearance: none;
     border: 1px solid var(--cream-3);
     background: var(--white, #fff);
     color: var(--text);
     font: 600 13px/1.3 var(--font-body);
-    padding: 9px 12px;
+    padding: 8px 12px;
     min-height: 40px;
     border-radius: 8px;
     cursor: pointer;
-    text-align: left;
   }
 
-  :global(.ejb-fu:hover) {
+  .aps-filter:hover {
     border-color: var(--green-900);
     color: var(--green-900);
   }
 
-  :global(.ejb-fu:focus-visible) {
+  .aps-filter.is-active {
+    border-color: var(--green-900);
+    background: color-mix(in oklab, var(--celery) 35%, var(--white, #fff));
+    color: var(--green-900);
+  }
+
+  .aps-filter:focus-visible {
     outline: 2px solid var(--green-900);
     outline-offset: 2px;
   }
 
-  :global(.ejb-fu--guard) {
-    opacity: 0.8;
-    border-style: dashed;
-    font-weight: 500;
-  }
-
-  @keyframes ejb-in {
-    from {
-      opacity: 0;
-      transform: translateY(4px);
-    }
-    to {
-      opacity: 1;
-      transform: none;
-    }
+  .aps-disc {
+    margin: 0;
+    font: 400 12px/1.4 var(--font-body);
+    color: var(--sage, var(--muted));
   }
 
   @media (max-width: 640px) {
-    .ejb {
-      margin-bottom: 28px;
+    .aps-name {
+      font-size: 21px;
     }
-    .ejb-title {
-      font-size: 20px;
+    .aps-verdict {
+      font-size: 15px;
     }
-    .ejb-q {
-      font-size: 14.5px;
+    .aps-cta {
+      flex-direction: column;
     }
-  }
-
-  @media (prefers-reduced-motion: reduce) {
-    .ejb-panel.is-enter {
-      animation: none;
+    .aps-buy,
+    .aps-shortlist {
+      width: 100%;
     }
   }
 </style>
 
 <script>
-  function initEditorialJumpBoard(root) {
-    const raw = root.dataset.script;
+  function initAnswerPickStrip(root) {
+    const raw = root.dataset.aps;
     if (!raw) return;
+    const data = JSON.parse(raw);
 
-    const script = JSON.parse(raw);
-    const authorName = root.dataset.authorName || 'Jouke';
-    const questionsEl = root.querySelector('[data-ejb-questions]');
-    const panel = root.querySelector('[data-ejb-panel]');
-    const answerEl = root.querySelector('[data-ejb-answer]');
-    const actionsEl = root.querySelector('[data-ejb-actions]');
-    const followupsEl = root.querySelector('[data-ejb-followups]');
-    const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-    let busy = false;
-    let depth = 0;
-    const MAX_DEPTH = 3;
-    const MAX_FOLLOWUPS = 2;
+    const kickerEl = root.querySelector('[data-aps-kicker]');
+    const nameEl = root.querySelector('[data-aps-name]');
+    const verdictEl = root.querySelector('[data-aps-verdict]');
+    const tradeTextEl = root.querySelector('[data-aps-trade-text]');
+    const buyEl = root.querySelector('[data-aps-buy]');
+    const buyActionEl = root.querySelector('[data-aps-buy-action]');
+    const buyPriceEl = root.querySelector('[data-aps-buy-price]');
+    const filtersEl = root.querySelector('[data-aps-filters]');
 
     function track(event, payload) {
-      const detail = Object.assign({ event: event, scriptId: script.id, depth: depth }, payload || {});
+      const detail = Object.assign({ event: event, scriptId: data.id }, payload || {});
       window.dispatchEvent(new CustomEvent('thi:ppr', { detail: detail }));
       if (window.dataLayer && typeof window.dataLayer.push === 'function') {
         window.dataLayer.push(Object.assign({ event: 'thi_ppr_' + event }, detail));
@@ -331,167 +282,82 @@ const support =
       }
     }
 
-    function labelFor(id) {
-      if (script.labels && script.labels[id]) return script.labels[id];
-      const open = (script.openingChips || []).find(function (c) {
-        return c.id === id;
-      });
-      if (open) return open.label;
-      return id;
+    track('strip_view', {});
+
+    function pickByKey(key) {
+      return (data.picks || []).find(function (p) { return p.key === key; }) || data.picks[0];
     }
 
-    function setActiveQuestion(chipId) {
-      questionsEl.querySelectorAll('.ejb-q').forEach(function (btn) {
-        btn.classList.toggle('is-active', btn.dataset.chipId === chipId);
-      });
-    }
+    function applyState(state) {
+      const pick = pickByKey(state.pickKey);
+      if (kickerEl) kickerEl.textContent = state.kicker;
+      if (nameEl) nameEl.textContent = pick ? pick.name : '';
+      if (verdictEl) verdictEl.textContent = state.verdict;
+      if (tradeTextEl) tradeTextEl.textContent = state.tradeOff;
 
-    function claimLabel(mode) {
-      if (mode === 'refuse') return 'Geen medisch advies';
-      if (mode === 'authorized') return 'EU-claim';
-      if (mode === 'opinion') return 'Redactioneel oordeel';
-      return '';
-    }
-
-    function renderAnswer(node) {
-      answerEl.innerHTML = '';
-      const p = document.createElement('p');
-      p.className = 'ejb-verdict';
-      p.textContent = node.reply || '';
-      answerEl.appendChild(p);
-
-      if (node.signedBy === 'jouke') {
-        const sign = document.createElement('span');
-        sign.className = 'ejb-sign';
-        sign.textContent = 'Jouke';
-        answerEl.appendChild(sign);
-      }
-
-      const claim = claimLabel(node.claimMode);
-      if (claim) {
-        const tag = document.createElement('span');
-        tag.className = 'ejb-claim';
-        tag.textContent = claim;
-        answerEl.appendChild(tag);
+      if (buyEl && pick && pick.offer) {
+        buyEl.href = pick.offer.url;
+        if (buyActionEl) buyActionEl.textContent = pick.offer.action;
+        if (buyPriceEl) {
+          if (pick.offer.price) {
+            buyPriceEl.hidden = false;
+            buyPriceEl.textContent = pick.offer.price;
+          } else {
+            buyPriceEl.hidden = true;
+            buyPriceEl.textContent = '';
+          }
+        }
+        buyEl.hidden = false;
       }
     }
 
-    function scrollToHref(href) {
-      if (!href || href.charAt(0) !== '#') return false;
-      const target = document.querySelector(href);
-      if (!target) return false;
-      target.scrollIntoView({
-        behavior: reduceMotion ? 'auto' : 'smooth',
-        block: 'start',
+    if (buyEl) {
+      buyEl.addEventListener('click', function () {
+        track('buy_click', { href: buyEl.href, pickName: nameEl ? nameEl.textContent : '' });
       });
-      history.replaceState(null, '', href);
-      return true;
     }
 
-    function renderActions(node) {
-      actionsEl.innerHTML = '';
-      const handoffs = node.handoffs || [];
-      const artifactHref = node.artifact && node.artifact.href;
-      const primary =
-        handoffs[0] ||
-        (artifactHref
-          ? { label: 'Alles wat we aanraden', href: artifactHref, analyticsKey: 'handoff_aanraden' }
-          : null);
-      if (!primary) return;
-
-      const a = document.createElement('a');
-      a.className = 'ejb-jump thi-cta thi-cta--tertiary';
-      a.href = primary.href;
-      a.textContent = primary.label + ' →';
-      a.dataset.analyticsKey = primary.analyticsKey || 'handoff';
-      a.addEventListener('click', function (ev) {
-        track('handoff_click', {
-          href: primary.href,
-          label: primary.label,
-          analyticsKey: primary.analyticsKey || 'handoff',
-        });
-        if (scrollToHref(primary.href)) ev.preventDefault();
+    const shortlist = root.querySelector('[data-aps-shortlist]');
+    if (shortlist) {
+      shortlist.addEventListener('click', function (ev) {
+        track('shortlist_click', { href: shortlist.getAttribute('href') });
+        const href = shortlist.getAttribute('href') || '';
+        if (href.charAt(0) === '#') {
+          const target = document.querySelector(href);
+          if (target) {
+            ev.preventDefault();
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            history.replaceState(null, '', href);
+          }
+        }
       });
-      actionsEl.appendChild(a);
     }
 
-    function renderFollowups(node) {
-      followupsEl.innerHTML = '';
-      const items = (node.followUps || [])
-        .filter(function (f) {
-          const n = script.nodes[f.id];
-          return n && n.depth <= MAX_DEPTH;
-        })
-        .slice(0, MAX_FOLLOWUPS);
+    if (!filtersEl) return;
 
-      if (!items.length) {
-        followupsEl.hidden = true;
-        return;
+    filtersEl.addEventListener('click', function (e) {
+      const btn = e.target.closest('[data-filter-id]');
+      if (!btn) return;
+      const id = btn.dataset.filterId;
+      filtersEl.querySelectorAll('.aps-filter').forEach(function (b) {
+        const on = b === btn;
+        b.classList.toggle('is-active', on);
+        b.setAttribute('aria-pressed', on ? 'true' : 'false');
+      });
+
+      let state = data.default;
+      if (id !== 'default') {
+        const hit = (data.filters || []).find(function (f) { return f.id === id; });
+        if (hit) state = hit;
       }
-
-      items.forEach(function (item) {
-        const btn = document.createElement('button');
-        btn.type = 'button';
-        btn.className = 'ejb-fu';
-        if (item.intentClass === 'guard') btn.classList.add('ejb-fu--guard');
-        btn.dataset.chipId = item.id;
-        btn.dataset.analyticsKey = item.analyticsKey || item.id;
-        btn.textContent = item.label;
-        followupsEl.appendChild(btn);
+      applyState(state);
+      track('filter_click', {
+        filterId: id,
+        analyticsKey: btn.dataset.analyticsKey || id,
+        pickKey: state.pickKey,
       });
-      followupsEl.hidden = false;
-    }
-
-    function showPanel() {
-      panel.hidden = false;
-      panel.classList.remove('is-enter');
-      void panel.offsetWidth;
-      if (!reduceMotion) panel.classList.add('is-enter');
-      panel.scrollIntoView({
-        behavior: reduceMotion ? 'auto' : 'smooth',
-        block: 'nearest',
-      });
-    }
-
-    function respond(chipId, analyticsKey) {
-      const node = script.nodes[chipId];
-      if (!node || busy) return;
-
-      const nextDepth = typeof node.depth === 'number' ? node.depth : depth + 1;
-      if (nextDepth > MAX_DEPTH) return;
-
-      busy = true;
-      depth = nextDepth;
-      setActiveQuestion(chipId);
-
-      track('chip_click', {
-        chipId: chipId,
-        analyticsKey: analyticsKey || chipId,
-        intent: node.claimMode,
-        label: labelFor(chipId),
-      });
-      track('depth', { value: depth, chipId: chipId });
-      track('answer_view', { chipId: chipId });
-
-      renderAnswer(node);
-      renderActions(node);
-      renderFollowups(node);
-      showPanel();
-      busy = false;
-    }
-
-    questionsEl.addEventListener('click', function (e) {
-      const btn = e.target.closest('[data-chip-id]');
-      if (!btn || !btn.dataset.chipId || btn.disabled) return;
-      respond(btn.dataset.chipId, btn.dataset.analyticsKey);
-    });
-
-    followupsEl.addEventListener('click', function (e) {
-      const btn = e.target.closest('[data-chip-id]');
-      if (!btn || !btn.dataset.chipId || btn.disabled) return;
-      respond(btn.dataset.chipId, btn.dataset.analyticsKey);
     });
   }
 
-  document.querySelectorAll('[data-ejb-root]').forEach(initEditorialJumpBoard);
+  document.querySelectorAll('[data-aps-root]').forEach(initAnswerPickStrip);
 </script>

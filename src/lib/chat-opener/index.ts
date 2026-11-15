@@ -24,6 +24,12 @@ export {
 
 export { magnesiumChatScript, magnesiumLintErrors } from './magnesium';
 export { mattissonChatScript, mattissonLintErrors } from './mattisson';
+export {
+  getPickStripForSlug,
+  magnesiumPickStrip,
+  mattissonPickStrip,
+} from './pick-strip';
+export type { PickStripScript, PickStripFilter, StripPick } from './pick-strip';
 
 import { magnesiumChatScript } from './magnesium';
 import { mattissonChatScript } from './mattisson';
@@ -34,7 +40,7 @@ const FIXTURES: Record<string, ChatScript> = {
   'mattisson-magnesium-bisglycinaat-review': mattissonChatScript,
 };
 
-/** Resolve script by article slug — fixture fallback until Sanity documents ship. */
+/** Legacy chat-tree fixture (kept for lint / future CMS). Prefer getPickStripForSlug. */
 export function getChatScriptForSlug(slug: string | undefined | null): ChatScript | null {
   if (!slug) return null;
   return FIXTURES[slug] || null;
