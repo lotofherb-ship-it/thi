@@ -7,7 +7,7 @@
  */
 import BaseLayout from '../layouts/BaseLayout.astro';
 import PortableText from './PortableText.astro';
-import ChatGuideOpener from './ChatGuideOpener.astro';
+import Artikelagent from './Artikelagent.astro';
 import AuthorBox from './AuthorBox.astro';
 import GuideByline from './GuideByline.astro';
 import GuideToc from './GuideToc.astro';
@@ -20,8 +20,12 @@ import {
   offerCta,
   type ResolvedProduct,
 } from '../lib/products/resolve';
-import { getChatScriptForSlug, getPickStripForSlug } from '../lib/chat-opener';
-import type { StripPick } from '../lib/chat-opener/pick-strip';
+import { getChatScriptForSlug } from '../lib/chat-opener';
+import {
+  getArtikelagentScript,
+  buildArtikelagentRuntime,
+  type CommercePick,
+} from '../lib/artikelagent';
 import PickBuy from './PickBuy.astro';
 import AudienceSplit from './AudienceSplit.astro';
 import type { Post } from '../types';
@@ -103,9 +107,9 @@ function chapterParagraphs(p: ResolvedProduct): string[] {
     .filter(Boolean);
 }
 
-/** Legacy hero photo fixture; Answer-first pick strip is Layer 0. */
+/** Legacy hero photo fixture from older chat scripts. */
 const chatScript = getChatScriptForSlug(post.slug?.current);
-const pickStrip = getPickStripForSlug(post.slug?.current);
+const artikelagentScript = getArtikelagentScript(post.slug?.current);
 const coverSrc =
   (chatScript ? chatScript.hero.photo : null) ||
   post.coverImageUrl ||
@@ -116,8 +120,8 @@ const topPrimary = topOffers[0] || null;
 const topCta = topPrimary ? offerCta(topPrimary) : null;
 const showRecThumbs = products.some(p => Boolean(productImage(p)));
 
-/** Map shortlist tiers → strip filters (top / runner / also / budget). */
-const stripPicks: StripPick[] = products.map((p, i) => {
+/** Map shortlist tiers → Artikelagent commerce picks. */
+const commercePicks: CommercePick[] = products.map((p, i) => {
   const { key } = pickLabel(p, i);
   const tier =
     key === 'top' || key === 'runner' || key === 'also' || key === 'budget'
@@ -129,8 +133,21 @@ const stripPicks: StripPick[] = products.map((p, i) => {
           : i === products.length - 1
             ? 'budget'
             : 'also';
-  return { key: tier, name: p.name, offers: productOffers(p) };
+  return {
+    key: tier,
+    name: p.name,
+    offers: productOffers(p),
+    tursoProductId: p.tursoProductId ?? null,
+  };
 });
+
+const artikelagentRuntime = artikelagentScript
+  ? buildArtikelagentRuntime(
+      artikelagentScript,
+      commercePicks,
+      post.author?.name?.split(' ')[0] || 'Jouke',
+    )
+  : null;
 
 /** Personas for “Wel voor jou” — never reuse keyTakeaways (those are quotable facts). */
 const forItems = (
@@ -267,33 +284,25 @@ const listSchema = itemListSchema(
       />
     )}
 
-    {/* Answer-first pick strip replaces thin ATF cue when present (one Topkeuze primary). */}
-    {pickStrip && stripPicks.length > 0 ? (
-      <ChatGuideOpener
-        strip={pickStrip}
-        picks={stripPicks}
-        authorName={post.author?.name?.split(' ')[0] || 'Jouke'}
-      />
-    ) : (
-      topProduct && topPrimary && topCta && (
-        <div class="guide-atf-cue" aria-label="Snel naar topkeuze">
-          <div class="guide-atf-cue-copy">
-            <strong class="guide-atf-cue-name">{topProduct.name}</strong>
-            <a class="guide-atf-cue-review thi-cta thi-cta--tertiary" href="#aanraden">Alles wat we aanraden</a>
-          </div>
-          <a
-            class="guide-atf-cue-buy thi-cta thi-cta--primary"
-            href={topPrimary.url}
-            target="_blank"
-            rel="noopener noreferrer nofollow sponsored"
-          >
-            <span class="guide-atf-cue-action thi-cta-action">{topCta.action}</span>
-            {topCta.price ? (
-              <span class="guide-atf-cue-meta thi-cta-meta">{topCta.price}</span>
-            ) : null}
-          </a>
+    {/* Soft ATF Topkeuze cue (green primary). Artikelagent follows after intro. */}
+    {topProduct && topPrimary && topCta && (
+      <div class="guide-atf-cue" aria-label="Snel naar topkeuze">
+        <div class="guide-atf-cue-copy">
+          <strong class="guide-atf-cue-name">{topProduct.name}</strong>
+          <a class="guide-atf-cue-review thi-cta thi-cta--tertiary" href="#aanraden">Alles wat we aanraden</a>
         </div>
-      )
+        <a
+          class="guide-atf-cue-buy thi-cta thi-cta--primary"
+          href={topPrimary.url}
+          target="_blank"
+          rel="noopener noreferrer nofollow sponsored"
+        >
+          <span class="guide-atf-cue-action thi-cta-action">{topCta.action}</span>
+          {topCta.price ? (
+            <span class="guide-atf-cue-meta thi-cta-meta">{topCta.price}</span>
+          ) : null}
+        </a>
+      </div>
     )}
 
     {coverSrc && (
@@ -323,7 +332,9 @@ const listSchema = itemListSchema(
       </div>
     )}
 
-    {/* 1. Alles wat we aanraden — after lede; strip already offered Topkeuze buy */}
+    {artikelagentRuntime && <Artikelagent runtime={artikelagentRuntime} />}
+
+    {/* 1. Alles wat we aanraden — after lede / Artikelagent */}
     {products.length > 0 && (
       <section class="rec-stack" id="aanraden" aria-label="Alles wat we aanraden">
         <h2 class="rec-stack-title">Alles wat we aanraden</h2>
