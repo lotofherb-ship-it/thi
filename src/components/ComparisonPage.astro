@@ -176,8 +176,9 @@ const tocPickLinks: { href: string; label: string }[] = [];
 
 const tocItems: { href: string; label: string }[] = [];
 if (products.length > 0) {
-  if (chatScript) tocItems.push({ href: '#chat-guide-opener', label: 'Snel antwoord' });
   tocItems.push({ href: '#aanraden', label: 'Aanraden' });
+  // Demoted after Aanraden: never first, never competing with Bladeren skim
+  if (chatScript) tocItems.push({ href: '#chat-guide-opener', label: 'Snel oordeel' });
   tocPickLinks.forEach(link => tocItems.push(link));
   if (products.length > 1) tocItems.push({ href: '#vergelijking', label: 'Vergelijking' });
   tocItems.push({ href: '#vertrouwen', label: 'Waarom je ons kunt vertrouwen' });
@@ -300,13 +301,13 @@ const listSchema = itemListSchema(
     {chatScript && (
       <ChatGuideOpener
         script={chatScript}
-        leadIn="Weinig tijd? Vraag het direct"
+        leadIn="Weinig tijd"
         authorName={post.author?.name?.split(' ')[0] || 'Jouke'}
         authorAvatar={authorSrc}
       />
     )}
 
-    {/* 1. Alles wat we aanraden — immediately after snel antwoord (P1-5) */}
+    {/* 1. Alles wat we aanraden — immediately after Editorial Jump Board */}
     {products.length > 0 && (
       <section class="rec-stack" id="aanraden" aria-label="Alles wat we aanraden">
         <h2 class="rec-stack-title">Alles wat we aanraden</h2>

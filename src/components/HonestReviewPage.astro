@@ -121,8 +121,8 @@ const chatScript = getChatScriptForSlug(post.slug?.current);
 const articleHero = heroSrc || (chatScript ? chatScript.hero.photo : null);
 
 const tocItems: { href: string; label: string }[] = [];
-if (chatScript) tocItems.push({ href: '#chat-guide-opener', label: 'Snel antwoord' });
 tocItems.push({ href: '#beoordeling', label: 'Beoordeling' });
+if (chatScript) tocItems.push({ href: '#chat-guide-opener', label: 'Snel oordeel' });
 tocItems.push({ href: '#voor-wie', label: 'Voor wie dit is' });
 if (activeScores.length > 0) tocItems.push({ href: '#scores', label: 'Scores' });
 bodyTocItems.forEach(item => tocItems.push(item));
@@ -244,7 +244,7 @@ const crumbSchema = breadcrumbList(post);
     {chatScript && (
       <ChatGuideOpener
         script={chatScript}
-        leadIn="Weinig tijd? Vraag het direct"
+        leadIn="Weinig tijd"
         authorName={post.author?.name?.split(' ')[0] || 'Jouke'}
         authorAvatar={authorSrc}
       />
